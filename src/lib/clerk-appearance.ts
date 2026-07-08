@@ -1,0 +1,63 @@
+export const clerkAppearance = {
+  variables: {
+    colorPrimary: "#6B7C6A",
+    colorPrimaryForeground: "#FFFFFF",
+    colorBackground: "#FCFBF8",
+    colorForeground: "#2E2E2E",
+    colorMuted: "#FCFBF8",
+    colorMutedForeground: "#555555",
+    colorInput: "#FFFFFF",
+    colorInputForeground: "#2E2E2E",
+    colorBorder: "#DDD7CD",
+    colorRing: "#6B7C6A",
+    colorNeutral: "#2E2E2E",
+    colorDanger: "#B85C5C",
+    colorModalBackdrop: "rgba(46, 46, 46, 0.55)",
+    borderRadius: "1rem",
+    fontFamily: "var(--font-manrope), system-ui, sans-serif",
+    fontFamilyButtons: "var(--font-manrope), system-ui, sans-serif",
+    fontSize: "0.95rem",
+    spacing: "1rem",
+  },
+  elements: {
+    rootBox: "font-body",
+    card: "rounded-[20px] shadow-[0_8px_30px_rgba(0,0,0,0.1)] border border-[#DDD7CD] bg-[#FCFBF8] overflow-hidden",
+    cardBox: "rounded-[20px] bg-[#FCFBF8]",
+    main: "bg-[#FCFBF8]",
+    scrollBox: "bg-[#FCFBF8]",
+    header: "gap-2 bg-[#FCFBF8]",
+    headerTitle:
+      "font-[family-name:var(--font-cormorant)] text-2xl font-semibold text-[#2E2E2E]",
+    headerSubtitle: "text-[#555555] text-sm",
+    socialButtonsBlockButton:
+      "rounded-full border border-[#DDD7CD] bg-white hover:bg-[#F7F4EE] text-[#2E2E2E]",
+    socialButtonsBlockButtonText: "font-medium text-sm",
+    dividerLine: "bg-[#DDD7CD]",
+    dividerText: "text-[#555555] text-xs",
+    formFieldLabel: "text-[#2E2E2E] font-medium text-sm",
+    formFieldInput:
+      "rounded-xl border border-[#DDD7CD] bg-white focus:ring-2 focus:ring-[#6B7C6A]/30",
+    formButtonPrimary:
+      "rounded-full bg-[#6B7C6A] hover:bg-[#5D6D5B] text-white font-semibold shadow-sm normal-case",
+    footer: "bg-[#FCFBF8] border-t border-[#DDD7CD]/60 !bg-[#FCFBF8]",
+    footerAction: "bg-[#FCFBF8] !bg-[#FCFBF8]",
+    footerActionText: "text-[#555555]",
+    footerActionLink: "text-[#6B7C6A] hover:text-[#5D6D5B] font-semibold",
+    footerPages: "bg-[#FCFBF8]",
+    identityPreviewEditButton: "text-[#6B7C6A]",
+    formFieldInputShowPasswordButton: "text-[#6B7C6A]",
+    alertText: "text-sm",
+    modalBackdrop:
+      "fixed inset-0 z-[9999] flex items-center justify-center bg-[#2E2E2E]/55 backdrop-blur-[2px] p-4 sm:p-6",
+    modalContent:
+      "relative flex items-center justify-center w-full max-w-[420px] mx-auto my-auto",
+    modalCloseButton: "text-[#555555] hover:text-[#2E2E2E]",
+    logoBox: "hidden",
+    logoImage: "hidden",
+  },
+  layout: {
+    socialButtonsPlacement: "top",
+    showOptionalFields: false,
+    unsafe_disableDevelopmentModeWarnings: true,
+  },
+};

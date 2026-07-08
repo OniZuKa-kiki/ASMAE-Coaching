@@ -1,0 +1,100 @@
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { Card } from "@/components/ui/card";
+import { prisma } from "@/lib/db";
+import { requireUser } from "@/lib/user";
+
+export const dynamic = "force-dynamic";
+
+async function updateJournalEntry(formData: FormData) {
+  "use server";
+  const user = await requireUser();
+  const id = String(formData.get("id") || "");
+  const content = String(formData.get("content") || "").trim();
+  const mood = String(formData.get("mood") || "").trim();
+  if (!id || !content) return;
+
+  await prisma.journalEntry.updateMany({
+    where: { id, userId: user.id },
+    data: { content, mood: mood || null },
+  });
+
+  revalidatePath("/dashboard/journal");
+  redirect("/dashboard/journal");
+}
+
+async function deleteJournalEntry(formData: FormData) {
+  "use server";
+  const user = await requireUser();
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+
+  await prisma.journalEntry.deleteMany({ where: { id, userId: user.id } });
+  revalidatePath("/dashboard/journal");
+  redirect("/dashboard/journal");
+}
+
+export default async function DashboardJournalEditPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const user = await requireUser();
+  if (!user) redirect("/sign-in");
+
+  const { id } = await params;
+  const entry = await prisma.journalEntry.findFirst({ where: { id, userId: user.id } });
+  if (!entry) notFound();
+
+  return (
+    <div>
+      <div className="page-header">
+        <h1 className="page-header-title">
+          تعديل الملاحظة
+        </h1>
+        <Link
+          href="/dashboard/journal"
+          className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
+        >
+          رجوع
+        </Link>
+      </div>
+
+      <Card>
+        <form action={updateJournalEntry} className="space-y-3">
+          <input type="hidden" name="id" value={entry.id} />
+          <input
+            name="mood"
+            defaultValue={entry.mood ?? ""}
+            placeholder="المزاج"
+            className="w-full rounded-xl border border-border bg-card px-4 py-3"
+          />
+          <textarea
+            name="content"
+            defaultValue={entry.content}
+            rows={10}
+            className="w-full rounded-xl border border-border bg-card px-4 py-3"
+            required
+          />
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="submit"
+              className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
+            >
+              حفظ
+            </button>
+            <button
+              type="submit"
+              formAction={deleteJournalEntry}
+              className="rounded-full border border-red-300 px-5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
+            >
+              حذف
+            </button>
+          </div>
+        </form>
+      </Card>
+    </div>
+  );
+}
+
