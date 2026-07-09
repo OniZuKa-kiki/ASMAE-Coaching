@@ -14,10 +14,9 @@ export function Footer() {
   return (
     <footer className="bg-heading text-white/90 mt-auto">
       <div className="container-wide px-4 py-8 sm:px-6 sm:py-10 lg:py-14">
-        {/* Mobile: grille compacte 2 colonnes */}
-        <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:gap-6 lg:grid-cols-4 lg:gap-10">
-          <div className="col-span-2 lg:col-span-1">
-            <Logo size="footer" className="mb-3 scale-90 origin-top-right sm:scale-100 sm:mb-4" />
+        <div className="grid grid-cols-2 items-start gap-x-4 gap-y-6 sm:gap-6 lg:grid-cols-4 lg:gap-10">
+          <div className="col-span-2 flex flex-col items-center gap-3 text-center sm:items-start sm:text-start lg:col-span-1 lg:max-w-[240px]">
+            <Logo size="footer" className="block" />
             <p className="text-white/70 text-xs sm:text-sm leading-relaxed line-clamp-3 sm:line-clamp-none">
               {siteConfig.description}
             </p>

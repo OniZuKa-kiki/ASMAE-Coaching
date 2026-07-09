@@ -1,6 +1,8 @@
 import { Card } from "@/components/ui/card";
+import { ActionForm } from "@/components/ui/action-form";
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { incomplete, runAction, type ActionResult } from "@/lib/action-result";
 import { requireUser } from "@/lib/user";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +14,7 @@ async function getUserIntakeForm(userId: string) {
   });
 }
 
-async function saveIntakeForm(formData: FormData) {
+async function saveIntakeForm(formData: FormData): Promise<ActionResult> {
   "use server";
   const user = await requireUser();
 
@@ -20,22 +22,21 @@ async function saveIntakeForm(formData: FormData) {
   const challenges = String(formData.get("challenges") || "").trim();
   const expectations = String(formData.get("expectations") || "").trim();
 
-  // Questionnaire minimal — on ne force pas des champs optionnels ici
-  if (!goals || !challenges || !expectations) return;
+  if (!goals || !challenges || !expectations) return incomplete("ar");
 
-  // Garder 1 seule entrée “active” (latest) par utilisateur
-  await prisma.intakeForm.deleteMany({ where: { userId: user.id } });
-  await prisma.intakeForm.create({
-    data: {
-      userId: user.id,
-      goals,
-      challenges,
-      expectations,
-    },
-  });
-
-  revalidatePath("/dashboard/settings");
-  revalidatePath("/dashboard");
+  return runAction("ar", async () => {
+    await prisma.intakeForm.deleteMany({ where: { userId: user.id } });
+    await prisma.intakeForm.create({
+      data: {
+        userId: user.id,
+        goals,
+        challenges,
+        expectations,
+      },
+    });
+    revalidatePath("/dashboard/settings");
+    revalidatePath("/dashboard");
+  }, "saved");
 }
 
 export default async function DashboardSettingsPage() {
@@ -64,7 +65,7 @@ export default async function DashboardSettingsPage() {
             املأ هذه المعلومات لمساعدة مدربتك على إعداد مرافقة شخصية.
           </p>
 
-          <form action={saveIntakeForm} className="space-y-4">
+          <ActionForm action={saveIntakeForm} className="space-y-4">
             <div>
               <label className="text-sm font-semibold text-heading">
                 أهدافك (حالياً)
@@ -112,7 +113,7 @@ export default async function DashboardSettingsPage() {
                 {intake ? "تحديث" : "حفظ"}
               </button>
             </div>
-          </form>
+          </ActionForm>
         </Card>
       </div>
     </div>

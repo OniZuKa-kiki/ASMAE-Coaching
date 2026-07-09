@@ -1,9 +1,16 @@
 import { format } from "date-fns";
 import { revalidatePath } from "next/cache";
+import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { adminErrors } from "@/lib/api-errors";
+import {
+  ensureAdmin,
+  incomplete,
+  runAction,
+  type ActionResult,
+} from "@/lib/action-result";
 import { prisma } from "@/lib/db";
-import { getUserRole } from "@/lib/auth";
 import { slotKeyForStatus } from "@/lib/booking";
 import { formatDate } from "@/lib/utils";
 
@@ -11,36 +18,38 @@ export const dynamic = "force-dynamic";
 
 const bookingStatuses = ["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"] as const;
 
-async function updateBookingStatus(formData: FormData) {
+async function updateBookingStatus(formData: FormData): Promise<ActionResult> {
   "use server";
 
-  const role = await getUserRole();
-  if (role !== "admin") return;
+  const denied = await ensureAdmin();
+  if (denied) return denied;
 
   const bookingId = String(formData.get("bookingId") || "");
   const status = String(formData.get("status") || "");
   if (!bookingId || !bookingStatuses.includes(status as (typeof bookingStatuses)[number])) {
-    return;
+    return incomplete("fr");
   }
 
-  const booking = await prisma.booking.findUnique({
-    where: { id: bookingId },
-    select: { date: true, startTime: true },
-  });
-  if (!booking) return;
+  return runAction("fr", async () => {
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: { date: true, startTime: true },
+    });
+    if (!booking) throw new Error(adminErrors.notFound);
 
-  const dateStr = format(booking.date, "yyyy-MM-dd");
-  const nextStatus = status as "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
+    const dateStr = format(booking.date, "yyyy-MM-dd");
+    const nextStatus = status as "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
 
-  await prisma.booking.update({
-    where: { id: bookingId },
-    data: {
-      status: nextStatus,
-      slotKey: slotKeyForStatus(nextStatus, dateStr, booking.startTime),
-    },
-  });
+    await prisma.booking.update({
+      where: { id: bookingId },
+      data: {
+        status: nextStatus,
+        slotKey: slotKeyForStatus(nextStatus, dateStr, booking.startTime),
+      },
+    });
 
-  revalidatePath("/admin/bookings");
+    revalidatePath("/admin/bookings");
+  }, "updated");
 }
 
 function getQueryValue(
@@ -99,9 +108,7 @@ export default async function AdminBookingsPage({
 
   return (
     <div>
-      <h1 className="page-header-title mb-6 sm:mb-8">
-        Réservations
-      </h1>
+      <h1 className="page-header-title mb-6 sm:mb-8">Réservations</h1>
       <Card className="mb-6">
         <form method="GET" className="grid md:grid-cols-4 gap-3">
           <input
@@ -159,16 +166,20 @@ export default async function AdminBookingsPage({
                   </p>
                 </div>
 
-                <form action={updateBookingStatus} className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 w-full lg:w-auto">
+                <ActionForm
+                  action={updateBookingStatus}
+                  locale="fr"
+                  className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 w-full lg:w-auto"
+                >
                   <input type="hidden" name="bookingId" value={booking.id} />
                   <select
                     name="status"
                     defaultValue={booking.status}
                     className="w-full sm:w-auto rounded-full border border-border bg-card px-4 py-2 text-sm text-heading"
                   >
-                    {bookingStatuses.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
+                    {bookingStatuses.map((statusOption) => (
+                      <option key={statusOption} value={statusOption}>
+                        {statusOption}
                       </option>
                     ))}
                   </select>
@@ -178,7 +189,7 @@ export default async function AdminBookingsPage({
                   >
                     Mettre à jour
                   </button>
-                </form>
+                </ActionForm>
               </div>
             </Card>
           ))}

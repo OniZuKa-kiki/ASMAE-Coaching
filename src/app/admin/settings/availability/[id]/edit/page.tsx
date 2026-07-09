@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
+import {
+  ensureAdmin,
+  incomplete,
+  runAction,
+  type ActionResult,
+} from "@/lib/action-result";
 import { prisma } from "@/lib/db";
 import { getUserRole } from "@/lib/auth";
 
@@ -17,10 +24,11 @@ const dayOptions = [
   { value: 6, label: "Samedi" },
 ];
 
-async function updateAvailability(formData: FormData) {
+async function updateAvailability(formData: FormData): Promise<ActionResult> {
   "use server";
-  const role = await getUserRole();
-  if (role !== "admin") redirect("/dashboard");
+
+  const denied = await ensureAdmin();
+  if (denied) return denied;
 
   const id = String(formData.get("id") || "");
   const dayOfWeekRaw = String(formData.get("dayOfWeek") || "").trim();
@@ -29,34 +37,49 @@ async function updateAvailability(formData: FormData) {
   const isActive = String(formData.get("isActive") || "") === "on";
 
   const dayOfWeek = Number(dayOfWeekRaw);
-  if (!id || !startTime || !endTime) return;
-  if (!Number.isFinite(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) return;
+  if (!id || !startTime || !endTime) return incomplete("fr");
+  if (!Number.isFinite(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
+    return incomplete("fr");
+  }
 
-  await prisma.availability.update({
-    where: { id },
-    data: {
-      dayOfWeek,
-      startTime,
-      endTime,
-      isActive,
+  return runAction(
+    "fr",
+    async () => {
+      await prisma.availability.update({
+        where: { id },
+        data: {
+          dayOfWeek,
+          startTime,
+          endTime,
+          isActive,
+        },
+      });
+
+      revalidatePath("/admin/settings/availability");
     },
-  });
-
-  revalidatePath("/admin/settings/availability");
-  redirect("/admin/settings/availability");
+    "updated",
+    "/admin/settings/availability"
+  );
 }
 
-async function deleteAvailability(formData: FormData) {
+async function deleteAvailability(formData: FormData): Promise<ActionResult> {
   "use server";
-  const role = await getUserRole();
-  if (role !== "admin") redirect("/dashboard");
+
+  const denied = await ensureAdmin();
+  if (denied) return denied;
 
   const id = String(formData.get("id") || "");
-  if (!id) return;
+  if (!id) return incomplete("fr");
 
-  await prisma.availability.delete({ where: { id } });
-  revalidatePath("/admin/settings/availability");
-  redirect("/admin/settings/availability");
+  return runAction(
+    "fr",
+    async () => {
+      await prisma.availability.delete({ where: { id } });
+      revalidatePath("/admin/settings/availability");
+    },
+    "deleted",
+    "/admin/settings/availability"
+  );
 }
 
 export default async function AdminAvailabilityEditPage({
@@ -91,7 +114,7 @@ export default async function AdminAvailabilityEditPage({
       </div>
 
       <Card className="p-5">
-        <form action={updateAvailability} className="grid md:grid-cols-5 gap-3">
+        <ActionForm action={updateAvailability} locale="fr" className="grid md:grid-cols-5 gap-3">
           <input type="hidden" name="id" value={row.id} />
 
           <select
@@ -133,17 +156,19 @@ export default async function AdminAvailabilityEditPage({
             >
               Sauvegarder
             </button>
-            <button
-              type="submit"
-              formAction={deleteAvailability}
-              className="rounded-full border border-red-300 px-5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
-            >
-              Supprimer
-            </button>
           </div>
-        </form>
+        </ActionForm>
+
+        <ActionForm action={deleteAvailability} locale="fr" className="mt-3 flex md:justify-end">
+          <input type="hidden" name="id" value={row.id} />
+          <button
+            type="submit"
+            className="rounded-full border border-red-300 px-5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
+          >
+            Supprimer
+          </button>
+        </ActionForm>
       </Card>
     </div>
   );
 }
-

@@ -1,6 +1,12 @@
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
+import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
+import {
+  incomplete,
+  runAction,
+  type ActionResult,
+} from "@/lib/action-result";
 import { getUserGoals } from "@/lib/dashboard";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/user";
@@ -8,28 +14,29 @@ import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-async function createGoal(formData: FormData) {
+async function createGoal(formData: FormData): Promise<ActionResult> {
   "use server";
   const user = await requireUser();
   const title = String(formData.get("title") || "").trim();
   const description = String(formData.get("description") || "").trim();
   const targetDateRaw = String(formData.get("targetDate") || "").trim();
 
-  if (!title) return;
+  if (!title) return incomplete("ar");
 
-  await prisma.goal.create({
-    data: {
-      userId: user.id,
-      title,
-      description: description || null,
-      targetDate: targetDateRaw ? new Date(targetDateRaw) : null,
-      progress: 0,
-      isCompleted: false,
-    },
-  });
-
-  revalidatePath("/dashboard/goals");
-  revalidatePath("/dashboard");
+  return runAction("ar", async () => {
+    await prisma.goal.create({
+      data: {
+        userId: user.id,
+        title,
+        description: description || null,
+        targetDate: targetDateRaw ? new Date(targetDateRaw) : null,
+        progress: 0,
+        isCompleted: false,
+      },
+    });
+    revalidatePath("/dashboard/goals");
+    revalidatePath("/dashboard");
+  }, "created");
 }
 
 export default async function DashboardGoalsPage() {
@@ -37,15 +44,13 @@ export default async function DashboardGoalsPage() {
 
   return (
     <div>
-      <h1 className="page-header-title mb-2">
-        أهدافي
-      </h1>
+      <h1 className="page-header-title mb-2">أهدافي</h1>
       <p className="text-text/70 mb-8">
         حدّد أهدافك وتابع تقدمك مع مدربتك.
       </p>
       <Card className="mb-6">
         <h2 className="font-heading text-xl text-heading mb-4">إضافة هدف</h2>
-        <form action={createGoal} className="space-y-3">
+        <ActionForm action={createGoal} className="space-y-3">
           <input
             name="title"
             placeholder="عنوان الهدف"
@@ -69,7 +74,7 @@ export default async function DashboardGoalsPage() {
           >
             حفظ
           </button>
-        </form>
+        </ActionForm>
       </Card>
       {!goals || goals.length === 0 ? (
         <Card className="text-center py-12">

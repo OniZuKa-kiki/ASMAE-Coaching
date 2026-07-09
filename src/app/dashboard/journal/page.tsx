@@ -1,6 +1,8 @@
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
+import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
+import { incomplete, runAction, type ActionResult } from "@/lib/action-result";
 import { getUserJournalEntries } from "@/lib/dashboard";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/user";
@@ -8,22 +10,23 @@ import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-async function createJournalEntry(formData: FormData) {
+async function createJournalEntry(formData: FormData): Promise<ActionResult> {
   "use server";
   const user = await requireUser();
   const content = String(formData.get("content") || "").trim();
   const mood = String(formData.get("mood") || "").trim();
-  if (!content) return;
+  if (!content) return incomplete("ar");
 
-  await prisma.journalEntry.create({
-    data: {
-      userId: user.id,
-      content,
-      mood: mood || null,
-    },
-  });
-
-  revalidatePath("/dashboard/journal");
+  return runAction("ar", async () => {
+    await prisma.journalEntry.create({
+      data: {
+        userId: user.id,
+        content,
+        mood: mood || null,
+      },
+    });
+    revalidatePath("/dashboard/journal");
+  }, "created");
 }
 
 export default async function DashboardJournalPage() {
@@ -31,15 +34,13 @@ export default async function DashboardJournalPage() {
 
   return (
     <div>
-      <h1 className="page-header-title mb-2">
-        اليوميات الشخصية
-      </h1>
+      <h1 className="page-header-title mb-2">اليوميات الشخصية</h1>
       <p className="text-text/70 mb-8">
         دوّن تأملاتك بين الجلسات. مرئية لك ولمدربتك فقط.
       </p>
       <Card className="mb-6">
         <h2 className="font-heading text-xl text-heading mb-4">ملاحظة جديدة</h2>
-        <form action={createJournalEntry} className="space-y-3">
+        <ActionForm action={createJournalEntry} className="space-y-3">
           <input
             name="mood"
             placeholder="المزاج (مثال: متحفز، هادئ...)"
@@ -58,7 +59,7 @@ export default async function DashboardJournalPage() {
           >
             إضافة
           </button>
-        </form>
+        </ActionForm>
       </Card>
       {!entries || entries.length === 0 ? (
         <Card className="text-center py-12">

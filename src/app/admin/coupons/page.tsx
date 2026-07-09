@@ -1,61 +1,76 @@
-import { Card } from "@/components/ui/card";
 import { revalidatePath } from "next/cache";
+import { ActionForm } from "@/components/ui/action-form";
+import { Card } from "@/components/ui/card";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { adminErrors } from "@/lib/api-errors";
+import {
+  ensureAdmin,
+  incomplete,
+  runAction,
+  type ActionResult,
+} from "@/lib/action-result";
 import { prisma } from "@/lib/db";
-import { getUserRole } from "@/lib/auth";
 import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-async function createCoupon(formData: FormData) {
+async function createCoupon(formData: FormData): Promise<ActionResult> {
   "use server";
-  const role = await getUserRole();
-  if (role !== "admin") return;
+
+  const denied = await ensureAdmin();
+  if (denied) return denied;
 
   const code = String(formData.get("code") || "").trim().toUpperCase();
   const discountPercent = Number(String(formData.get("discountPercent") || ""));
   const maxUses = Number(String(formData.get("maxUses") || ""));
   const expiresAtRaw = String(formData.get("expiresAt") || "").trim();
 
-  if (!code || !Number.isFinite(discountPercent) || discountPercent <= 0) return;
+  if (!code || !Number.isFinite(discountPercent) || discountPercent <= 0) {
+    return incomplete("fr");
+  }
 
-  await prisma.coupon.upsert({
-    where: { code },
-    update: {
-      discountPercent,
-      maxUses: Number.isFinite(maxUses) && maxUses > 0 ? maxUses : null,
-      expiresAt: expiresAtRaw ? new Date(expiresAtRaw) : null,
-      isActive: true,
-    },
-    create: {
-      code,
-      discountPercent,
-      maxUses: Number.isFinite(maxUses) && maxUses > 0 ? maxUses : null,
-      expiresAt: expiresAtRaw ? new Date(expiresAtRaw) : null,
-      isActive: true,
-    },
-  });
+  return runAction("fr", async () => {
+    await prisma.coupon.upsert({
+      where: { code },
+      update: {
+        discountPercent,
+        maxUses: Number.isFinite(maxUses) && maxUses > 0 ? maxUses : null,
+        expiresAt: expiresAtRaw ? new Date(expiresAtRaw) : null,
+        isActive: true,
+      },
+      create: {
+        code,
+        discountPercent,
+        maxUses: Number.isFinite(maxUses) && maxUses > 0 ? maxUses : null,
+        expiresAt: expiresAtRaw ? new Date(expiresAtRaw) : null,
+        isActive: true,
+      },
+    });
 
-  revalidatePath("/admin/coupons");
+    revalidatePath("/admin/coupons");
+  }, "created");
 }
 
-async function toggleCoupon(formData: FormData) {
+async function toggleCoupon(formData: FormData): Promise<ActionResult> {
   "use server";
-  const role = await getUserRole();
-  if (role !== "admin") return;
+
+  const denied = await ensureAdmin();
+  if (denied) return denied;
 
   const id = String(formData.get("id") || "");
-  if (!id) return;
+  if (!id) return incomplete("fr");
 
-  const coupon = await prisma.coupon.findUnique({ where: { id } });
-  if (!coupon) return;
+  return runAction("fr", async () => {
+    const coupon = await prisma.coupon.findUnique({ where: { id } });
+    if (!coupon) throw new Error(adminErrors.notFound);
 
-  await prisma.coupon.update({
-    where: { id },
-    data: { isActive: !coupon.isActive },
-  });
+    await prisma.coupon.update({
+      where: { id },
+      data: { isActive: !coupon.isActive },
+    });
 
-  revalidatePath("/admin/coupons");
+    revalidatePath("/admin/coupons");
+  }, "toggled");
 }
 
 function getQueryValue(
@@ -104,7 +119,7 @@ export default async function AdminCouponsPage({
 
       <Card className="mb-6">
         <h2 className="font-heading text-xl text-heading mb-4">Nouveau coupon</h2>
-        <form action={createCoupon} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <ActionForm action={createCoupon} locale="fr" className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <input
             name="code"
             placeholder="Code (ex: BIENVENUE10)"
@@ -140,7 +155,7 @@ export default async function AdminCouponsPage({
               Enregistrer
             </button>
           </div>
-        </form>
+        </ActionForm>
       </Card>
       <Card className="mb-6">
         <form method="GET" className="grid md:grid-cols-4 gap-3">
@@ -196,7 +211,7 @@ export default async function AdminCouponsPage({
                     Expire: {coupon.expiresAt ? formatDate(coupon.expiresAt) : "Jamais"}
                   </p>
                 </div>
-                <form action={toggleCoupon}>
+                <ActionForm action={toggleCoupon} locale="fr">
                   <input type="hidden" name="id" value={coupon.id} />
                   <button
                     type="submit"
@@ -204,7 +219,7 @@ export default async function AdminCouponsPage({
                   >
                     {coupon.isActive ? "Désactiver" : "Activer"}
                   </button>
-                </form>
+                </ActionForm>
               </div>
             </Card>
           ))}

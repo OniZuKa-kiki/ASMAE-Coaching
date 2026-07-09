@@ -1,9 +1,16 @@
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
+import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { adminErrors } from "@/lib/api-errors";
+import {
+  ensureAdmin,
+  incomplete,
+  runAction,
+  type ActionResult,
+} from "@/lib/action-result";
 import { prisma } from "@/lib/db";
-import { getUserRole } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -18,55 +25,61 @@ function slugify(input: string): string {
     .slice(0, 80);
 }
 
-async function createCourse(formData: FormData) {
+async function createCourse(formData: FormData): Promise<ActionResult> {
   "use server";
-  const role = await getUserRole();
-  if (role !== "admin") return;
+
+  const denied = await ensureAdmin();
+  if (denied) return denied;
 
   const title = String(formData.get("title") || "").trim();
   const description = String(formData.get("description") || "").trim();
   const priceRaw = String(formData.get("price") || "").trim();
-  if (!title || !description || !priceRaw) return;
+  if (!title || !description || !priceRaw) return incomplete("fr");
 
   const price = Number(priceRaw);
-  if (!Number.isFinite(price)) return;
+  if (!Number.isFinite(price)) return incomplete("fr");
 
-  const baseSlug = slugify(title);
-  const exists = await prisma.course.findUnique({ where: { slug: baseSlug } });
-  const slug = exists ? `${baseSlug}-${Date.now().toString().slice(-4)}` : baseSlug;
+  return runAction("fr", async () => {
+    const baseSlug = slugify(title);
+    const exists = await prisma.course.findUnique({ where: { slug: baseSlug } });
+    const slug = exists ? `${baseSlug}-${Date.now().toString().slice(-4)}` : baseSlug;
 
-  await prisma.course.create({
-    data: {
-      slug,
-      title,
-      description,
-      price,
-      isPublished: false,
-    },
-  });
+    await prisma.course.create({
+      data: {
+        slug,
+        title,
+        description,
+        price,
+        isPublished: false,
+      },
+    });
 
-  revalidatePath("/admin/courses");
-  revalidatePath("/courses");
+    revalidatePath("/admin/courses");
+    revalidatePath("/courses");
+  }, "created");
 }
 
-async function toggleCoursePublish(formData: FormData) {
+async function toggleCoursePublish(formData: FormData): Promise<ActionResult> {
   "use server";
-  const role = await getUserRole();
-  if (role !== "admin") return;
+
+  const denied = await ensureAdmin();
+  if (denied) return denied;
 
   const id = String(formData.get("id") || "");
-  if (!id) return;
+  if (!id) return incomplete("fr");
 
-  const course = await prisma.course.findUnique({ where: { id } });
-  if (!course) return;
+  return runAction("fr", async () => {
+    const course = await prisma.course.findUnique({ where: { id } });
+    if (!course) throw new Error(adminErrors.notFound);
 
-  await prisma.course.update({
-    where: { id },
-    data: { isPublished: !course.isPublished },
-  });
+    await prisma.course.update({
+      where: { id },
+      data: { isPublished: !course.isPublished },
+    });
 
-  revalidatePath("/admin/courses");
-  revalidatePath("/courses");
+    revalidatePath("/admin/courses");
+    revalidatePath("/courses");
+  }, "toggled");
 }
 
 function getQueryValue(
@@ -130,7 +143,7 @@ export default async function AdminCoursesPage({
 
       <Card className="mb-6">
         <h2 className="font-heading text-xl text-heading mb-4">Nouvelle formation</h2>
-        <form action={createCourse} className="space-y-3">
+        <ActionForm action={createCourse} locale="fr" className="space-y-3">
           <input
             name="title"
             placeholder="Titre"
@@ -160,7 +173,7 @@ export default async function AdminCoursesPage({
               Créer le brouillon
             </button>
           </div>
-        </form>
+        </ActionForm>
       </Card>
       <Card className="mb-6">
         <form method="GET" className="grid md:grid-cols-4 gap-3">
@@ -223,7 +236,7 @@ export default async function AdminCoursesPage({
                   >
                     Éditer
                   </Link>
-                  <form action={toggleCoursePublish}>
+                  <ActionForm action={toggleCoursePublish} locale="fr">
                     <input type="hidden" name="id" value={course.id} />
                     <button
                       type="submit"
@@ -231,7 +244,7 @@ export default async function AdminCoursesPage({
                     >
                       {course.isPublished ? "Dépublier" : "Publier"}
                     </button>
-                  </form>
+                  </ActionForm>
                 </div>
               </div>
             </Card>

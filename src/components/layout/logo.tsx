@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 const sizeClasses = {
   header: "max-h-[56px] sm:max-h-[72px] lg:max-h-[80px] w-auto min-w-[80px] sm:min-w-[100px] lg:min-w-[120px]",
-  footer: "max-h-[100px] sm:max-h-[140px] lg:max-h-[160px] w-auto min-w-[120px] sm:min-w-[160px] lg:min-w-[200px]",
+  footer: "max-h-[64px] sm:max-h-[76px] lg:max-h-[84px] w-auto max-w-[180px] sm:max-w-[200px]",
 };
 
 export function Logo({

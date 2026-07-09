@@ -1,9 +1,16 @@
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
+import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { adminErrors } from "@/lib/api-errors";
+import {
+  ensureAdmin,
+  incomplete,
+  runAction,
+  type ActionResult,
+} from "@/lib/action-result";
 import { prisma } from "@/lib/db";
-import { getUserRole } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -18,10 +25,11 @@ function slugify(input: string): string {
     .slice(0, 80);
 }
 
-async function createPodcast(formData: FormData) {
+async function createPodcast(formData: FormData): Promise<ActionResult> {
   "use server";
-  const role = await getUserRole();
-  if (role !== "admin") return;
+
+  const denied = await ensureAdmin();
+  if (denied) return denied;
 
   const title = String(formData.get("title") || "").trim();
   const description = String(formData.get("description") || "").trim();
@@ -29,56 +37,62 @@ async function createPodcast(formData: FormData) {
   const durationRaw = String(formData.get("duration") || "").trim();
   const isPremium = String(formData.get("isPremium") || "") === "on";
 
-  if (!title || !description) return;
+  if (!title || !description) return incomplete("fr");
 
-  const baseSlug = slugify(title);
-  const exists = await prisma.podcast.findUnique({ where: { slug: baseSlug } });
-  const slug = exists ? `${baseSlug}-${Date.now().toString().slice(-4)}` : baseSlug;
-  const duration = durationRaw ? Number(durationRaw) : null;
+  return runAction("fr", async () => {
+    const baseSlug = slugify(title);
+    const exists = await prisma.podcast.findUnique({ where: { slug: baseSlug } });
+    const slug = exists ? `${baseSlug}-${Date.now().toString().slice(-4)}` : baseSlug;
+    const duration = durationRaw ? Number(durationRaw) : null;
 
-  await prisma.podcast.create({
-    data: {
-      slug,
-      title,
-      description,
-      audioUrl: audioUrl || null,
-      duration: Number.isFinite(duration) ? duration : null,
-      isPremium,
-      isPublished: false,
-    },
-  });
+    await prisma.podcast.create({
+      data: {
+        slug,
+        title,
+        description,
+        audioUrl: audioUrl || null,
+        duration: Number.isFinite(duration) ? duration : null,
+        isPremium,
+        isPublished: false,
+      },
+    });
 
-  revalidatePath("/admin/podcasts");
-  revalidatePath("/podcasts");
+    revalidatePath("/admin/podcasts");
+    revalidatePath("/podcasts");
+  }, "created");
 }
 
-async function togglePodcastState(formData: FormData) {
+async function togglePodcastState(formData: FormData): Promise<ActionResult> {
   "use server";
-  const role = await getUserRole();
-  if (role !== "admin") return;
+
+  const denied = await ensureAdmin();
+  if (denied) return denied;
 
   const id = String(formData.get("id") || "");
   const field = String(formData.get("field") || "");
-  if (!id) return;
+  if (!id || !field) return incomplete("fr");
 
-  const podcast = await prisma.podcast.findUnique({ where: { id } });
-  if (!podcast) return;
+  return runAction("fr", async () => {
+    const podcast = await prisma.podcast.findUnique({ where: { id } });
+    if (!podcast) throw new Error(adminErrors.notFound);
 
-  if (field === "publish") {
-    await prisma.podcast.update({
-      where: { id },
-      data: { isPublished: !podcast.isPublished },
-    });
-  }
-  if (field === "premium") {
-    await prisma.podcast.update({
-      where: { id },
-      data: { isPremium: !podcast.isPremium },
-    });
-  }
+    if (field === "publish") {
+      await prisma.podcast.update({
+        where: { id },
+        data: { isPublished: !podcast.isPublished },
+      });
+    } else if (field === "premium") {
+      await prisma.podcast.update({
+        where: { id },
+        data: { isPremium: !podcast.isPremium },
+      });
+    } else {
+      throw new Error(adminErrors.notFound);
+    }
 
-  revalidatePath("/admin/podcasts");
-  revalidatePath("/podcasts");
+    revalidatePath("/admin/podcasts");
+    revalidatePath("/podcasts");
+  }, "toggled");
 }
 
 function getQueryValue(
@@ -146,7 +160,7 @@ export default async function AdminPodcastsPage({
           Vous pouvez l&apos;obtenir en uploadant le fichier sur Supabase Storage,
           Cloudinary, BunnyCDN, ou S3, puis en copiant l&apos;URL publique.
         </p>
-        <form action={createPodcast} className="space-y-3">
+        <ActionForm action={createPodcast} locale="fr" className="space-y-3">
           <input
             name="title"
             placeholder="Titre"
@@ -186,7 +200,7 @@ export default async function AdminPodcastsPage({
               Créer le brouillon
             </button>
           </div>
-        </form>
+        </ActionForm>
       </Card>
       <Card className="mb-6">
         <form method="GET" className="grid md:grid-cols-5 gap-3">
@@ -254,7 +268,7 @@ export default async function AdminPodcastsPage({
                   >
                     Éditer
                   </Link>
-                  <form action={togglePodcastState}>
+                  <ActionForm action={togglePodcastState} locale="fr">
                     <input type="hidden" name="id" value={podcast.id} />
                     <input type="hidden" name="field" value="premium" />
                     <button
@@ -263,8 +277,8 @@ export default async function AdminPodcastsPage({
                     >
                       {podcast.isPremium ? "Retirer premium" : "Passer premium"}
                     </button>
-                  </form>
-                  <form action={togglePodcastState}>
+                  </ActionForm>
+                  <ActionForm action={togglePodcastState} locale="fr">
                     <input type="hidden" name="id" value={podcast.id} />
                     <input type="hidden" name="field" value="publish" />
                     <button
@@ -273,7 +287,7 @@ export default async function AdminPodcastsPage({
                     >
                       {podcast.isPublished ? "Dépublier" : "Publier"}
                     </button>
-                  </form>
+                  </ActionForm>
                 </div>
               </div>
             </Card>

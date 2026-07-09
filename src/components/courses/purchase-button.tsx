@@ -7,7 +7,8 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PaymentMethodSelector } from "@/components/payments/payment-method-selector";
 import { formatPrice } from "@/lib/utils";
-import { toFriendlyError } from "@/lib/api-errors";
+import { toFriendlyError, friendlyErrors } from "@/lib/api-errors";
+import { notifyError, notifySuccess } from "@/lib/notify";
 import {
   convertCatalogAmountToProvider,
   formatProviderAmount,
@@ -63,10 +64,14 @@ export function PurchaseCourseButton({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "خطأ");
-      if (data.url) window.location.href = data.url;
+      if (data.url) {
+        notifySuccess(friendlyErrors.bookingRedirect);
+        window.location.href = data.url;
+      }
     } catch (err) {
       const raw = err instanceof Error ? err.message : "خطأ";
       setError(toFriendlyError(raw));
+      notifyError(raw);
       setLoading(false);
     }
   }

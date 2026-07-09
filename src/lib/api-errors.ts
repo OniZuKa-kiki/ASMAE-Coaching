@@ -11,7 +11,57 @@ export const friendlyErrors = {
   alreadyOwned: "أنت تمتلك هذه الدورة بالفعل.",
   incomplete: "يرجى ملء جميع الحقول المطلوبة.",
   generic: "حدث خطأ. يرجى المحاولة مجدداً أو التواصل معنا.",
+  contactSuccess: "تم إرسال رسالتك بنجاح. سنتواصل معك قريباً.",
+  bookingRedirect: "جاري توجيهك إلى صفحة الدفع…",
 } as const;
+
+/** Messages admin (français) */
+export const adminErrors = {
+  unauthorized: "Accès non autorisé.",
+  incomplete: "Veuillez remplir tous les champs requis.",
+  notFound: "Élément introuvable.",
+  emailUnavailable:
+    "Envoi d'email indisponible. Vérifiez la configuration Resend.",
+  generic: "Une erreur est survenue. Veuillez réessayer.",
+} as const;
+
+export function toFriendlyActionError(
+  message: string,
+  locale: "ar" | "fr" = "ar"
+): string {
+  if (locale === "fr") {
+    if (
+      message.includes("Non authentifié") ||
+      message.includes("admin") ||
+      message.includes("autorisé")
+    ) {
+      return adminErrors.unauthorized;
+    }
+    if (
+      message.includes("requis") ||
+      message.includes("incomplet") ||
+      message.includes("Veuillez")
+    ) {
+      return adminErrors.incomplete;
+    }
+    if (message.includes("Resend") || message.includes("RESEND")) {
+      return adminErrors.emailUnavailable;
+    }
+    if (
+      message.includes("Stripe") ||
+      message.includes("PayZone") ||
+      message.includes(".env") ||
+      message.includes("API_KEY")
+    ) {
+      return adminErrors.generic;
+    }
+    if (!message.includes("env.") && message.length < 120) {
+      return message;
+    }
+    return adminErrors.generic;
+  }
+  return toFriendlyError(message);
+}
 
 export function toFriendlyError(
   message: string,

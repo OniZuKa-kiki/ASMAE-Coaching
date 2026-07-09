@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
+import {
+  ensureAdmin,
+  incomplete,
+  runAction,
+  type ActionResult,
+} from "@/lib/action-result";
 import { prisma } from "@/lib/db";
 import { getUserRole } from "@/lib/auth";
 
@@ -18,10 +25,11 @@ function slugify(input: string): string {
     .slice(0, 80);
 }
 
-async function updatePodcast(formData: FormData) {
+async function updatePodcast(formData: FormData): Promise<ActionResult> {
   "use server";
-  const role = await getUserRole();
-  if (role !== "admin") return;
+
+  const denied = await ensureAdmin();
+  if (denied) return denied;
 
   const id = String(formData.get("id") || "");
   const title = String(formData.get("title") || "").trim();
@@ -31,45 +39,58 @@ async function updatePodcast(formData: FormData) {
   const isPremium = String(formData.get("isPremium") || "") === "on";
   const isPublished = String(formData.get("isPublished") || "") === "on";
 
-  if (!id || !title || !description) return;
+  if (!id || !title || !description) return incomplete("fr");
 
-  const baseSlug = slugify(title);
-  const conflict = await prisma.podcast.findFirst({
-    where: { slug: baseSlug, id: { not: id } },
-    select: { id: true },
-  });
-  const slug = conflict ? `${baseSlug}-${Date.now().toString().slice(-4)}` : baseSlug;
+  return runAction(
+    "fr",
+    async () => {
+      const baseSlug = slugify(title);
+      const conflict = await prisma.podcast.findFirst({
+        where: { slug: baseSlug, id: { not: id } },
+        select: { id: true },
+      });
+      const slug = conflict ? `${baseSlug}-${Date.now().toString().slice(-4)}` : baseSlug;
 
-  await prisma.podcast.update({
-    where: { id },
-    data: {
-      title,
-      description,
-      slug,
-      audioUrl: audioUrl || null,
-      duration: Number.isFinite(durationRaw) && durationRaw > 0 ? Math.round(durationRaw) : null,
-      isPremium,
-      isPublished,
+      await prisma.podcast.update({
+        where: { id },
+        data: {
+          title,
+          description,
+          slug,
+          audioUrl: audioUrl || null,
+          duration: Number.isFinite(durationRaw) && durationRaw > 0 ? Math.round(durationRaw) : null,
+          isPremium,
+          isPublished,
+        },
+      });
+
+      revalidatePath("/admin/podcasts");
+      revalidatePath("/podcasts");
     },
-  });
-
-  revalidatePath("/admin/podcasts");
-  revalidatePath("/podcasts");
-  redirect("/admin/podcasts");
+    "updated",
+    "/admin/podcasts"
+  );
 }
 
-async function deletePodcast(formData: FormData) {
+async function deletePodcast(formData: FormData): Promise<ActionResult> {
   "use server";
-  const role = await getUserRole();
-  if (role !== "admin") return;
+
+  const denied = await ensureAdmin();
+  if (denied) return denied;
 
   const id = String(formData.get("id") || "");
-  if (!id) return;
+  if (!id) return incomplete("fr");
 
-  await prisma.podcast.delete({ where: { id } });
-  revalidatePath("/admin/podcasts");
-  revalidatePath("/podcasts");
-  redirect("/admin/podcasts");
+  return runAction(
+    "fr",
+    async () => {
+      await prisma.podcast.delete({ where: { id } });
+      revalidatePath("/admin/podcasts");
+      revalidatePath("/podcasts");
+    },
+    "deleted",
+    "/admin/podcasts"
+  );
 }
 
 export default async function AdminPodcastEditPage({
@@ -102,7 +123,7 @@ export default async function AdminPodcastEditPage({
       </div>
 
       <Card>
-        <form action={updatePodcast} className="space-y-3">
+        <ActionForm action={updatePodcast} locale="fr" className="space-y-3">
           <input type="hidden" name="id" value={podcast.id} />
 
           <input
@@ -146,24 +167,24 @@ export default async function AdminPodcastEditPage({
             </label>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="submit"
-              className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
-            >
-              Sauvegarder
-            </button>
-            <button
-              type="submit"
-              formAction={deletePodcast}
-              className="rounded-full border border-red-300 px-5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
-            >
-              Supprimer
-            </button>
-          </div>
-        </form>
+          <button
+            type="submit"
+            className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
+          >
+            Sauvegarder
+          </button>
+        </ActionForm>
+
+        <ActionForm action={deletePodcast} locale="fr" className="mt-3">
+          <input type="hidden" name="id" value={podcast.id} />
+          <button
+            type="submit"
+            className="rounded-full border border-red-300 px-5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
+          >
+            Supprimer
+          </button>
+        </ActionForm>
       </Card>
     </div>
   );
 }
-

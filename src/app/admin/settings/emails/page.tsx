@@ -2,7 +2,16 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { Resend } from "resend";
+import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
+import { adminErrors } from "@/lib/api-errors";
+import {
+  actionFail,
+  ensureAdmin,
+  incomplete,
+  runAction,
+  type ActionResult,
+} from "@/lib/action-result";
 import { getUserRole } from "@/lib/auth";
 import { getEmailLogoAttachment } from "@/lib/email-logo";
 import { renderEmailLayout, escapeHtml } from "@/lib/email-templates";
@@ -22,25 +31,28 @@ function getEmailConfigSnapshot() {
   };
 }
 
-async function sendTestEmail(formData: FormData) {
+async function sendTestEmail(formData: FormData): Promise<ActionResult> {
   "use server";
-  const role = await getUserRole();
-  if (role !== "admin") redirect("/dashboard");
+  const denied = await ensureAdmin();
+  if (denied) return denied;
 
   const to = String(formData.get("to") || "").trim();
-  if (!to) return;
+  if (!to) return incomplete("fr");
 
   const cfg = getEmailConfigSnapshot();
-  if (!cfg.resendConfigured || !process.env.RESEND_API_KEY) return;
+  if (!cfg.resendConfigured || !process.env.RESEND_API_KEY) {
+    return actionFail(adminErrors.emailUnavailable);
+  }
 
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  const html = renderEmailLayout({
-    preheader: "Test email — ASMAE Coaching",
-    title: "Email de test",
-    subtitle: "Vérification de la configuration d’envoi",
-    body: `
+  return runAction("fr", async () => {
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const html = renderEmailLayout({
+      preheader: "Test email — ASMAE Coaching",
+      title: "Email de test",
+      subtitle: "Vérification de la configuration d'envoi",
+      body: `
       <p style="margin: 0 0 1.25rem 0; line-height: 1.8;">
-        Cet email confirme que l’envoi fonctionne correctement depuis votre site.
+        Cet email confirme que l'envoi fonctionne correctement depuis votre site.
       </p>
       <p style="margin: 0 0 1.25rem 0; line-height: 1.8;">
         Destinataire : <strong>${escapeHtml(to)}</strong>
@@ -49,24 +61,25 @@ async function sendTestEmail(formData: FormData) {
         Si vous recevez ce message, la configuration Resend est OK.
       </p>
     `,
-    cta: { label: "Ouvrir le site", href: siteConfig.url },
-    footerNote: "Email automatique — ne pas répondre.",
-  });
+      cta: { label: "Ouvrir le site", href: siteConfig.url },
+      footerNote: "Email automatique — ne pas répondre.",
+    });
 
-  const { error } = await resend.emails.send({
-    from: cfg.fromEmail,
-    to,
-    subject: "Test — Emails ASMAE Coaching",
-    html,
-    attachments: [getEmailLogoAttachment()],
-  });
+    const { error } = await resend.emails.send({
+      from: cfg.fromEmail,
+      to,
+      subject: "Test — Emails ASMAE Coaching",
+      html,
+      attachments: [getEmailLogoAttachment()],
+    });
 
-  if (error) {
-    console.error("[Resend test]", error);
-    throw new Error(error.message);
-  }
+    if (error) {
+      console.error("[Resend test]", error);
+      throw new Error(error.message);
+    }
 
-  revalidatePath("/admin/settings/emails");
+    revalidatePath("/admin/settings/emails");
+  }, "sent");
 }
 
 export default async function AdminEmailSettingsPage() {
@@ -79,11 +92,9 @@ export default async function AdminEmailSettingsPage() {
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-header-title">
-            Emails
-          </h1>
+          <h1 className="page-header-title">Emails</h1>
           <p className="text-sm text-text/70 mt-1">
-            Statut d’envoi, test et aperçu des emails.
+            Statut d'envoi, test et aperçu des emails.
           </p>
         </div>
         <Link
@@ -142,7 +153,11 @@ export default async function AdminEmailSettingsPage() {
           <p className="text-sm text-text/70 mb-4">
             Envoie un email de test vers une adresse de votre choix.
           </p>
-          <form action={sendTestEmail} className="flex flex-col sm:flex-row gap-3">
+          <ActionForm
+            action={sendTestEmail}
+            locale="fr"
+            className="flex flex-col sm:flex-row gap-3"
+          >
             <input
               name="to"
               type="email"
@@ -157,14 +172,14 @@ export default async function AdminEmailSettingsPage() {
             >
               Envoyer
             </button>
-          </form>
+          </ActionForm>
         </Card>
 
         <Card>
           <h2 className="font-heading text-xl text-heading mb-3">À savoir</h2>
           <ul className="space-y-2 text-sm text-text/80 list-disc pl-5">
             <li>
-              Email de contact : envoyé à l’email coach (variable{" "}
+              Email de contact : envoyé à l'email coach (variable{" "}
               <code>COACH_EMAIL</code>).
             </li>
             <li>
@@ -172,7 +187,7 @@ export default async function AdminEmailSettingsPage() {
               confirmation de paiement.
             </li>
             <li>
-              Le logo est intégré directement dans l’email (fonctionne en local).
+              Le logo est intégré directement dans l'email (fonctionne en local).
             </li>
           </ul>
         </Card>
@@ -180,4 +195,3 @@ export default async function AdminEmailSettingsPage() {
     </div>
   );
 }
-

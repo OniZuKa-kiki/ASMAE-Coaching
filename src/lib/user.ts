@@ -16,19 +16,6 @@ export async function getOrCreateUser(): Promise<User | null> {
 
   const dbRole = resolveDbRole(sessionClaims as Record<string, unknown>);
 
-  const existingByClerk = await prisma.user.findUnique({
-    where: { clerkId: userId },
-  });
-  if (existingByClerk) {
-    if (existingByClerk.role !== dbRole) {
-      return prisma.user.update({
-        where: { id: existingByClerk.id },
-        data: { role: dbRole },
-      });
-    }
-    return existingByClerk;
-  }
-
   const clerkUser = await currentUser();
   if (!clerkUser) return null;
 
@@ -41,33 +28,48 @@ export async function getOrCreateUser(): Promise<User | null> {
     role: dbRole,
   };
 
-  // Même email, nouveau clerkId (ex. compte dev Clerk → prod Clerk, ou re-inscription)
-  const existingByEmail = await prisma.user.findUnique({
-    where: { email },
-  });
-  if (existingByEmail) {
-    return prisma.user.update({
-      where: { id: existingByEmail.id },
-      data: { clerkId: userId, ...profile },
-    });
-  }
-
-  try {
-    return await prisma.user.create({
-      data: { clerkId: userId, email, ...profile },
-    });
-  } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
-      const linked = await prisma.user.findFirst({
-        where: { OR: [{ clerkId: userId }, { email }] },
-      });
-      if (linked) return linked;
+  return prisma.$transaction(async (tx) => {
+    const byClerk = await tx.user.findUnique({ where: { clerkId: userId } });
+    if (byClerk) {
+      if (byClerk.email !== email || byClerk.role !== dbRole) {
+        return tx.user.update({
+          where: { id: byClerk.id },
+          data: { email, ...profile },
+        });
+      }
+      return byClerk;
     }
-    throw error;
-  }
+
+    const byEmail = await tx.user.findUnique({ where: { email } });
+    if (byEmail) {
+      // Ancien enregistrement (seed / autre instance Clerk) — relier au bon clerkId
+      const staleClerkRow = await tx.user.findUnique({ where: { clerkId: userId } });
+      if (staleClerkRow && staleClerkRow.id !== byEmail.id) {
+        await tx.user.delete({ where: { id: staleClerkRow.id } });
+      }
+      return tx.user.update({
+        where: { id: byEmail.id },
+        data: { clerkId: userId, ...profile },
+      });
+    }
+
+    try {
+      return await tx.user.create({
+        data: { clerkId: userId, email, ...profile },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        const linked = await tx.user.findFirst({
+          where: { OR: [{ clerkId: userId }, { email }] },
+        });
+        if (linked) return linked;
+      }
+      throw error;
+    }
+  });
 }
 
 export async function requireUser(): Promise<User> {

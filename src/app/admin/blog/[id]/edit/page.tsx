@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
+import {
+  ensureAdmin,
+  incomplete,
+  runAction,
+  type ActionResult,
+} from "@/lib/action-result";
 import { prisma } from "@/lib/db";
 import { getUserRole } from "@/lib/auth";
 
@@ -18,47 +25,59 @@ function slugify(input: string): string {
     .slice(0, 80);
 }
 
-async function updateBlogPost(formData: FormData) {
+async function updateBlogPost(formData: FormData): Promise<ActionResult> {
   "use server";
-  const role = await getUserRole();
-  if (role !== "admin") return;
+  const denied = await ensureAdmin();
+  if (denied) return denied;
 
   const id = String(formData.get("id") || "");
   const title = String(formData.get("title") || "").trim();
   const category = String(formData.get("category") || "").trim() || "Coaching";
   const excerpt = String(formData.get("excerpt") || "").trim();
   const content = String(formData.get("content") || "").trim();
-  if (!id || !title || !excerpt || !content) return;
+  if (!id || !title || !excerpt || !content) return incomplete("fr");
 
-  const baseSlug = slugify(title);
-  const conflict = await prisma.blogPost.findFirst({
-    where: { slug: baseSlug, id: { not: id } },
-    select: { id: true },
-  });
-  const slug = conflict ? `${baseSlug}-${Date.now().toString().slice(-4)}` : baseSlug;
+  return runAction(
+    "fr",
+    async () => {
+      const baseSlug = slugify(title);
+      const conflict = await prisma.blogPost.findFirst({
+        where: { slug: baseSlug, id: { not: id } },
+        select: { id: true },
+      });
+      const slug = conflict ? `${baseSlug}-${Date.now().toString().slice(-4)}` : baseSlug;
 
-  await prisma.blogPost.update({
-    where: { id },
-    data: { title, category, excerpt, content, slug },
-  });
+      await prisma.blogPost.update({
+        where: { id },
+        data: { title, category, excerpt, content, slug },
+      });
 
-  revalidatePath("/admin/blog");
-  revalidatePath("/blog");
-  redirect("/admin/blog");
+      revalidatePath("/admin/blog");
+      revalidatePath("/blog");
+    },
+    "updated",
+    "/admin/blog"
+  );
 }
 
-async function deleteBlogPost(formData: FormData) {
+async function deleteBlogPost(formData: FormData): Promise<ActionResult> {
   "use server";
-  const role = await getUserRole();
-  if (role !== "admin") return;
+  const denied = await ensureAdmin();
+  if (denied) return denied;
 
   const id = String(formData.get("id") || "");
-  if (!id) return;
+  if (!id) return incomplete("fr");
 
-  await prisma.blogPost.delete({ where: { id } });
-  revalidatePath("/admin/blog");
-  revalidatePath("/blog");
-  redirect("/admin/blog");
+  return runAction(
+    "fr",
+    async () => {
+      await prisma.blogPost.delete({ where: { id } });
+      revalidatePath("/admin/blog");
+      revalidatePath("/blog");
+    },
+    "deleted",
+    "/admin/blog"
+  );
 }
 
 export default async function AdminBlogEditPage({
@@ -77,9 +96,7 @@ export default async function AdminBlogEditPage({
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-header-title">
-            Modifier l&apos;article
-          </h1>
+          <h1 className="page-header-title">Modifier l&apos;article</h1>
           <p className="text-sm text-text/70 mt-1">Slug: {post.slug}</p>
         </div>
         <Link
@@ -91,7 +108,7 @@ export default async function AdminBlogEditPage({
       </div>
 
       <Card>
-        <form action={updateBlogPost} className="space-y-3">
+        <ActionForm action={updateBlogPost} locale="fr" className="space-y-3">
           <input type="hidden" name="id" value={post.id} />
           <input
             name="title"
@@ -119,25 +136,24 @@ export default async function AdminBlogEditPage({
             className="w-full rounded-xl border border-border bg-card px-4 py-3"
             required
           />
+          <button
+            type="submit"
+            className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
+          >
+            Sauvegarder
+          </button>
+        </ActionForm>
 
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="submit"
-              className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
-            >
-              Sauvegarder
-            </button>
-            <button
-              type="submit"
-              formAction={deleteBlogPost}
-              className="rounded-full border border-red-300 px-5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
-            >
-              Supprimer
-            </button>
-          </div>
-        </form>
+        <ActionForm action={deleteBlogPost} locale="fr" className="mt-3">
+          <input type="hidden" name="id" value={post.id} />
+          <button
+            type="submit"
+            className="rounded-full border border-red-300 px-5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
+          >
+            Supprimer
+          </button>
+        </ActionForm>
       </Card>
     </div>
   );
 }
-

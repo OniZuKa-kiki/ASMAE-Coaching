@@ -1,9 +1,16 @@
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
+import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
 import { FilterSelect } from "@/components/ui/filter-select";
+import {
+  ensureAdmin,
+  incomplete,
+  runAction,
+  type ActionResult,
+} from "@/lib/action-result";
+import { adminErrors } from "@/lib/api-errors";
 import { prisma } from "@/lib/db";
-import { getUserRole } from "@/lib/auth";
 import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -19,61 +26,65 @@ function slugify(input: string): string {
     .slice(0, 80);
 }
 
-async function createBlogPost(formData: FormData) {
+async function createBlogPost(formData: FormData): Promise<ActionResult> {
   "use server";
 
-  const role = await getUserRole();
-  if (role !== "admin") return;
+  const denied = await ensureAdmin();
+  if (denied) return denied;
 
   const title = String(formData.get("title") || "").trim();
   const category = String(formData.get("category") || "").trim() || "Coaching";
   const excerpt = String(formData.get("excerpt") || "").trim();
   const content = String(formData.get("content") || "").trim();
 
-  if (!title || !excerpt || !content) return;
+  if (!title || !excerpt || !content) return incomplete("fr");
 
-  const baseSlug = slugify(title);
-  const existing = await prisma.blogPost.findUnique({ where: { slug: baseSlug } });
-  const slug = existing ? `${baseSlug}-${Date.now().toString().slice(-4)}` : baseSlug;
+  return runAction("fr", async () => {
+    const baseSlug = slugify(title);
+    const existing = await prisma.blogPost.findUnique({ where: { slug: baseSlug } });
+    const slug = existing ? `${baseSlug}-${Date.now().toString().slice(-4)}` : baseSlug;
 
-  await prisma.blogPost.create({
-    data: {
-      slug,
-      title,
-      excerpt,
-      content,
-      category,
-      isPublished: false,
-    },
-  });
+    await prisma.blogPost.create({
+      data: {
+        slug,
+        title,
+        excerpt,
+        content,
+        category,
+        isPublished: false,
+      },
+    });
 
-  revalidatePath("/admin/blog");
-  revalidatePath("/blog");
+    revalidatePath("/admin/blog");
+    revalidatePath("/blog");
+  }, "created");
 }
 
-async function togglePublish(formData: FormData) {
+async function togglePublish(formData: FormData): Promise<ActionResult> {
   "use server";
 
-  const role = await getUserRole();
-  if (role !== "admin") return;
+  const denied = await ensureAdmin();
+  if (denied) return denied;
 
   const id = String(formData.get("id") || "");
-  if (!id) return;
+  if (!id) return incomplete("fr");
 
-  const post = await prisma.blogPost.findUnique({ where: { id } });
-  if (!post) return;
+  return runAction("fr", async () => {
+    const post = await prisma.blogPost.findUnique({ where: { id } });
+    if (!post) throw new Error(adminErrors.notFound);
 
-  const nextPublished = !post.isPublished;
-  await prisma.blogPost.update({
-    where: { id },
-    data: {
-      isPublished: nextPublished,
-      publishedAt: nextPublished ? new Date() : null,
-    },
-  });
+    const nextPublished = !post.isPublished;
+    await prisma.blogPost.update({
+      where: { id },
+      data: {
+        isPublished: nextPublished,
+        publishedAt: nextPublished ? new Date() : null,
+      },
+    });
 
-  revalidatePath("/admin/blog");
-  revalidatePath("/blog");
+    revalidatePath("/admin/blog");
+    revalidatePath("/blog");
+  }, "toggled");
 }
 
 function getQueryValue(
@@ -132,7 +143,7 @@ export default async function AdminBlogPage({
 
       <Card className="mb-6">
         <h2 className="font-heading text-xl text-heading mb-4">Nouvel article</h2>
-        <form action={createBlogPost} className="space-y-3">
+        <ActionForm action={createBlogPost} locale="fr" className="space-y-3">
           <input
             name="title"
             placeholder="Titre"
@@ -165,7 +176,7 @@ export default async function AdminBlogPage({
           >
             Créer le brouillon
           </button>
-        </form>
+        </ActionForm>
       </Card>
       <Card className="mb-6">
         <form method="GET" className="grid md:grid-cols-4 gap-3">
@@ -229,7 +240,7 @@ export default async function AdminBlogPage({
                   >
                     Éditer
                   </Link>
-                  <form action={togglePublish}>
+                  <ActionForm action={togglePublish} locale="fr">
                     <input type="hidden" name="id" value={post.id} />
                     <button
                       type="submit"
@@ -237,7 +248,7 @@ export default async function AdminBlogPage({
                     >
                       {post.isPublished ? "Dépublier" : "Publier"}
                     </button>
-                  </form>
+                  </ActionForm>
                 </div>
               </div>
             </Card>

@@ -1,7 +1,14 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
+import {
+  ensureAdmin,
+  incomplete,
+  runAction,
+  type ActionResult,
+} from "@/lib/action-result";
 import { prisma } from "@/lib/db";
 import { getUserRole } from "@/lib/auth";
 import { FilterSelect } from "@/components/ui/filter-select";
@@ -18,10 +25,11 @@ const dayOptions = [
   { value: "6", label: "Samedi" },
 ];
 
-async function createAvailability(formData: FormData) {
+async function createAvailability(formData: FormData): Promise<ActionResult> {
   "use server";
-  const role = await getUserRole();
-  if (role !== "admin") redirect("/dashboard");
+
+  const denied = await ensureAdmin();
+  if (denied) return denied;
 
   const dayOfWeekRaw = String(formData.get("dayOfWeek") || "").trim();
   const startTime = String(formData.get("startTime") || "").trim();
@@ -29,20 +37,23 @@ async function createAvailability(formData: FormData) {
   const isActive = String(formData.get("isActive") || "") === "on";
 
   const dayOfWeek = Number(dayOfWeekRaw);
-  if (!Number.isFinite(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) return;
-  if (!startTime || !endTime) return;
+  if (!Number.isFinite(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
+    return incomplete("fr");
+  }
+  if (!startTime || !endTime) return incomplete("fr");
 
-  // Option simple: ne pas valider start/end strictement ici
-  await prisma.availability.create({
-    data: {
-      dayOfWeek,
-      startTime,
-      endTime,
-      isActive,
-    },
-  });
+  return runAction("fr", async () => {
+    await prisma.availability.create({
+      data: {
+        dayOfWeek,
+        startTime,
+        endTime,
+        isActive,
+      },
+    });
 
-  revalidatePath("/admin/settings/availability");
+    revalidatePath("/admin/settings/availability");
+  }, "created");
 }
 
 function dayLabel(dayOfWeek: number) {
@@ -98,7 +109,7 @@ export default async function AdminAvailabilityPage({
           Ajouter un créneau
         </h2>
 
-        <form action={createAvailability} className="grid md:grid-cols-5 gap-3">
+        <ActionForm action={createAvailability} locale="fr" className="grid md:grid-cols-5 gap-3">
           <FilterSelect
             name="dayOfWeek"
             value={dayFilter ?? "1"}
@@ -128,7 +139,7 @@ export default async function AdminAvailabilityPage({
           >
             Créer
           </button>
-        </form>
+        </ActionForm>
       </Card>
 
       <Card className="p-5">
@@ -170,4 +181,3 @@ export default async function AdminAvailabilityPage({
     </div>
   );
 }
-
