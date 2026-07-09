@@ -31,8 +31,10 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+    const message = error instanceof Error ? error.message : "Erreur inconnue";
+    console.error("[contact]", message);
     return NextResponse.json(
-      { error: friendlyErrors.generic },
+      { error: friendlyErrors.emailUnavailable },
       { status: 500 }
     );
   }

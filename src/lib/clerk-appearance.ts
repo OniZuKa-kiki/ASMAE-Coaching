@@ -8,14 +8,14 @@ export const clerkAppearance = {
     colorMutedForeground: "#555555",
     colorInput: "#FFFFFF",
     colorInputForeground: "#2E2E2E",
-    colorBorder: "#DDD7CD",
+    colorBorder: "#C5BDB0",
     colorRing: "#6B7C6A",
     colorNeutral: "#2E2E2E",
     colorDanger: "#B85C5C",
     colorModalBackdrop: "rgba(46, 46, 46, 0.55)",
     borderRadius: "1rem",
-    fontFamily: "var(--font-manrope), system-ui, sans-serif",
-    fontFamilyButtons: "var(--font-manrope), system-ui, sans-serif",
+    fontFamily: "var(--font-cairo), system-ui, sans-serif",
+    fontFamilyButtons: "var(--font-cairo), system-ui, sans-serif",
     fontSize: "0.95rem",
     spacing: "1rem",
   },
@@ -27,7 +27,7 @@ export const clerkAppearance = {
     scrollBox: "bg-[#FCFBF8]",
     header: "gap-2 bg-[#FCFBF8]",
     headerTitle:
-      "font-[family-name:var(--font-cormorant)] text-2xl font-semibold text-[#2E2E2E]",
+      "font-[family-name:var(--font-cairo)] text-2xl font-semibold text-[#2E2E2E]",
     headerSubtitle: "text-[#555555] text-sm",
     socialButtonsBlockButton:
       "rounded-full border border-[#DDD7CD] bg-white hover:bg-[#F7F4EE] text-[#2E2E2E]",
@@ -36,7 +36,7 @@ export const clerkAppearance = {
     dividerText: "text-[#555555] text-xs",
     formFieldLabel: "text-[#2E2E2E] font-medium text-sm",
     formFieldInput:
-      "rounded-xl border border-[#DDD7CD] bg-white focus:ring-2 focus:ring-[#6B7C6A]/30",
+      "rounded-xl border-2 border-[#C5BDB0] bg-white text-[#2E2E2E] placeholder:text-[#8A857C] focus:border-[#6B7C6A] focus:ring-2 focus:ring-[#6B7C6A]/25",
     formButtonPrimary:
       "rounded-full bg-[#6B7C6A] hover:bg-[#5D6D5B] text-white font-semibold shadow-sm normal-case",
     footer: "bg-[#FCFBF8] border-t border-[#DDD7CD]/60 !bg-[#FCFBF8]",

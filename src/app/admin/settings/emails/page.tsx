@@ -53,13 +53,18 @@ async function sendTestEmail(formData: FormData) {
     footerNote: "Email automatique — ne pas répondre.",
   });
 
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: cfg.fromEmail,
     to,
     subject: "Test — Emails ASMAE Coaching",
     html,
     attachments: [getEmailLogoAttachment()],
   });
+
+  if (error) {
+    console.error("[Resend test]", error);
+    throw new Error(error.message);
+  }
 
   revalidatePath("/admin/settings/emails");
 }
@@ -108,7 +113,23 @@ export default async function AdminEmailSettingsPage() {
             {!cfg.resendConfigured && (
               <p className="text-text/70">
                 Ajoutez <code>RESEND_API_KEY</code> dans <code>.env.local</code>{" "}
-                pour activer l’envoi.
+                (local) ou dans les variables Vercel (production).
+              </p>
+            )}
+            {cfg.fromEmail.includes("resend.dev") && (
+              <p className="text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mt-3">
+                Expéditeur <code>onboarding@resend.dev</code> : Resend n&apos;envoie
+                qu&apos;à l&apos;email du compte Resend. Pour envoyer à vos clients,
+                vérifiez un domaine sur{" "}
+                <a
+                  href="https://resend.com/domains"
+                  className="text-primary underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  resend.com/domains
+                </a>
+                .
               </p>
             )}
           </div>

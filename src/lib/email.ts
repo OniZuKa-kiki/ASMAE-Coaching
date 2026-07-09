@@ -20,6 +20,21 @@ function getLogoAttachment() {
   return getEmailLogoAttachment();
 }
 
+async function sendEmail(
+  payload: Parameters<Resend["emails"]["send"]>[0]
+) {
+  const resend = getResend();
+  if (!resend) {
+    throw new Error("RESEND_API_KEY non configuré");
+  }
+
+  const { error } = await resend.emails.send(payload);
+  if (error) {
+    console.error("[Resend]", error);
+    throw new Error(error.message);
+  }
+}
+
 export async function sendBookingConfirmation({
   to,
   clientName,
@@ -35,10 +50,7 @@ export async function sendBookingConfirmation({
   time: string;
   meetingUrl?: string;
 }) {
-  const resend = getResend();
-  if (!resend) return;
-
-  await resend.emails.send({
+  await sendEmail({
     from: fromEmail,
     to,
     subject: "تأكيد جلسة الكوتشينغ — ASMAE",
@@ -62,12 +74,9 @@ export async function sendCoursePurchaseConfirmation({
   clientName: string;
   courseName: string;
 }) {
-  const resend = getResend();
-  if (!resend) return;
-
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-  await resend.emails.send({
+  await sendEmail({
     from: fromEmail,
     to,
     subject: `الوصول إلى دورتك — ${courseName}`,
@@ -89,10 +98,7 @@ export async function sendContactMessage({
   email: string;
   message: string;
 }) {
-  const resend = getResend();
-  if (!resend) throw new Error("RESEND_API_KEY non configuré");
-
-  await resend.emails.send({
+  await sendEmail({
     from: fromEmail,
     to: coachEmail,
     replyTo: email,
