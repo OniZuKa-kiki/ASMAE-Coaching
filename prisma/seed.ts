@@ -1,11 +1,14 @@
 import { PrismaClient } from "@prisma/client";
-import { courses, services } from "../src/lib/constants";
+import { siteConfig } from "../src/lib/constants";
+import { SITE_SETTINGS_ID } from "../src/lib/site-settings";
 import {
   SAMPLE_AUDIO_URL,
   SAMPLE_VIDEO_URL,
   seedBlogPosts,
   seedCourseModules,
+  seedCourses,
   seedPodcasts,
+  seedServices,
   seedTestimonials,
 } from "./seed-data";
 
@@ -19,7 +22,7 @@ function parseDuration(duration: string): number {
 async function main() {
   console.log("Seeding database...");
 
-  for (const service of services) {
+  for (const service of seedServices) {
     await prisma.service.upsert({
       where: { slug: service.slug },
       update: {
@@ -40,7 +43,7 @@ async function main() {
     });
   }
 
-  for (const course of courses) {
+  for (const course of seedCourses) {
     const record = await prisma.course.upsert({
       where: { slug: course.slug },
       update: {
@@ -231,6 +234,25 @@ async function main() {
       },
     });
   }
+
+  await prisma.siteSettings.upsert({
+    where: { id: SITE_SETTINGS_ID },
+    update: {
+      contactEmail: siteConfig.contact.email,
+      contactPhone: siteConfig.contact.phone,
+      whatsappUrl: siteConfig.contact.whatsapp,
+      instagramUrl: siteConfig.contact.instagram,
+      instagramHandle: "asmae_coaching",
+    },
+    create: {
+      id: SITE_SETTINGS_ID,
+      contactEmail: siteConfig.contact.email,
+      contactPhone: siteConfig.contact.phone,
+      whatsappUrl: siteConfig.contact.whatsapp,
+      instagramUrl: siteConfig.contact.instagram,
+      instagramHandle: "asmae_coaching",
+    },
+  });
 
   console.log("Seed completed.");
 }

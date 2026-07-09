@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { adminUrl } from "@/lib/admin-path";
 import { cn } from "@/lib/utils";
 import type { PanelNavLink } from "@/lib/dashboard-nav";
 
@@ -25,7 +26,7 @@ export function PanelNavList({
         const isActive =
           currentPath === link.href ||
           (link.href !== "/dashboard" &&
-            link.href !== "/admin" &&
+            link.href !== adminUrl() &&
             currentPath.startsWith(link.href));
 
         return (

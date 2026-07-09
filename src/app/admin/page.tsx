@@ -3,16 +3,16 @@ import { Card } from "@/components/ui/card";
 
 export default function AdminPage() {
   const stats = [
-    { label: "Clients", value: "0", icon: Users, change: "+0%" },
-    { label: "Réservations ce mois", value: "0", icon: Calendar, change: "+0%" },
-    { label: "Revenus ce mois", value: "0 €", icon: CreditCard, change: "+0%" },
-    { label: "Taux de conversion", value: "0%", icon: TrendingUp, change: "+0%" },
+    { label: "العملاء", value: "0", icon: Users, change: "+0%" },
+    { label: "حجوزات هذا الشهر", value: "0", icon: Calendar, change: "+0%" },
+    { label: "إيرادات هذا الشهر", value: "0 €", icon: CreditCard, change: "+0%" },
+    { label: "معدل التحويل", value: "0%", icon: TrendingUp, change: "+0%" },
   ];
 
   return (
     <div>
       <h1 className="page-header-title mb-6 sm:mb-8">
-        Tableau de bord
+        لوحة التحكم
       </h1>
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         {stats.map((stat) => (
@@ -28,8 +28,7 @@ export default function AdminPage() {
       </div>
       <Card className="text-center py-12">
         <p className="text-text/70">
-          Les statistiques détaillées seront disponibles une fois la base de
-          données connectée.
+          ستكون الإحصائيات التفصيلية متاحة بمجرد ربط قاعدة البيانات.
         </p>
       </Card>
     </div>

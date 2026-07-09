@@ -1,15 +1,18 @@
 import { Resend } from "resend";
-import { siteConfig } from "@/lib/constants";
 import { getEmailLogoAttachment } from "@/lib/email-logo";
 import {
   renderBookingConfirmationEmail,
   renderContactEmail,
   renderCoursePurchaseEmail,
 } from "@/lib/email-templates";
+import {
+  getCoachNotificationEmail,
+  getPublicContactEmail,
+} from "@/lib/site-settings";
 
-const fromEmail =
-  process.env.RESEND_FROM_EMAIL || "ASMAE Coaching <onboarding@resend.dev>";
-const coachEmail = process.env.COACH_EMAIL || siteConfig.contact.email;
+function getFromEmail() {
+  return process.env.RESEND_FROM_EMAIL || "ASMAE Coaching <onboarding@resend.dev>";
+}
 
 function getResend() {
   if (!process.env.RESEND_API_KEY) return null;
@@ -50,8 +53,10 @@ export async function sendBookingConfirmation({
   time: string;
   meetingUrl?: string;
 }) {
+  const contactEmail = await getPublicContactEmail();
+
   await sendEmail({
-    from: fromEmail,
+    from: getFromEmail(),
     to,
     subject: "تأكيد جلسة الكوتشينغ — ASMAE",
     html: renderBookingConfirmationEmail({
@@ -60,6 +65,7 @@ export async function sendBookingConfirmation({
       date,
       time,
       meetingUrl,
+      contactEmail,
     }),
     attachments: [getLogoAttachment()],
   });
@@ -75,15 +81,17 @@ export async function sendCoursePurchaseConfirmation({
   courseName: string;
 }) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const contactEmail = await getPublicContactEmail();
 
   await sendEmail({
-    from: fromEmail,
+    from: getFromEmail(),
     to,
     subject: `الوصول إلى دورتك — ${courseName}`,
     html: renderCoursePurchaseEmail({
       clientName,
       courseName,
       dashboardUrl: `${appUrl}/dashboard/courses`,
+      contactEmail,
     }),
     attachments: [getLogoAttachment()],
   });
@@ -98,12 +106,15 @@ export async function sendContactMessage({
   email: string;
   message: string;
 }) {
+  const coachEmail = await getCoachNotificationEmail();
+  const contactEmail = await getPublicContactEmail();
+
   await sendEmail({
-    from: fromEmail,
+    from: getFromEmail(),
     to: coachEmail,
     replyTo: email,
     subject: `Nouveau message de ${name} — ASMAE Coaching`,
-    html: renderContactEmail({ name, email, message }),
+    html: renderContactEmail({ name, email, message, contactEmail }),
     attachments: [getLogoAttachment()],
   });
 }

@@ -1,7 +1,9 @@
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
+import { AdminFormField } from "@/components/admin/form-field";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
+import { Input, Textarea } from "@/components/ui/input";
 import { incomplete, runAction, type ActionResult } from "@/lib/action-result";
 import { getUserJournalEntries } from "@/lib/dashboard";
 import { prisma } from "@/lib/db";
@@ -40,19 +42,24 @@ export default async function DashboardJournalPage() {
       </p>
       <Card className="mb-6">
         <h2 className="font-heading text-xl text-heading mb-4">ملاحظة جديدة</h2>
-        <ActionForm action={createJournalEntry} className="space-y-3">
-          <input
-            name="mood"
-            placeholder="المزاج (مثال: متحفز، هادئ...)"
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-          />
-          <textarea
-            name="content"
-            placeholder="اكتب ملاحظتك..."
-            rows={5}
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-            required
-          />
+        <ActionForm action={createJournalEntry} className="space-y-4">
+          <AdminFormField label="المزاج (اختياري)" htmlFor="journal-mood">
+            <Input
+              id="journal-mood"
+              name="mood"
+              placeholder="مثال: متحفز، هادئ..."
+              className="w-full"
+            />
+          </AdminFormField>
+          <AdminFormField label="الملاحظة" htmlFor="journal-content">
+            <Textarea
+              id="journal-content"
+              name="content"
+              rows={5}
+              className="w-full"
+              required
+            />
+          </AdminFormField>
           <button
             type="submit"
             className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"

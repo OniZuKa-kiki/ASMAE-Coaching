@@ -1,8 +1,17 @@
+import { adminUrl } from "@/lib/admin-path";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { AdminFormField } from "@/components/admin/form-field";
+import {
+  AdminDangerButton,
+  AdminFormActions,
+  AdminPrimaryButton,
+} from "@/components/admin/form-actions";
+import { MediaUrlField } from "@/components/admin/media-url-field";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
+import { Input, Textarea } from "@/components/ui/input";
 import {
   ensureAdmin,
   incomplete,
@@ -13,6 +22,8 @@ import { prisma } from "@/lib/db";
 import { getUserRole } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
+
+const fieldClass = "w-full";
 
 function slugify(input: string): string {
   return input
@@ -39,10 +50,10 @@ async function updatePodcast(formData: FormData): Promise<ActionResult> {
   const isPremium = String(formData.get("isPremium") || "") === "on";
   const isPublished = String(formData.get("isPublished") || "") === "on";
 
-  if (!id || !title || !description) return incomplete("fr");
+  if (!id || !title || !description) return incomplete("ar");
 
   return runAction(
-    "fr",
+    "ar",
     async () => {
       const baseSlug = slugify(title);
       const conflict = await prisma.podcast.findFirst({
@@ -68,7 +79,7 @@ async function updatePodcast(formData: FormData): Promise<ActionResult> {
       revalidatePath("/podcasts");
     },
     "updated",
-    "/admin/podcasts"
+    adminUrl("/podcasts")
   );
 }
 
@@ -79,17 +90,17 @@ async function deletePodcast(formData: FormData): Promise<ActionResult> {
   if (denied) return denied;
 
   const id = String(formData.get("id") || "");
-  if (!id) return incomplete("fr");
+  if (!id) return incomplete("ar");
 
   return runAction(
-    "fr",
+    "ar",
     async () => {
       await prisma.podcast.delete({ where: { id } });
       revalidatePath("/admin/podcasts");
       revalidatePath("/podcasts");
     },
     "deleted",
-    "/admin/podcasts"
+    adminUrl("/podcasts")
   );
 }
 
@@ -109,81 +120,77 @@ export default async function AdminPodcastEditPage({
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-header-title">
-            Modifier le podcast
-          </h1>
-          <p className="text-sm text-text/70 mt-1">Slug: {podcast.slug}</p>
+          <h1 className="page-header-title">تعديل البودكاست</h1>
+          <p className="text-sm text-text/70 mt-1">الرابط: /podcasts/{podcast.slug}</p>
         </div>
         <Link
-          href="/admin/podcasts"
+          href={adminUrl("/podcasts")}
           className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
         >
-          Retour
+          رجوع
         </Link>
       </div>
 
       <Card>
-        <ActionForm action={updatePodcast} locale="fr" className="space-y-3">
+        <ActionForm action={updatePodcast} locale="ar" className="space-y-4" id={`podcast-update-${podcast.id}`}>
           <input type="hidden" name="id" value={podcast.id} />
 
-          <input
-            name="title"
-            defaultValue={podcast.title}
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-            required
-          />
-          <textarea
-            name="description"
-            defaultValue={podcast.description}
-            rows={5}
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-            required
-          />
-          <div className="grid sm:grid-cols-2 gap-3">
-            <input
-              name="audioUrl"
-              defaultValue={podcast.audioUrl ?? ""}
-              placeholder="URL audio (.mp3/.m4a)"
-              className="w-full rounded-xl border border-border bg-card px-4 py-3"
+          <AdminFormField label="عنوان الحلقة" htmlFor="podcast-title">
+            <Input
+              id="podcast-title"
+              name="title"
+              defaultValue={podcast.title}
+              className={fieldClass}
+              required
             />
-            <input
-              name="duration"
-              type="number"
-              min="1"
-              defaultValue={podcast.duration ?? ""}
-              placeholder="Durée (minutes)"
-              className="w-full rounded-xl border border-border bg-card px-4 py-3"
-            />
-          </div>
+          </AdminFormField>
 
-          <div className="flex flex-wrap gap-4 text-sm text-text">
+          <AdminFormField
+            label="الوصف"
+            htmlFor="podcast-description"
+            hint="نبذة قصيرة تظهر في صفحة البودكاست."
+          >
+            <Textarea
+              id="podcast-description"
+              name="description"
+              defaultValue={podcast.description}
+              rows={5}
+              className={fieldClass}
+              required
+            />
+          </AdminFormField>
+
+          <MediaUrlField
+            mediaType="audio"
+            urlName="audioUrl"
+            durationName="duration"
+            label="رابط الملف الصوتي"
+            defaultUrl={podcast.audioUrl ?? ""}
+            defaultDuration={podcast.duration}
+            hint="رابط مباشر (.mp3 أو .m4a)."
+          />
+
+          <div className="flex flex-wrap gap-6 text-sm text-text pt-1">
             <label className="inline-flex items-center gap-2">
               <input type="checkbox" name="isPremium" defaultChecked={podcast.isPremium} />
-              Premium
+              <span>محتوى مميز (للمشتركين فقط)</span>
             </label>
             <label className="inline-flex items-center gap-2">
               <input type="checkbox" name="isPublished" defaultChecked={podcast.isPublished} />
-              Publié
+              <span>منشور على الموقع</span>
             </label>
           </div>
-
-          <button
-            type="submit"
-            className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
-          >
-            Sauvegarder
-          </button>
         </ActionForm>
 
-        <ActionForm action={deletePodcast} locale="fr" className="mt-3">
-          <input type="hidden" name="id" value={podcast.id} />
-          <button
-            type="submit"
-            className="rounded-full border border-red-300 px-5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
-          >
-            Supprimer
-          </button>
-        </ActionForm>
+        <AdminFormActions className="mt-4 pt-4 border-t border-border/50">
+          <AdminPrimaryButton form={`podcast-update-${podcast.id}`}>
+            حفظ التعديلات
+          </AdminPrimaryButton>
+          <ActionForm action={deletePodcast} locale="ar" className="inline-flex">
+            <input type="hidden" name="id" value={podcast.id} />
+            <AdminDangerButton>حذف البودكاست</AdminDangerButton>
+          </ActionForm>
+        </AdminFormActions>
       </Card>
     </div>
   );

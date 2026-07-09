@@ -1,8 +1,16 @@
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
+import { AdminFormField } from "@/components/admin/form-field";
+import {
+  AdminDangerButton,
+  AdminFormActions,
+  AdminPrimaryButton,
+} from "@/components/admin/form-actions";
+import { MediaUrlField } from "@/components/admin/media-url-field";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { Input, Textarea } from "@/components/ui/input";
 import { adminErrors } from "@/lib/api-errors";
 import {
   ensureAdmin,
@@ -10,6 +18,7 @@ import {
   runAction,
   type ActionResult,
 } from "@/lib/action-result";
+import { adminUrl } from "@/lib/admin-path";
 import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -37,9 +46,9 @@ async function createPodcast(formData: FormData): Promise<ActionResult> {
   const durationRaw = String(formData.get("duration") || "").trim();
   const isPremium = String(formData.get("isPremium") || "") === "on";
 
-  if (!title || !description) return incomplete("fr");
+  if (!title || !description) return incomplete("ar");
 
-  return runAction("fr", async () => {
+  return runAction("ar", async () => {
     const baseSlug = slugify(title);
     const exists = await prisma.podcast.findUnique({ where: { slug: baseSlug } });
     const slug = exists ? `${baseSlug}-${Date.now().toString().slice(-4)}` : baseSlug;
@@ -70,9 +79,9 @@ async function togglePodcastState(formData: FormData): Promise<ActionResult> {
 
   const id = String(formData.get("id") || "");
   const field = String(formData.get("field") || "");
-  if (!id || !field) return incomplete("fr");
+  if (!id || !field) return incomplete("ar");
 
-  return runAction("fr", async () => {
+  return runAction("ar", async () => {
     const podcast = await prisma.podcast.findUnique({ where: { id } });
     if (!podcast) throw new Error(adminErrors.notFound);
 
@@ -151,104 +160,111 @@ export default async function AdminPodcastsPage({
   return (
     <div>
       <h1 className="page-header-title mb-6 sm:mb-8">
-        Podcasts
+        البودكاست
       </h1>
       <Card className="mb-6">
-        <h2 className="font-heading text-xl text-heading mb-4">Nouveau podcast</h2>
+        <h2 className="font-heading text-xl text-heading mb-4">بودكاست جديد</h2>
         <p className="text-sm text-text/70 mb-4">
-          `audioUrl` = lien direct vers un fichier audio (ex: `.mp3`/`.m4a`).
-          Vous pouvez l&apos;obtenir en uploadant le fichier sur Supabase Storage,
-          Cloudinary, BunnyCDN, ou S3, puis en copiant l&apos;URL publique.
+          `audioUrl` = رابط مباشر لملف صوتي (مثال: `.mp3`/`.m4a`).
+          يمكنك الحصول عليه برفع الملف على Supabase Storage
+          أو Cloudinary أو BunnyCDN أو S3، ثم نسخ الرابط العام.
         </p>
-        <ActionForm action={createPodcast} locale="fr" className="space-y-3">
-          <input
-            name="title"
-            placeholder="Titre"
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-            required
-          />
-          <textarea
-            name="description"
-            placeholder="Description"
-            rows={3}
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-            required
-          />
-          <div className="grid sm:grid-cols-2 gap-3">
-            <input
-              name="audioUrl"
-              placeholder="URL audio (.mp3)"
-              className="w-full rounded-xl border border-border bg-card px-4 py-3"
+        <ActionForm action={createPodcast} locale="ar" className="space-y-4">
+          <AdminFormField label="عنوان الحلقة" htmlFor="new-podcast-title">
+            <Input
+              id="new-podcast-title"
+              name="title"
+              className="w-full"
+              required
             />
-            <input
-              name="duration"
-              placeholder="Durée (minutes)"
-              type="number"
-              min="1"
-              className="w-full rounded-xl border border-border bg-card px-4 py-3"
+          </AdminFormField>
+
+          <AdminFormField label="الوصف" htmlFor="new-podcast-description">
+            <Textarea
+              id="new-podcast-description"
+              name="description"
+              rows={3}
+              className="w-full"
+              required
             />
-          </div>
+          </AdminFormField>
+
+          <MediaUrlField
+            mediaType="audio"
+            urlName="audioUrl"
+            durationName="duration"
+            label="رابط الملف الصوتي"
+            hint="رابط مباشر (.mp3 أو .m4a)."
+          />
+
           <label className="inline-flex items-center gap-2 text-sm text-text">
             <input type="checkbox" name="isPremium" />
-            Podcast premium
+            محتوى مميز (للمشتركين فقط)
           </label>
-          <div>
-            <button
-              type="submit"
-              className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
-            >
-              Créer le brouillon
-            </button>
-          </div>
+          <AdminFormActions>
+            <AdminPrimaryButton>إنشاء مسودة</AdminPrimaryButton>
+          </AdminFormActions>
         </ActionForm>
       </Card>
       <Card className="mb-6">
-        <form method="GET" className="grid md:grid-cols-5 gap-3">
-          <input
-            name="q"
-            defaultValue={q}
-            placeholder="Rechercher titre ou slug..."
-            className="rounded-xl border border-border bg-card px-4 py-3 text-sm"
-          />
-          <FilterSelect
-            name="published"
-            value={published}
-            options={[
-              { value: "", label: "Publié + brouillon" },
-              { value: "yes", label: "Publiés" },
-              { value: "no", label: "Brouillons" },
-            ]}
-          />
-          <FilterSelect
-            name="premium"
-            value={premium}
-            options={[
-              { value: "", label: "Premium + gratuit" },
-              { value: "yes", label: "Premium" },
-              { value: "no", label: "Gratuit" },
-            ]}
-          />
-          <FilterSelect
-            name="sort"
-            value={sort}
-            options={[
-              { value: "created_desc", label: "Plus récents" },
-              { value: "title_asc", label: "Titre A→Z" },
-              { value: "duration_desc", label: "Durée ↓" },
-            ]}
-          />
-          <button
-            type="submit"
-            className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
-          >
-            Filtrer
-          </button>
+        <h2 className="font-heading text-xl text-heading mb-4">تصفية القائمة</h2>
+        <form method="GET" className="grid md:grid-cols-5 gap-4">
+          <AdminFormField label="بحث" htmlFor="podcast-filter-q">
+            <Input
+              id="podcast-filter-q"
+              name="q"
+              defaultValue={q}
+              placeholder="العنوان أو الرابط..."
+              className="text-sm"
+            />
+          </AdminFormField>
+          <AdminFormField label="حالة النشر">
+            <FilterSelect
+              name="published"
+              value={published}
+              options={[
+                { value: "", label: "منشور + مسودة" },
+                { value: "yes", label: "منشور" },
+                { value: "no", label: "مسودات" },
+              ]}
+            />
+          </AdminFormField>
+          <AdminFormField label="نوع المحتوى">
+            <FilterSelect
+              name="premium"
+              value={premium}
+              options={[
+                { value: "", label: "مميز + مجاني" },
+                { value: "yes", label: "مميز" },
+                { value: "no", label: "مجاني" },
+              ]}
+            />
+          </AdminFormField>
+          <AdminFormField label="ترتيب العرض">
+            <FilterSelect
+              name="sort"
+              value={sort}
+              options={[
+                { value: "created_desc", label: "الأحدث" },
+                { value: "title_asc", label: "العنوان أ→ي" },
+                { value: "duration_desc", label: "المدة ↓" },
+              ]}
+            />
+          </AdminFormField>
+          <div className="flex items-end">
+            <button
+              type="submit"
+              className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors w-full"
+            >
+              تصفية
+            </button>
+          </div>
         </form>
       </Card>
 
       {podcasts.length === 0 ? (
         <Card className="text-center py-12">
-          <p className="text-text/70">Aucun podcast pour le moment.</p>
+          <p className="text-text/70">لا يوجد بودكاست حالياً.</p>
         </Card>
       ) : (
         <div className="space-y-3">
@@ -258,34 +274,34 @@ export default async function AdminPodcastsPage({
                 <div>
                   <p className="font-semibold text-heading">{podcast.title}</p>
                   <p className="text-sm text-text/70">
-                    /podcasts/{podcast.slug} • {podcast.duration ?? "—"} min
+                    /podcasts/{podcast.slug} • {podcast.duration ?? "—"} د
                   </p>
                 </div>
                 <div className="flex gap-2">
                   <Link
-                    href={`/admin/podcasts/${podcast.id}/edit`}
+                    href={adminUrl(`/podcasts/${podcast.id}/edit`)}
                     className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
                   >
-                    Éditer
+                    تعديل
                   </Link>
-                  <ActionForm action={togglePodcastState} locale="fr">
+                  <ActionForm action={togglePodcastState} locale="ar">
                     <input type="hidden" name="id" value={podcast.id} />
                     <input type="hidden" name="field" value="premium" />
                     <button
                       type="submit"
                       className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
                     >
-                      {podcast.isPremium ? "Retirer premium" : "Passer premium"}
+                      {podcast.isPremium ? "إزالة المميز" : "جعله مميزاً"}
                     </button>
                   </ActionForm>
-                  <ActionForm action={togglePodcastState} locale="fr">
+                  <ActionForm action={togglePodcastState} locale="ar">
                     <input type="hidden" name="id" value={podcast.id} />
                     <input type="hidden" name="field" value="publish" />
                     <button
                       type="submit"
                       className="rounded-full border border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-primary hover:text-white transition-colors"
                     >
-                      {podcast.isPublished ? "Dépublier" : "Publier"}
+                      {podcast.isPublished ? "إلغاء النشر" : "نشر"}
                     </button>
                   </ActionForm>
                 </div>

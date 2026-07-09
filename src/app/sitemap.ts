@@ -1,8 +1,28 @@
 import type { MetadataRoute } from "next";
-import { siteConfig, services, courses, blogPosts, podcasts } from "@/lib/constants";
+import { siteConfig } from "@/lib/constants";
+import { prisma } from "@/lib/db";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = siteConfig.url;
+
+  const [services, courses, blogPosts, podcasts] = await Promise.all([
+    prisma.service.findMany({
+      where: { isActive: true },
+      select: { slug: true },
+    }),
+    prisma.course.findMany({
+      where: { isPublished: true },
+      select: { slug: true },
+    }),
+    prisma.blogPost.findMany({
+      where: { isPublished: true },
+      select: { slug: true },
+    }),
+    prisma.podcast.findMany({
+      where: { isPublished: true },
+      select: { slug: true },
+    }),
+  ]);
 
   const staticPages = [
     "",
@@ -22,10 +42,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   const dynamicPages = [
-    ...services.map((s) => `/services/${s.slug}`),
-    ...courses.map((c) => `/courses/${c.slug}`),
-    ...blogPosts.map((b) => `/blog/${b.slug}`),
-    ...podcasts.map((p) => `/podcasts/${p.slug}`),
+    ...services.map((service) => `/services/${service.slug}`),
+    ...courses.map((course) => `/courses/${course.slug}`),
+    ...blogPosts.map((post) => `/blog/${post.slug}`),
+    ...podcasts.map((podcast) => `/podcasts/${podcast.slug}`),
   ].map((path) => ({
     url: `${baseUrl}${path}`,
     lastModified: new Date(),

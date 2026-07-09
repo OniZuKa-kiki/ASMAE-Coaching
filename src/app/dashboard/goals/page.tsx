@@ -1,7 +1,9 @@
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
+import { AdminFormField } from "@/components/admin/form-field";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
+import { Input, Textarea } from "@/components/ui/input";
 import {
   incomplete,
   runAction,
@@ -50,24 +52,16 @@ export default async function DashboardGoalsPage() {
       </p>
       <Card className="mb-6">
         <h2 className="font-heading text-xl text-heading mb-4">إضافة هدف</h2>
-        <ActionForm action={createGoal} className="space-y-3">
-          <input
-            name="title"
-            placeholder="عنوان الهدف"
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-            required
-          />
-          <textarea
-            name="description"
-            placeholder="الوصف (اختياري)"
-            rows={3}
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-          />
-          <input
-            name="targetDate"
-            type="date"
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-          />
+        <ActionForm action={createGoal} className="space-y-4">
+          <AdminFormField label="عنوان الهدف" htmlFor="goal-title">
+            <Input id="goal-title" name="title" className="w-full" required />
+          </AdminFormField>
+          <AdminFormField label="الوصف (اختياري)" htmlFor="goal-description">
+            <Textarea id="goal-description" name="description" rows={3} className="w-full" />
+          </AdminFormField>
+          <AdminFormField label="التاريخ المستهدف (اختياري)" htmlFor="goal-target-date">
+            <Input id="goal-target-date" name="targetDate" type="date" className="w-full" />
+          </AdminFormField>
           <button
             type="submit"
             className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"

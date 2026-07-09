@@ -1,5 +1,7 @@
+import { AdminFormField } from "@/components/admin/form-field";
 import { Card } from "@/components/ui/card";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { Input } from "@/components/ui/input";
 import { prisma } from "@/lib/db";
 import { formatDate, formatPrice } from "@/lib/utils";
 
@@ -61,57 +63,69 @@ export default async function AdminPaymentsPage({
   return (
     <div>
       <h1 className="page-header-title mb-6 sm:mb-8">
-        Paiements
+        المدفوعات
       </h1>
       <Card className="mb-6">
-        <form method="GET" className="grid md:grid-cols-5 gap-3">
-          <input
-            name="q"
-            defaultValue={q}
-            placeholder="Rechercher email, service, formation..."
-            className="rounded-xl border border-border bg-card px-4 py-3 text-sm"
-          />
-          <FilterSelect
-            name="status"
-            value={status}
-            options={[
-              { value: "", label: "Tous statuts" },
-              { value: "PENDING", label: "PENDING" },
-              { value: "PAID", label: "PAID" },
-              { value: "REFUNDED", label: "REFUNDED" },
-              { value: "FAILED", label: "FAILED" },
-            ]}
-          />
-          <FilterSelect
-            name="provider"
-            value={provider}
-            options={[
-              { value: "", label: "Tous providers" },
-              { value: "PAYZONE", label: "PAYZONE" },
-              { value: "STRIPE", label: "STRIPE" },
-            ]}
-          />
-          <FilterSelect
-            name="sort"
-            value={sort}
-            options={[
-              { value: "created_desc", label: "Plus récents" },
-              { value: "created_asc", label: "Plus anciens" },
-              { value: "amount_desc", label: "Montant ↓" },
-              { value: "amount_asc", label: "Montant ↑" },
-            ]}
-          />
-          <button
-            type="submit"
-            className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
-          >
-            Filtrer
-          </button>
+        <h2 className="font-heading text-xl text-heading mb-4">تصفية القائمة</h2>
+        <form method="GET" className="grid md:grid-cols-5 gap-4">
+          <AdminFormField label="بحث" htmlFor="payment-filter-q">
+            <Input
+              id="payment-filter-q"
+              name="q"
+              defaultValue={q}
+              placeholder="البريد، الخدمة أو الدورة..."
+              className="text-sm"
+            />
+          </AdminFormField>
+          <AdminFormField label="حالة الدفع">
+            <FilterSelect
+              name="status"
+              value={status}
+              options={[
+                { value: "", label: "جميع الحالات" },
+                { value: "PENDING", label: "قيد الانتظار" },
+                { value: "PAID", label: "مدفوع" },
+                { value: "REFUNDED", label: "مسترد" },
+                { value: "FAILED", label: "فاشل" },
+              ]}
+            />
+          </AdminFormField>
+          <AdminFormField label="مزود الدفع">
+            <FilterSelect
+              name="provider"
+              value={provider}
+              options={[
+                { value: "", label: "جميع المزودين" },
+                { value: "PAYZONE", label: "PayZone" },
+                { value: "STRIPE", label: "Stripe" },
+              ]}
+            />
+          </AdminFormField>
+          <AdminFormField label="ترتيب العرض">
+            <FilterSelect
+              name="sort"
+              value={sort}
+              options={[
+                { value: "created_desc", label: "الأحدث" },
+                { value: "created_asc", label: "الأقدم" },
+                { value: "amount_desc", label: "المبلغ ↓" },
+                { value: "amount_asc", label: "المبلغ ↑" },
+              ]}
+            />
+          </AdminFormField>
+          <div className="flex items-end">
+            <button
+              type="submit"
+              className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors w-full"
+            >
+              تصفية
+            </button>
+          </div>
         </form>
       </Card>
       {payments.length === 0 ? (
         <Card className="text-center py-12">
-          <p className="text-text/70">Aucun paiement pour le moment.</p>
+          <p className="text-text/70">لا توجد مدفوعات حالياً.</p>
         </Card>
       ) : (
         <div className="space-y-3">
@@ -120,13 +134,13 @@ export default async function AdminPaymentsPage({
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                   <p className="font-semibold text-heading">
-                    {payment.booking?.service.title || payment.course?.title || "Paiement"}
+                    {payment.booking?.service.title || payment.course?.title || "دفع"}
                   </p>
                   <p className="text-sm text-text/70">
                     {payment.user.email} • {payment.provider}
                   </p>
                   <p className="text-xs text-text/60">
-                    {formatDate(payment.createdAt)} • Statut: {payment.status}
+                    {formatDate(payment.createdAt)} • الحالة: {payment.status}
                   </p>
                 </div>
                 <p className="font-heading text-lg text-primary">

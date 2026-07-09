@@ -1,5 +1,8 @@
+import { adminUrl } from "@/lib/admin-path";
+import { AdminFormField } from "@/components/admin/form-field";
 import { Card } from "@/components/ui/card";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { formatDate } from "@/lib/utils";
@@ -68,44 +71,54 @@ export default async function AdminUsersPage({
 
   return (
     <div>
-      <h1 className="page-header-title mb-6 sm:mb-8">Clients</h1>
+      <h1 className="page-header-title mb-6 sm:mb-8">العملاء</h1>
       <Card className="mb-6">
-        <form method="GET" className="grid md:grid-cols-4 gap-3">
-          <input
-            name="q"
-            defaultValue={q}
-            placeholder="Rechercher nom ou email..."
-            className="rounded-xl border border-border bg-card px-4 py-3 text-sm"
-          />
-          <FilterSelect
-            name="role"
-            value={role}
-            options={[
-              { value: "", label: "Tous rôles" },
-              { value: "CLIENT", label: "CLIENT" },
-              { value: "ADMIN", label: "ADMIN" },
-            ]}
-          />
-          <FilterSelect
-            name="sort"
-            value={sort}
-            options={[
-              { value: "created_desc", label: "Plus récents" },
-              { value: "created_asc", label: "Plus anciens" },
-              { value: "email_asc", label: "Email A→Z" },
-            ]}
-          />
-          <button
-            type="submit"
-            className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
-          >
-            Filtrer
-          </button>
+        <h2 className="font-heading text-xl text-heading mb-4">تصفية القائمة</h2>
+        <form method="GET" className="grid md:grid-cols-4 gap-4">
+          <AdminFormField label="بحث" htmlFor="user-filter-q">
+            <Input
+              id="user-filter-q"
+              name="q"
+              defaultValue={q}
+              placeholder="الاسم أو البريد..."
+              className="text-sm"
+            />
+          </AdminFormField>
+          <AdminFormField label="الدور">
+            <FilterSelect
+              name="role"
+              value={role}
+              options={[
+                { value: "", label: "جميع الأدوار" },
+                { value: "CLIENT", label: "عميل" },
+                { value: "ADMIN", label: "مدير" },
+              ]}
+            />
+          </AdminFormField>
+          <AdminFormField label="ترتيب العرض">
+            <FilterSelect
+              name="sort"
+              value={sort}
+              options={[
+                { value: "created_desc", label: "الأحدث" },
+                { value: "created_asc", label: "الأقدم" },
+                { value: "email_asc", label: "البريد أ→ي" },
+              ]}
+            />
+          </AdminFormField>
+          <div className="flex items-end">
+            <button
+              type="submit"
+              className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors w-full"
+            >
+              تصفية
+            </button>
+          </div>
         </form>
       </Card>
       {users.length === 0 ? (
         <Card className="text-center py-12">
-          <p className="text-text/70">Aucun client pour le moment.</p>
+          <p className="text-text/70">لا يوجد عملاء حالياً.</p>
         </Card>
       ) : (
         <div className="space-y-3">
@@ -115,26 +128,26 @@ export default async function AdminUsersPage({
                 <div>
                   <p className="font-semibold text-heading">
                     {user.firstName || ""} {user.lastName || ""}{" "}
-                    {!user.firstName && !user.lastName ? "Client" : ""}
+                    {!user.firstName && !user.lastName ? "عميل" : ""}
                   </p>
                   <p className="text-sm text-text/70">{user.email}</p>
                   <p className="text-xs text-text/60">
-                    Inscrit le {formatDate(user.createdAt)} • Rôle: {user.role}
+                    مسجل في {formatDate(user.createdAt)} • الدور: {user.role}
                   </p>
                 </div>
                 <div className="text-sm text-text/70">
-                  <p>Réservations: {user._count.bookings}</p>
-                  <p>Formations: {user._count.enrollments}</p>
-                  <p>Paiements: {user._count.payments}</p>
+                  <p>الحجوزات: {user._count.bookings}</p>
+                  <p>الدورات: {user._count.enrollments}</p>
+                  <p>المدفوعات: {user._count.payments}</p>
                   {user.intakeForms[0] ? (
                     <Link
-                      href={`/admin/settings/intake-forms?q=${encodeURIComponent(user.email)}`}
+                      href={adminUrl(`/settings/intake-forms?q=${encodeURIComponent(user.email)}`)}
                       className="inline-block mt-2 text-primary font-medium hover:underline"
                     >
-                      Voir questionnaire ({formatDate(user.intakeForms[0].createdAt)})
+                      عرض الاستبيان ({formatDate(user.intakeForms[0].createdAt)})
                     </Link>
                   ) : (
-                    <p className="mt-2 text-text/50">Questionnaire non rempli</p>
+                    <p className="mt-2 text-text/50">لم يُملأ الاستبيان</p>
                   )}
                 </div>
               </div>

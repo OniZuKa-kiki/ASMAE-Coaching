@@ -10,6 +10,7 @@ import {
   Tag,
   type LucideIcon,
 } from "lucide-react";
+import { adminUrl } from "@/lib/admin-path";
 
 export type PanelNavLink = {
   href: string;
@@ -17,14 +18,19 @@ export type PanelNavLink = {
   icon: LucideIcon;
 };
 
-export const adminNavLinks: PanelNavLink[] = [
-  { href: "/admin", label: "Vue d'ensemble", icon: BarChart3 },
-  { href: "/admin/users", label: "Clients", icon: Users },
-  { href: "/admin/bookings", label: "Réservations", icon: Calendar },
-  { href: "/admin/courses", label: "Formations", icon: BookOpen },
-  { href: "/admin/podcasts", label: "Podcasts", icon: Headphones },
-  { href: "/admin/blog", label: "Blog", icon: FileText },
-  { href: "/admin/payments", label: "Paiements", icon: CreditCard },
-  { href: "/admin/coupons", label: "Coupons", icon: Tag },
-  { href: "/admin/settings", label: "Paramètres", icon: Settings },
-];
+export function getAdminNavLinks(): PanelNavLink[] {
+  return [
+    { href: adminUrl(), label: "نظرة عامة", icon: BarChart3 },
+    { href: adminUrl("/users"), label: "العملاء", icon: Users },
+    { href: adminUrl("/bookings"), label: "الحجوزات", icon: Calendar },
+    { href: adminUrl("/courses"), label: "الدورات", icon: BookOpen },
+    { href: adminUrl("/podcasts"), label: "بودكاست", icon: Headphones },
+    { href: adminUrl("/blog"), label: "المدونة", icon: FileText },
+    { href: adminUrl("/payments"), label: "المدفوعات", icon: CreditCard },
+    { href: adminUrl("/coupons"), label: "الكوبونات", icon: Tag },
+    { href: adminUrl("/settings"), label: "الإعدادات", icon: Settings },
+  ];
+}
+
+/** @deprecated Utiliser getAdminNavLinks() */
+export const adminNavLinks = getAdminNavLinks();

@@ -1,8 +1,11 @@
+import { adminUrl } from "@/lib/admin-path";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { AdminFormField } from "@/components/admin/form-field";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   ensureAdmin,
   incomplete,
@@ -16,13 +19,13 @@ import { FilterSelect } from "@/components/ui/filter-select";
 export const dynamic = "force-dynamic";
 
 const dayOptions = [
-  { value: "0", label: "Dimanche" },
-  { value: "1", label: "Lundi" },
-  { value: "2", label: "Mardi" },
-  { value: "3", label: "Mercredi" },
-  { value: "4", label: "Jeudi" },
-  { value: "5", label: "Vendredi" },
-  { value: "6", label: "Samedi" },
+  { value: "0", label: "الأحد" },
+  { value: "1", label: "الإثنين" },
+  { value: "2", label: "الثلاثاء" },
+  { value: "3", label: "الأربعاء" },
+  { value: "4", label: "الخميس" },
+  { value: "5", label: "الجمعة" },
+  { value: "6", label: "السبت" },
 ];
 
 async function createAvailability(formData: FormData): Promise<ActionResult> {
@@ -38,11 +41,11 @@ async function createAvailability(formData: FormData): Promise<ActionResult> {
 
   const dayOfWeek = Number(dayOfWeekRaw);
   if (!Number.isFinite(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
-    return incomplete("fr");
+    return incomplete("ar");
   }
-  if (!startTime || !endTime) return incomplete("fr");
+  if (!startTime || !endTime) return incomplete("ar");
 
-  return runAction("fr", async () => {
+  return runAction("ar", async () => {
     await prisma.availability.create({
       data: {
         dayOfWeek,
@@ -58,7 +61,7 @@ async function createAvailability(formData: FormData): Promise<ActionResult> {
 
 function dayLabel(dayOfWeek: number) {
   return (
-    dayOptions.find((d) => Number(d.value) === dayOfWeek)?.label ?? `Jour ${dayOfWeek}`
+    dayOptions.find((d) => Number(d.value) === dayOfWeek)?.label ?? `يوم ${dayOfWeek}`
   );
 }
 
@@ -90,66 +93,78 @@ export default async function AdminAvailabilityPage({
       <div className="page-header">
         <div>
           <h1 className="page-header-title">
-            Disponibilités
+            التوفر
           </h1>
           <p className="text-text/70 text-sm mt-1">
-            Définissez les créneaux de consultation utilisés pour le planning.
+            حدد فترات الاستشارة المستخدمة في الجدول.
           </p>
         </div>
         <Link
-          href="/admin/settings"
+          href={adminUrl("/settings")}
           className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
         >
-          Retour
+          رجوع
         </Link>
       </div>
 
       <Card className="mb-6 p-5">
         <h2 className="font-heading text-xl font-semibold text-heading mb-4">
-          Ajouter un créneau
+          إضافة فترة
         </h2>
 
-        <ActionForm action={createAvailability} locale="fr" className="grid md:grid-cols-5 gap-3">
-          <FilterSelect
-            name="dayOfWeek"
-            value={dayFilter ?? "1"}
-            options={dayOptions.map((d) => ({ value: d.value, label: d.label }))}
-          />
-          <input
-            name="startTime"
-            type="time"
-            className="rounded-xl border border-border bg-card px-4 py-3 text-sm"
-            required
-          />
-          <input
-            name="endTime"
-            type="time"
-            className="rounded-xl border border-border bg-card px-4 py-3 text-sm"
-            required
-          />
+        <ActionForm action={createAvailability} locale="ar" className="grid md:grid-cols-5 gap-4">
+          <AdminFormField label="اليوم">
+            <FilterSelect
+              name="dayOfWeek"
+              value={dayFilter ?? "1"}
+              options={dayOptions.map((d) => ({ value: d.value, label: d.label }))}
+            />
+          </AdminFormField>
 
-          <label className="inline-flex items-center gap-2 text-sm text-text">
-            <input type="checkbox" name="isActive" defaultChecked />
-            Actif
-          </label>
+          <AdminFormField label="وقت البداية" htmlFor="avail-start">
+            <Input
+              id="avail-start"
+              name="startTime"
+              type="time"
+              className="text-sm"
+              required
+            />
+          </AdminFormField>
+
+          <AdminFormField label="وقت النهاية" htmlFor="avail-end">
+            <Input
+              id="avail-end"
+              name="endTime"
+              type="time"
+              className="text-sm"
+              required
+            />
+          </AdminFormField>
+
+          <AdminFormField label="الحالة">
+            <label className="inline-flex items-center gap-2 text-sm text-text h-[46px]">
+              <input type="checkbox" name="isActive" defaultChecked />
+              فترة نشطة
+            </label>
+          </AdminFormField>
 
           <button
             type="submit"
             className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors md:col-span-1"
           >
-            Créer
+            إنشاء
           </button>
         </ActionForm>
       </Card>
 
       <Card className="p-5">
         <h2 className="font-heading text-xl font-semibold text-heading mb-4">
-          Liste
+          القائمة
         </h2>
 
         <div className="space-y-3">
           {rows.length === 0 ? (
-            <p className="text-text/70">Aucun créneau pour le moment.</p>
+            <p className="text-text/70">لا توجد فترات حالياً.</p>
           ) : (
             rows.map((row) => (
               <div
@@ -162,15 +177,15 @@ export default async function AdminAvailabilityPage({
                     {row.startTime} → {row.endTime}
                   </p>
                   <p className="text-xs text-text/60 mt-1">
-                    {row.isActive ? "Actif" : "Inactif"}
+                    {row.isActive ? "نشط" : "غير نشط"}
                   </p>
                 </div>
                 <div className="flex gap-2">
                   <Link
-                    href={`/admin/settings/availability/${row.id}/edit`}
+                    href={adminUrl(`/settings/availability/${row.id}/edit`)}
                     className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
                   >
-                    Modifier
+                    تعديل
                   </Link>
                 </div>
               </div>

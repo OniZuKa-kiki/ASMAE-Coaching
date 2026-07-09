@@ -1,8 +1,18 @@
+import { adminUrl } from "@/lib/admin-path";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { AdminFormField } from "@/components/admin/form-field";
+import {
+  AdminDangerButton,
+  AdminFormActions,
+  AdminOutlineButton,
+  AdminPrimaryButton,
+} from "@/components/admin/form-actions";
+import { MediaUrlField } from "@/components/admin/media-url-field";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
+import { Input, Textarea } from "@/components/ui/input";
 import {
   ensureAdmin,
   incomplete,
@@ -35,10 +45,10 @@ async function updateCourse(formData: FormData): Promise<ActionResult> {
   const description = String(formData.get("description") || "").trim();
   const priceRaw = Number(String(formData.get("price") || ""));
   const isPublished = String(formData.get("isPublished") || "") === "on";
-  if (!id || !title || !description || !Number.isFinite(priceRaw)) return incomplete("fr");
+  if (!id || !title || !description || !Number.isFinite(priceRaw)) return incomplete("ar");
 
   return runAction(
-    "fr",
+    "ar",
     async () => {
       const baseSlug = slugify(title);
       const conflict = await prisma.course.findFirst({
@@ -62,7 +72,7 @@ async function updateCourse(formData: FormData): Promise<ActionResult> {
       revalidatePath("/courses");
     },
     "saved",
-    `/admin/courses/${id}/edit`
+    adminUrl(`/courses/${id}/edit`)
   );
 }
 
@@ -72,10 +82,10 @@ async function deleteCourse(formData: FormData): Promise<ActionResult> {
   if (denied) return denied;
 
   const id = String(formData.get("id") || "");
-  if (!id) return incomplete("fr");
+  if (!id) return incomplete("ar");
 
   return runAction(
-    "fr",
+    "ar",
     async () => {
       await prisma.course.delete({ where: { id } });
       revalidatePath("/admin/courses");
@@ -83,7 +93,7 @@ async function deleteCourse(formData: FormData): Promise<ActionResult> {
       revalidatePath("/dashboard/resources");
     },
     "deleted",
-    "/admin/courses"
+    adminUrl("/courses")
   );
 }
 
@@ -94,10 +104,10 @@ async function addModule(formData: FormData): Promise<ActionResult> {
 
   const courseId = String(formData.get("courseId") || "");
   const title = String(formData.get("title") || "").trim();
-  if (!courseId || !title) return incomplete("fr");
+  if (!courseId || !title) return incomplete("ar");
 
   return runAction(
-    "fr",
+    "ar",
     async () => {
       const max = await prisma.courseModule.aggregate({
         where: { courseId },
@@ -116,7 +126,7 @@ async function addModule(formData: FormData): Promise<ActionResult> {
       revalidatePath("/dashboard/resources");
     },
     "created",
-    `/admin/courses/${courseId}/edit`
+    adminUrl(`/courses/${courseId}/edit`)
   );
 }
 
@@ -129,10 +139,10 @@ async function updateModule(formData: FormData): Promise<ActionResult> {
   const moduleId = String(formData.get("moduleId") || "");
   const title = String(formData.get("title") || "").trim();
   const orderRaw = Number(String(formData.get("order") || ""));
-  if (!courseId || !moduleId || !title || !Number.isFinite(orderRaw)) return incomplete("fr");
+  if (!courseId || !moduleId || !title || !Number.isFinite(orderRaw)) return incomplete("ar");
 
   return runAction(
-    "fr",
+    "ar",
     async () => {
       await prisma.courseModule.update({
         where: { id: moduleId },
@@ -144,7 +154,7 @@ async function updateModule(formData: FormData): Promise<ActionResult> {
       revalidatePath("/dashboard/resources");
     },
     "updated",
-    `/admin/courses/${courseId}/edit`
+    adminUrl(`/courses/${courseId}/edit`)
   );
 }
 
@@ -155,10 +165,10 @@ async function deleteModule(formData: FormData): Promise<ActionResult> {
 
   const courseId = String(formData.get("courseId") || "");
   const moduleId = String(formData.get("moduleId") || "");
-  if (!courseId || !moduleId) return incomplete("fr");
+  if (!courseId || !moduleId) return incomplete("ar");
 
   return runAction(
-    "fr",
+    "ar",
     async () => {
       await prisma.courseModule.delete({ where: { id: moduleId } });
       revalidatePath(`/admin/courses/${courseId}/edit`);
@@ -167,7 +177,7 @@ async function deleteModule(formData: FormData): Promise<ActionResult> {
       revalidatePath("/dashboard/resources");
     },
     "deleted",
-    `/admin/courses/${courseId}/edit`
+    adminUrl(`/courses/${courseId}/edit`)
   );
 }
 
@@ -183,10 +193,10 @@ async function addLesson(formData: FormData): Promise<ActionResult> {
   const videoUrl = String(formData.get("videoUrl") || "").trim();
   const pdfUrl = String(formData.get("pdfUrl") || "").trim();
   const durationRaw = Number(String(formData.get("duration") || ""));
-  if (!courseId || !moduleId || !title) return incomplete("fr");
+  if (!courseId || !moduleId || !title) return incomplete("ar");
 
   return runAction(
-    "fr",
+    "ar",
     async () => {
       const max = await prisma.courseLesson.aggregate({
         where: { moduleId },
@@ -211,7 +221,7 @@ async function addLesson(formData: FormData): Promise<ActionResult> {
       revalidatePath("/dashboard/resources");
     },
     "created",
-    `/admin/courses/${courseId}/edit`
+    adminUrl(`/courses/${courseId}/edit`)
   );
 }
 
@@ -228,10 +238,10 @@ async function updateLesson(formData: FormData): Promise<ActionResult> {
   const pdfUrl = String(formData.get("pdfUrl") || "").trim();
   const durationRaw = Number(String(formData.get("duration") || ""));
   const orderRaw = Number(String(formData.get("order") || ""));
-  if (!courseId || !lessonId || !title || !Number.isFinite(orderRaw)) return incomplete("fr");
+  if (!courseId || !lessonId || !title || !Number.isFinite(orderRaw)) return incomplete("ar");
 
   return runAction(
-    "fr",
+    "ar",
     async () => {
       await prisma.courseLesson.update({
         where: { id: lessonId },
@@ -251,7 +261,7 @@ async function updateLesson(formData: FormData): Promise<ActionResult> {
       revalidatePath("/dashboard/resources");
     },
     "updated",
-    `/admin/courses/${courseId}/edit`
+    adminUrl(`/courses/${courseId}/edit`)
   );
 }
 
@@ -262,10 +272,10 @@ async function deleteLesson(formData: FormData): Promise<ActionResult> {
 
   const courseId = String(formData.get("courseId") || "");
   const lessonId = String(formData.get("lessonId") || "");
-  if (!courseId || !lessonId) return incomplete("fr");
+  if (!courseId || !lessonId) return incomplete("ar");
 
   return runAction(
-    "fr",
+    "ar",
     async () => {
       await prisma.courseLesson.delete({ where: { id: lessonId } });
       revalidatePath(`/admin/courses/${courseId}/edit`);
@@ -274,7 +284,7 @@ async function deleteLesson(formData: FormData): Promise<ActionResult> {
       revalidatePath("/dashboard/resources");
     },
     "deleted",
-    `/admin/courses/${courseId}/edit`
+    adminUrl(`/courses/${courseId}/edit`)
   );
 }
 
@@ -303,247 +313,239 @@ export default async function AdminCourseEditPage({
       <div className="page-header">
         <div>
           <h1 className="page-header-title">
-            Modifier la formation
+            تعديل الدورة
           </h1>
           <p className="text-sm text-text/70 mt-1">Slug: {course.slug}</p>
         </div>
         <Link
-          href="/admin/courses"
+          href={adminUrl("/courses")}
           className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
         >
-          Retour
+          رجوع
         </Link>
       </div>
 
       <Card className="mb-6">
-        <h2 className="font-heading text-xl text-heading mb-4">Informations</h2>
-        <ActionForm action={updateCourse} locale="fr" className="space-y-3">
+        <h2 className="font-heading text-xl text-heading mb-4">المعلومات</h2>
+        <ActionForm action={updateCourse} locale="ar" className="space-y-4" id="course-update-form">
           <input type="hidden" name="id" value={course.id} />
-          <input
-            name="title"
-            defaultValue={course.title}
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-            required
-          />
-          <textarea
-            name="description"
-            defaultValue={course.description}
-            rows={5}
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-            required
-          />
-          <div className="grid sm:grid-cols-2 gap-3 items-center">
-            <input
-              name="price"
-              type="number"
-              min="0"
-              defaultValue={course.price}
-              className="w-full rounded-xl border border-border bg-card px-4 py-3"
+
+          <AdminFormField label="عنوان الدورة" htmlFor="course-title">
+            <Input
+              id="course-title"
+              name="title"
+              defaultValue={course.title}
+              className="w-full"
+              required
             />
-            <label className="inline-flex items-center gap-2 text-sm text-text">
+          </AdminFormField>
+
+          <AdminFormField label="وصف الدورة" htmlFor="course-description">
+            <Textarea
+              id="course-description"
+              name="description"
+              defaultValue={course.description}
+              rows={5}
+              className="w-full"
+              required
+            />
+          </AdminFormField>
+
+          <div className="grid sm:grid-cols-2 gap-4 items-end">
+            <AdminFormField
+              label="السعر (بالسنتيم)"
+              htmlFor="course-price"
+              hint="مثال: 19700 = 197,00 €"
+            >
+              <Input
+                id="course-price"
+                name="price"
+                type="number"
+                min="0"
+                defaultValue={course.price}
+                className="w-full"
+              />
+            </AdminFormField>
+
+            <label className="inline-flex items-center gap-2 text-sm text-text h-[46px]">
               <input type="checkbox" name="isPublished" defaultChecked={course.isPublished} />
-              Formation publiée
+              منشورة على الموقع
             </label>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="submit"
-              className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
-            >
-              Sauvegarder
-            </button>
-          </div>
         </ActionForm>
-        <div className="flex flex-wrap gap-2 mt-2">
-          <ActionForm action={deleteCourse} locale="fr">
+        <AdminFormActions className="mt-2">
+          <AdminPrimaryButton form="course-update-form">حفظ</AdminPrimaryButton>
+          <ActionForm action={deleteCourse} locale="ar" className="inline-flex">
             <input type="hidden" name="id" value={course.id} />
-            <button
-              type="submit"
-              className="rounded-full border border-red-300 px-5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
-            >
-              Supprimer
-            </button>
+            <AdminDangerButton>حذف الدورة</AdminDangerButton>
           </ActionForm>
-        </div>
+        </AdminFormActions>
       </Card>
 
       <Card>
-        <h2 className="font-heading text-xl text-heading mb-4">Modules et leçons</h2>
+        <h2 className="font-heading text-xl text-heading mb-4">الوحدات والدروس</h2>
 
-        <ActionForm action={addModule} locale="fr" className="flex flex-col sm:flex-row gap-2 mb-6">
+        <ActionForm action={addModule} locale="ar" className="grid sm:grid-cols-[1fr_auto] gap-4 mb-6 items-end">
           <input type="hidden" name="courseId" value={course.id} />
-          <input
-            name="title"
-            placeholder="Titre du module"
-            className="flex-1 rounded-xl border border-border bg-card px-4 py-3"
-            required
-          />
-          <button
-            type="submit"
-            className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
-          >
-            Ajouter module
-          </button>
+          <AdminFormField label="عنوان الوحدة" htmlFor={`module-new-${course.id}`}>
+            <Input
+              id={`module-new-${course.id}`}
+              name="title"
+              className="w-full"
+              required
+            />
+          </AdminFormField>
+          <AdminPrimaryButton className="w-full sm:w-auto">إضافة وحدة</AdminPrimaryButton>
         </ActionForm>
 
         {course.modules.length === 0 ? (
-          <p className="text-sm text-text/70">Aucun module pour cette formation.</p>
+          <p className="text-sm text-text/70">لا توجد وحدات لهذه الدورة.</p>
         ) : (
           <div className="space-y-4">
             {course.modules.map((module) => (
-              <div key={module.id} className="rounded-2xl border border-border/60 bg-background/40 p-4">
-                <ActionForm action={updateModule} locale="fr" className="grid sm:grid-cols-[1fr_110px_auto] gap-3">
+              <div key={module.id} className="rounded-2xl border border-border/60 bg-background/40 p-4 space-y-4">
+                <ActionForm
+                  action={updateModule}
+                  locale="ar"
+                  id={`module-update-${module.id}`}
+                  className="space-y-3"
+                >
                   <input type="hidden" name="courseId" value={course.id} />
                   <input type="hidden" name="moduleId" value={module.id} />
-                  <input
-                    name="title"
-                    defaultValue={module.title}
-                    className="rounded-xl border border-border bg-card px-4 py-3"
-                    required
-                  />
-                  <input
-                    name="order"
-                    type="number"
-                    min="1"
-                    defaultValue={module.order}
-                    className="rounded-xl border border-border bg-card px-4 py-3"
-                    required
-                  />
-                  <div className="flex gap-2 sm:justify-end">
-                    <button
-                      type="submit"
-                      className="rounded-full border border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-primary hover:text-white transition-colors"
-                    >
-                      Sauver
-                    </button>
+                  <div className="grid sm:grid-cols-[1fr_110px] gap-3">
+                    <AdminFormField label="عنوان الوحدة">
+                      <Input
+                        name="title"
+                        defaultValue={module.title}
+                        className="w-full"
+                        required
+                      />
+                    </AdminFormField>
+                    <AdminFormField label="الترتيب">
+                      <Input
+                        name="order"
+                        type="number"
+                        min="1"
+                        defaultValue={module.order}
+                        className="w-full"
+                        required
+                      />
+                    </AdminFormField>
                   </div>
                 </ActionForm>
-                <div className="flex gap-2 sm:justify-end">
-                  <ActionForm action={deleteModule} locale="fr">
+                <AdminFormActions align="end">
+                  <AdminOutlineButton form={`module-update-${module.id}`}>
+                    حفظ
+                  </AdminOutlineButton>
+                  <ActionForm action={deleteModule} locale="ar" className="inline-flex">
                     <input type="hidden" name="courseId" value={course.id} />
                     <input type="hidden" name="moduleId" value={module.id} />
-                    <button
-                      type="submit"
-                      className="rounded-full border border-red-300 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      Supprimer
-                    </button>
+                    <AdminDangerButton>حذف</AdminDangerButton>
                   </ActionForm>
-                </div>
+                </AdminFormActions>
 
-                <div className="mt-4">
-                  <h3 className="font-semibold text-heading mb-3">Ajouter une leçon</h3>
-                  <ActionForm action={addLesson} locale="fr" className="grid md:grid-cols-5 gap-3">
+                <div>
+                  <h3 className="font-semibold text-heading mb-3">إضافة درس</h3>
+                  <ActionForm action={addLesson} locale="ar" className="space-y-4">
                     <input type="hidden" name="courseId" value={course.id} />
                     <input type="hidden" name="moduleId" value={module.id} />
-                    <input
-                      name="title"
-                      placeholder="Titre"
-                      className="rounded-xl border border-border bg-card px-4 py-3"
-                      required
-                    />
-                    <input
-                      name="videoUrl"
-                      placeholder="URL vidéo"
-                      className="rounded-xl border border-border bg-card px-4 py-3"
-                    />
-                    <input
-                      name="pdfUrl"
-                      placeholder="URL PDF"
-                      className="rounded-xl border border-border bg-card px-4 py-3"
-                    />
-                    <input
-                      name="duration"
-                      type="number"
-                      min="1"
-                      placeholder="Durée (min)"
-                      className="rounded-xl border border-border bg-card px-4 py-3"
-                    />
-                    <button
-                      type="submit"
-                      className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
-                    >
-                      Ajouter
-                    </button>
-                    <textarea
-                      name="description"
-                      placeholder="Description (optionnel)"
-                      rows={2}
-                      className="md:col-span-5 rounded-xl border border-border bg-card px-4 py-3"
-                    />
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <AdminFormField label="عنوان الدرس">
+                        <Input name="title" className="w-full" required />
+                      </AdminFormField>
+                      <MediaUrlField
+                        mediaType="video"
+                        urlName="videoUrl"
+                        durationName="duration"
+                        label="رابط الفيديو"
+                        hint="رابط ملف فيديو مباشر (.mp4, .webm)."
+                      />
+                      <AdminFormField label="رابط PDF">
+                        <Input name="pdfUrl" className="w-full" placeholder="https://..." />
+                      </AdminFormField>
+                    </div>
+
+                    <AdminFormField label="وصف الدرس (اختياري)">
+                      <Textarea name="description" rows={2} className="w-full" />
+                    </AdminFormField>
+
+                    <AdminFormActions>
+                      <AdminPrimaryButton>إضافة الدرس</AdminPrimaryButton>
+                    </AdminFormActions>
                   </ActionForm>
                 </div>
 
                 {module.lessons.length > 0 && (
                   <div className="mt-4 space-y-3">
-                    <h3 className="font-semibold text-heading">Leçons</h3>
+                    <h3 className="font-semibold text-heading">الدروس</h3>
                     {module.lessons.map((lesson) => (
                       <Card key={lesson.id} className="p-4">
-                        <ActionForm action={updateLesson} locale="fr" className="grid md:grid-cols-5 gap-3">
+                        <ActionForm
+                          action={updateLesson}
+                          locale="ar"
+                          id={`lesson-update-${lesson.id}`}
+                          className="space-y-4"
+                        >
                           <input type="hidden" name="courseId" value={course.id} />
                           <input type="hidden" name="lessonId" value={lesson.id} />
-                          <input
-                            name="title"
-                            defaultValue={lesson.title}
-                            className="rounded-xl border border-border bg-card px-4 py-3"
-                            required
-                          />
-                          <input
-                            name="videoUrl"
-                            defaultValue={lesson.videoUrl ?? ""}
-                            placeholder="URL vidéo"
-                            className="rounded-xl border border-border bg-card px-4 py-3"
-                          />
-                          <input
-                            name="pdfUrl"
-                            defaultValue={lesson.pdfUrl ?? ""}
-                            placeholder="URL PDF"
-                            className="rounded-xl border border-border bg-card px-4 py-3"
-                          />
-                          <input
-                            name="duration"
-                            type="number"
-                            min="1"
-                            defaultValue={lesson.duration ?? ""}
-                            placeholder="Durée"
-                            className="rounded-xl border border-border bg-card px-4 py-3"
-                          />
-                          <input
-                            name="order"
-                            type="number"
-                            min="1"
-                            defaultValue={lesson.order}
-                            placeholder="Ordre"
-                            className="rounded-xl border border-border bg-card px-4 py-3"
-                            required
-                          />
-                          <textarea
-                            name="description"
-                            defaultValue={lesson.description ?? ""}
-                            rows={2}
-                            className="md:col-span-4 rounded-xl border border-border bg-card px-4 py-3"
-                          />
-                          <div className="flex gap-2 md:justify-end">
-                            <button
-                              type="submit"
-                              className="rounded-full border border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-primary hover:text-white transition-colors"
-                            >
-                              Sauver
-                            </button>
+
+                          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <AdminFormField label="عنوان الدرس">
+                              <Input
+                                name="title"
+                                defaultValue={lesson.title}
+                                className="w-full"
+                                required
+                              />
+                            </AdminFormField>
+                            <MediaUrlField
+                              mediaType="video"
+                              urlName="videoUrl"
+                              durationName="duration"
+                              label="رابط الفيديو"
+                              defaultUrl={lesson.videoUrl ?? ""}
+                              defaultDuration={lesson.duration}
+                              hint="رابط ملف فيديو مباشر (.mp4, .webm)."
+                            />
+                            <AdminFormField label="رابط PDF">
+                              <Input
+                                name="pdfUrl"
+                                defaultValue={lesson.pdfUrl ?? ""}
+                                className="w-full"
+                              />
+                            </AdminFormField>
+                            <AdminFormField label="الترتيب">
+                              <Input
+                                name="order"
+                                type="number"
+                                min="1"
+                                defaultValue={lesson.order}
+                                className="w-full"
+                                required
+                              />
+                            </AdminFormField>
                           </div>
+
+                          <AdminFormField label="وصف الدرس">
+                            <Textarea
+                              name="description"
+                              defaultValue={lesson.description ?? ""}
+                              rows={2}
+                              className="w-full"
+                            />
+                          </AdminFormField>
                         </ActionForm>
-                        <div className="flex gap-2 md:justify-end">
-                          <ActionForm action={deleteLesson} locale="fr">
+                        <AdminFormActions align="end" className="mt-3">
+                          <AdminOutlineButton form={`lesson-update-${lesson.id}`}>
+                            حفظ الدرس
+                          </AdminOutlineButton>
+                          <ActionForm action={deleteLesson} locale="ar" className="inline-flex">
                             <input type="hidden" name="courseId" value={course.id} />
                             <input type="hidden" name="lessonId" value={lesson.id} />
-                            <button
-                              type="submit"
-                              className="rounded-full border border-red-300 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
-                            >
-                              Supprimer
-                            </button>
+                            <AdminDangerButton>حذف</AdminDangerButton>
                           </ActionForm>
-                        </div>
+                        </AdminFormActions>
                       </Card>
                     ))}
                   </div>

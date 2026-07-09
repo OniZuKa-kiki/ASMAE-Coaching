@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ExternalLink, Home, Menu, X } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
 import { PanelNavList } from "@/components/layout/panel-nav-list";
-import { adminNavLinks } from "@/lib/admin-nav";
+import { getAdminNavLinks } from "@/lib/admin-nav";
 import { dashboardNavLinks } from "@/lib/dashboard-nav";
 import { cn } from "@/lib/utils";
 
@@ -23,8 +23,8 @@ export function PanelMobileHeader({
 }: PanelMobileHeaderProps) {
   const [open, setOpen] = useState(false);
   const isAdmin = variant === "admin";
-  const links = isAdmin ? adminNavLinks : dashboardNavLinks;
-  const label = homeLabel ?? (isAdmin ? "Voir le site" : "الرئيسية");
+  const links = isAdmin ? getAdminNavLinks() : dashboardNavLinks;
+  const label = homeLabel ?? (isAdmin ? "عرض الموقع" : "الرئيسية");
 
   useEffect(() => {
     if (!open) return;
@@ -54,7 +54,7 @@ export function PanelMobileHeader({
             type="button"
             onClick={() => setOpen(true)}
             className="p-2 -ml-2 text-heading rounded-lg hover:bg-primary/5 transition-colors"
-            aria-label={isAdmin ? "Ouvrir le menu" : "فتح القائمة"}
+            aria-label={isAdmin ? "فتح القائمة" : "فتح القائمة"}
           >
             <Menu className="w-6 h-6" />
           </button>

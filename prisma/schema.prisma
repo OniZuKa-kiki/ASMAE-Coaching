@@ -264,3 +264,14 @@ model Coupon {
   isActive      Boolean   @default(true)
   createdAt     DateTime  @default(now())
 }
+
+model SiteSettings {
+  id              String   @id @default("default")
+  contactEmail    String
+  contactPhone    String?
+  coachEmail      String?
+  whatsappUrl     String?
+  instagramUrl    String?
+  instagramHandle String?
+  updatedAt       DateTime @updatedAt
+}

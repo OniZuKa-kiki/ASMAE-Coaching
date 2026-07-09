@@ -1,3 +1,4 @@
+import { adminUrl } from "@/lib/admin-path";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/card";
@@ -14,40 +15,40 @@ function getMeetingMode() {
 
   if (staticZoomUrl) {
     return {
-      title: "Lien Zoom fixe configuré",
+      title: "تم إعداد رابط Zoom ثابت",
       description:
-        "Chaque réservation confirmée recevra le même lien Zoom. C'est la solution la plus simple pour démarrer.",
-      status: "Actif",
-      provider: "Zoom (lien fixe)",
+        "سيستلم كل حجز مؤكد نفس رابط Zoom. هذه أبسط طريقة للبدء.",
+      status: "نشط",
+      provider: "Zoom (رابط ثابت)",
     };
   }
 
   if (staticMeetUrl) {
     return {
-      title: "Lien Google Meet fixe configuré",
+      title: "تم إعداد رابط Google Meet ثابت",
       description:
-        "Chaque réservation confirmée recevra le même lien Google Meet.",
-      status: "Actif",
-      provider: "Google Meet (lien fixe)",
+        "سيستلم كل حجز مؤكد نفس رابط Google Meet.",
+      status: "نشط",
+      provider: "Google Meet (رابط ثابت)",
     };
   }
 
   if (zoomAccountId && zoomClientId && zoomClientSecret) {
     return {
-      title: "Création automatique Zoom activable",
+      title: "يمكن تفعيل إنشاء Zoom تلقائياً",
       description:
-        "Le projet dispose des variables nécessaires pour créer un lien Zoom unique par séance via l'API Zoom.",
-      status: "Configuré",
+        "المشروع يحتوي على المتغيرات اللازمة لإنشاء رابط Zoom فريد لكل جلسة عبر Zoom API.",
+      status: "مُعدّ",
       provider: "Zoom API",
     };
   }
 
   return {
-    title: "Aucune visioconférence configurée",
+    title: "لم يتم إعداد مكالمات الفيديو",
     description:
-      "Aucun lien Zoom/Meet n'est configuré. Le système utilisera un lien de secours vers le dashboard tant qu'une config de visio n'est pas définie.",
-    status: "À compléter",
-    provider: "Aucun",
+      "لم يتم إعداد أي رابط Zoom/Meet. سيستخدم النظام رابطاً احتياطياً إلى لوحة التحكم حتى يتم تحديد إعدادات مكالمات الفيديو.",
+    status: "يحتاج إكمال",
+    provider: "لا يوجد",
   };
 }
 
@@ -62,17 +63,17 @@ export default async function AdminVisioSettingsPage() {
       <div className="page-header">
         <div>
           <h1 className="page-header-title">
-            Visioconférence
+            مكالمات الفيديو
           </h1>
           <p className="text-sm text-text/70 mt-1">
-            Gestion des liens envoyés après confirmation d&apos;une réservation.
+            إدارة الروابط المُرسلة بعد تأكيد الحجز.
           </p>
         </div>
         <Link
-          href="/admin/settings"
+          href={adminUrl("/settings")}
           className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
         >
-          Retour
+          رجوع
         </Link>
       </div>
 
@@ -81,10 +82,10 @@ export default async function AdminVisioSettingsPage() {
           <h2 className="font-heading text-xl text-heading mb-3">{mode.title}</h2>
           <div className="space-y-2 text-sm text-text/80">
             <p>
-              <span className="font-semibold text-heading">Statut :</span> {mode.status}
+              <span className="font-semibold text-heading">الحالة:</span> {mode.status}
             </p>
             <p>
-              <span className="font-semibold text-heading">Mode actuel :</span>{" "}
+              <span className="font-semibold text-heading">الوضع الحالي:</span>{" "}
               {mode.provider}
             </p>
             <p>{mode.description}</p>
@@ -92,24 +93,23 @@ export default async function AdminVisioSettingsPage() {
         </Card>
 
         <Card>
-          <h2 className="font-heading text-xl text-heading mb-3">Comment cela fonctionne</h2>
+          <h2 className="font-heading text-xl text-heading mb-3">كيف يعمل</h2>
           <ul className="space-y-2 text-sm text-text/80 list-disc pl-5">
-            <li>Quand un paiement de réservation est validé, la réservation passe en confirmé.</li>
-            <li>À ce moment-là, le système génère ou récupère le lien de visio.</li>
-            <li>Le lien est enregistré dans la réservation et envoyé dans l&apos;email client.</li>
-            <li>Le client retrouve aussi ce lien dans son dashboard, section consultations.</li>
+            <li>عند تأكيد دفع الحجز، ينتقل الحجز إلى حالة مؤكد.</li>
+            <li>في هذه اللحظة، يُنشئ النظام أو يسترجع رابط مكالمة الفيديو.</li>
+            <li>يُحفظ الرابط في الحجز ويُرسل في بريد العميل الإلكتروني.</li>
+            <li>يجد العميل الرابط أيضاً في لوحته، قسم الاستشارات.</li>
           </ul>
         </Card>
 
         <Card>
-          <h2 className="font-heading text-xl text-heading mb-3">Conseil</h2>
+          <h2 className="font-heading text-xl text-heading mb-3">نصيحة</h2>
           <p className="text-sm text-text/80">
-            Pour démarrer rapidement, le lien fixe est suffisant. Plus tard, vous pourrez
-            passer à un lien Zoom unique par séance si vous activez l&apos;API Zoom complète.
+            للبدء بسرعة، يكفي الرابط الثابت. لاحقاً، يمكنك الانتقال
+            إلى رابط Zoom فريد لكل جلسة إذا فعّلت Zoom API بالكامل.
           </p>
         </Card>
       </div>
     </div>
   );
 }
-

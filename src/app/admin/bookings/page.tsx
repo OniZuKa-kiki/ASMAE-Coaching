@@ -1,8 +1,11 @@
+import { adminUrl } from "@/lib/admin-path";
 import { format } from "date-fns";
 import { revalidatePath } from "next/cache";
+import { AdminFormField } from "@/components/admin/form-field";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { Input } from "@/components/ui/input";
 import { adminErrors } from "@/lib/api-errors";
 import {
   ensureAdmin,
@@ -18,6 +21,13 @@ export const dynamic = "force-dynamic";
 
 const bookingStatuses = ["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"] as const;
 
+const bookingStatusLabels: Record<(typeof bookingStatuses)[number], string> = {
+  PENDING: "قيد الانتظار",
+  CONFIRMED: "مؤكد",
+  COMPLETED: "مكتمل",
+  CANCELLED: "ملغى",
+};
+
 async function updateBookingStatus(formData: FormData): Promise<ActionResult> {
   "use server";
 
@@ -27,10 +37,10 @@ async function updateBookingStatus(formData: FormData): Promise<ActionResult> {
   const bookingId = String(formData.get("bookingId") || "");
   const status = String(formData.get("status") || "");
   if (!bookingId || !bookingStatuses.includes(status as (typeof bookingStatuses)[number])) {
-    return incomplete("fr");
+    return incomplete("ar");
   }
 
-  return runAction("fr", async () => {
+  return runAction("ar", async () => {
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
       select: { date: true, startTime: true },
@@ -108,44 +118,57 @@ export default async function AdminBookingsPage({
 
   return (
     <div>
-      <h1 className="page-header-title mb-6 sm:mb-8">Réservations</h1>
+      <h1 className="page-header-title mb-6 sm:mb-8">الحجوزات</h1>
       <Card className="mb-6">
-        <form method="GET" className="grid md:grid-cols-4 gap-3">
-          <input
-            name="q"
-            defaultValue={q}
-            placeholder="Rechercher client, email, service..."
-            className="rounded-xl border border-border bg-card px-4 py-3 text-sm"
-          />
-          <FilterSelect
-            name="status"
-            value={status}
-            options={[
-              { value: "", label: "Tous statuts" },
-              ...bookingStatuses.map((s) => ({ value: s, label: s })),
-            ]}
-          />
-          <FilterSelect
-            name="sort"
-            value={sort}
-            options={[
-              { value: "created_desc", label: "Plus récents" },
-              { value: "created_asc", label: "Plus anciens" },
-              { value: "date_asc", label: "Date séance ↑" },
-              { value: "date_desc", label: "Date séance ↓" },
-            ]}
-          />
-          <button
-            type="submit"
-            className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
-          >
-            Filtrer
-          </button>
+        <h2 className="font-heading text-xl text-heading mb-4">تصفية القائمة</h2>
+        <form method="GET" className="grid md:grid-cols-4 gap-4">
+          <AdminFormField label="بحث" htmlFor="booking-filter-q">
+            <Input
+              id="booking-filter-q"
+              name="q"
+              defaultValue={q}
+              placeholder="العميل، البريد أو الخدمة..."
+              className="text-sm"
+            />
+          </AdminFormField>
+          <AdminFormField label="حالة الحجز">
+            <FilterSelect
+              name="status"
+              value={status}
+              options={[
+                { value: "", label: "جميع الحالات" },
+                { value: "PENDING", label: "قيد الانتظار" },
+                { value: "CONFIRMED", label: "مؤكد" },
+                { value: "COMPLETED", label: "مكتمل" },
+                { value: "CANCELLED", label: "ملغى" },
+              ]}
+            />
+          </AdminFormField>
+          <AdminFormField label="ترتيب العرض">
+            <FilterSelect
+              name="sort"
+              value={sort}
+              options={[
+                { value: "created_desc", label: "الأحدث" },
+                { value: "created_asc", label: "الأقدم" },
+                { value: "date_asc", label: "تاريخ الجلسة ↑" },
+                { value: "date_desc", label: "تاريخ الجلسة ↓" },
+              ]}
+            />
+          </AdminFormField>
+          <div className="flex items-end">
+            <button
+              type="submit"
+              className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors w-full"
+            >
+              تصفية
+            </button>
+          </div>
         </form>
       </Card>
       {bookings.length === 0 ? (
         <Card className="text-center py-12">
-          <p className="text-text/70">Aucune réservation pour le moment.</p>
+          <p className="text-text/70">لا توجد حجوزات حالياً.</p>
         </Card>
       ) : (
         <div className="space-y-4">
@@ -155,39 +178,46 @@ export default async function AdminBookingsPage({
                 <div>
                   <p className="font-semibold text-heading">{booking.service.title}</p>
                   <p className="text-sm text-text/70">
-                    {booking.user.firstName || "Client"} {booking.user.lastName || ""} —{" "}
+                    {booking.user.firstName || "عميل"} {booking.user.lastName || ""} —{" "}
                     {booking.user.email}
                   </p>
                   <p className="text-sm text-text/70">
-                    {formatDate(booking.date)} à {booking.startTime}
+                    {formatDate(booking.date)} في {booking.startTime}
                   </p>
                   <p className="text-xs text-text/60 mt-1">
-                    Paiement: {booking.payment?.status || "Aucun"}
+                    الدفع: {booking.payment?.status || "لا يوجد"}
                   </p>
                 </div>
 
                 <ActionForm
                   action={updateBookingStatus}
-                  locale="fr"
-                  className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 w-full lg:w-auto"
+                  locale="ar"
+                  className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-end gap-2 w-full lg:w-auto"
                 >
                   <input type="hidden" name="bookingId" value={booking.id} />
-                  <select
-                    name="status"
-                    defaultValue={booking.status}
-                    className="w-full sm:w-auto rounded-full border border-border bg-card px-4 py-2 text-sm text-heading"
+                  <AdminFormField
+                    label="تحديث الحالة"
+                    htmlFor={`booking-status-${booking.id}`}
+                    className="w-full sm:w-auto"
                   >
-                    {bookingStatuses.map((statusOption) => (
-                      <option key={statusOption} value={statusOption}>
-                        {statusOption}
-                      </option>
-                    ))}
-                  </select>
+                    <select
+                      id={`booking-status-${booking.id}`}
+                      name="status"
+                      defaultValue={booking.status}
+                      className="w-full sm:w-auto rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-heading"
+                    >
+                      {bookingStatuses.map((statusOption) => (
+                        <option key={statusOption} value={statusOption}>
+                          {bookingStatusLabels[statusOption]}
+                        </option>
+                      ))}
+                    </select>
+                  </AdminFormField>
                   <button
                     type="submit"
                     className="w-full sm:w-auto rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover transition-colors"
                   >
-                    Mettre à jour
+                    تحديث
                   </button>
                 </ActionForm>
               </div>

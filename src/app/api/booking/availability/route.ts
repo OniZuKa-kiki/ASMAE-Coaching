@@ -1,19 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
-import { format } from "date-fns";
+import { z } from "zod";
+import { availabilityQuerySchema } from "@/lib/api-schemas";
+import { friendlyErrors } from "@/lib/api-errors";
 import { getAvailableSlots } from "@/lib/booking";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
 export async function GET(request: NextRequest) {
-  const date = request.nextUrl.searchParams.get("date");
-  const serviceSlug = request.nextUrl.searchParams.get("service");
+  try {
+    const ip = getClientIp(request);
+    const limited = rateLimit(`availability:${ip}`, 60, 60_000);
+    if (!limited.ok) {
+      return NextResponse.json(
+        { error: "طلبات كثيرة. حاول مجدداً." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(limited.retryAfterSec) },
+        }
+      );
+    }
 
-  if (!date || !serviceSlug) {
+    const parsed = availabilityQuerySchema.parse({
+      date: request.nextUrl.searchParams.get("date"),
+      service: request.nextUrl.searchParams.get("service"),
+    });
+
+    const slots = await getAvailableSlots(parsed.date, parsed.service);
+    return NextResponse.json({
+      date: parsed.date,
+      serviceSlug: parsed.service,
+      slots,
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: friendlyErrors.incomplete },
+        { status: 400 }
+      );
+    }
+    console.error("[availability]", error);
     return NextResponse.json(
-      { error: "Paramètres date et service requis" },
-      { status: 400 }
+      { error: friendlyErrors.generic },
+      { status: 500 }
     );
   }
-
-  const slots = await getAvailableSlots(date, serviceSlug);
-
-  return NextResponse.json({ date, serviceSlug, slots });
 }

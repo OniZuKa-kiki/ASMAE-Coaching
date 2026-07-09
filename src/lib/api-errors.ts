@@ -15,14 +15,14 @@ export const friendlyErrors = {
   bookingRedirect: "جاري توجيهك إلى صفحة الدفع…",
 } as const;
 
-/** Messages admin (français) */
+/** Messages admin (arabe) */
 export const adminErrors = {
-  unauthorized: "Accès non autorisé.",
-  incomplete: "Veuillez remplir tous les champs requis.",
-  notFound: "Élément introuvable.",
+  unauthorized: "غير مصرح بالوصول.",
+  incomplete: "يرجى ملء جميع الحقول المطلوبة.",
+  notFound: "العنصر غير موجود.",
   emailUnavailable:
-    "Envoi d'email indisponible. Vérifiez la configuration Resend.",
-  generic: "Une erreur est survenue. Veuillez réessayer.",
+    "إرسال البريد غير متاح. تحقق من إعدادات Resend.",
+  generic: "حدث خطأ. يرجى المحاولة مجدداً.",
 } as const;
 
 export function toFriendlyActionError(

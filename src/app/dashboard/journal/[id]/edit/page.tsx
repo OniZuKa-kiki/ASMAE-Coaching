@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { AdminFormField } from "@/components/admin/form-field";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
+import { Input, Textarea } from "@/components/ui/input";
 import { incomplete, runAction, type ActionResult } from "@/lib/action-result";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/user";
@@ -75,21 +77,26 @@ export default async function DashboardJournalEditPage({
       </div>
 
       <Card>
-        <ActionForm action={updateJournalEntry} className="space-y-3">
+        <ActionForm action={updateJournalEntry} className="space-y-4">
           <input type="hidden" name="id" value={entry.id} />
-          <input
-            name="mood"
-            defaultValue={entry.mood ?? ""}
-            placeholder="المزاج"
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-          />
-          <textarea
-            name="content"
-            defaultValue={entry.content}
-            rows={10}
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-            required
-          />
+          <AdminFormField label="المزاج (اختياري)" htmlFor="edit-journal-mood">
+            <Input
+              id="edit-journal-mood"
+              name="mood"
+              defaultValue={entry.mood ?? ""}
+              className="w-full"
+            />
+          </AdminFormField>
+          <AdminFormField label="الملاحظة" htmlFor="edit-journal-content">
+            <Textarea
+              id="edit-journal-content"
+              name="content"
+              defaultValue={entry.content}
+              rows={10}
+              className="w-full"
+              required
+            />
+          </AdminFormField>
           <button
             type="submit"
             className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"

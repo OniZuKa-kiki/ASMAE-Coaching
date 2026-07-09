@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { bookingCheckoutSchema } from "@/lib/api-schemas";
+import { auditLog } from "@/lib/audit-log";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/user";
 import { friendlyErrors, toFriendlyError } from "@/lib/api-errors";
@@ -25,24 +28,12 @@ export async function POST(request: NextRequest) {
     }
 
     const user = await requireUser();
-    const body = await request.json();
-    const { serviceSlug, date, startTime, provider } = body as {
-      serviceSlug: string;
-      date: string;
-      startTime: string;
-      provider?: PaymentProviderId;
-    };
+    const body = bookingCheckoutSchema.parse(await request.json());
+    const { serviceSlug, date, startTime, provider } = body;
 
     const paymentProvider: PaymentProviderId =
-      provider || getDefaultProvider();
+      (provider as PaymentProviderId | undefined) || getDefaultProvider();
     assertPaymentProviderAvailable(paymentProvider);
-
-    if (!serviceSlug || !date || !startTime) {
-      return NextResponse.json(
-        { error: friendlyErrors.incomplete },
-        { status: 400 }
-      );
-    }
 
     const service = await prisma.service.findUnique({
       where: { slug: serviceSlug, isActive: true },
@@ -72,8 +63,21 @@ export async function POST(request: NextRequest) {
       cancelPath: `/booking?service=${serviceSlug}`,
     });
 
+    auditLog({
+      action: "booking.checkout_started",
+      actorId: user.id,
+      actorEmail: user.email,
+      target: booking.id,
+    });
+
     return NextResponse.json(result);
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: friendlyErrors.incomplete },
+        { status: 400 }
+      );
+    }
     if (error instanceof SlotUnavailableError) {
       return NextResponse.json(
         { error: friendlyErrors.slotUnavailable },

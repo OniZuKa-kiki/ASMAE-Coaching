@@ -56,7 +56,7 @@ export function unauthorized(locale: ActionLocale): ActionResult {
 
 export async function ensureAdmin(): Promise<ActionResult | null> {
   const role = await getUserRole();
-  if (role !== "admin") return unauthorized("fr");
+  if (role !== "admin") return unauthorized("ar");
   return null;
 }
 

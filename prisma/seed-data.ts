@@ -147,6 +147,61 @@ export const seedPodcasts = [
   },
 ];
 
+export const seedServices = [
+  {
+    slug: "individuel",
+    title: "كوتشينغ فردي",
+    description:
+      "مرافقة مخصصة لاستكشاف عوائقك، توضيح أهدافك، والتقدم نحو الحياة التي تستحقها.",
+    duration: "60 د",
+    price: 12000,
+  },
+  {
+    slug: "couple",
+    title: "كوتشينغ الأزواج",
+    description:
+      "استعيدوا الانسجام في علاقتكم عبر مساحة استماع حنونة وأدوات تواصل فعّالة.",
+    duration: "90 د",
+    price: 18000,
+  },
+  {
+    slug: "carriere",
+    title: "كوتشينغ مهني",
+    description: "وائم مسارك المهني مع قيمك وأعطِ دفعة جديدة لمسيرتك.",
+    duration: "60 د",
+    price: 14000,
+  },
+  {
+    slug: "bien-etre",
+    title: "تطوير شخصي",
+    description:
+      "مسار لرعاية رفاهك الداخلي، إدارة مشاعرك، وتنمية وعيك الكامل.",
+    duration: "60 د",
+    price: 12000,
+  },
+];
+
+export const seedCourses = [
+  {
+    slug: "confiance-en-soi",
+    title: "اكتساب الثقة بالنفس",
+    description: "برنامج متكامل لبناء ثقة دائمة وأصيلة بنفسك.",
+    price: 19700,
+  },
+  {
+    slug: "gestion-stress",
+    title: "إتقان إدارة التوتر",
+    description: "تقنيات عملية لإدارة التوتر يومياً واستعادة هدوئك.",
+    price: 14700,
+  },
+  {
+    slug: "objectifs-vie",
+    title: "تحديد الأهداف وتحقيقها",
+    description: "منهج مجرب لتحديد أهداف واضحة وتحقيقها بعزيمة.",
+    price: 16700,
+  },
+];
+
 export const seedCourseModules: Record<
   string,
   { title: string; lessons: { title: string; description: string }[] }[]

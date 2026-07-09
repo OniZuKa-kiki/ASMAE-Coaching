@@ -5,6 +5,7 @@ import { arSA } from "@clerk/localizations";
 import { SiteShell } from "@/components/layout/site-shell";
 import { AppToaster } from "@/components/ui/app-toaster";
 import { clerkAppearance } from "@/lib/clerk-appearance";
+import { getPublicContact } from "@/lib/site-settings";
 import "./globals.css";
 
 const cairo = Cairo({
@@ -39,16 +40,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const contact = await getPublicContact();
+
   return (
     <html lang="ar" dir="rtl" className={cairo.variable} suppressHydrationWarning>
       <body className="min-h-screen flex flex-col overflow-x-hidden" suppressHydrationWarning>
         <ClerkProvider appearance={clerkAppearance} localization={arSA}>
-          <SiteShell>{children}</SiteShell>
+          <SiteShell contact={contact}>{children}</SiteShell>
           <AppToaster />
         </ClerkProvider>
       </body>

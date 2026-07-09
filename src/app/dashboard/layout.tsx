@@ -12,10 +12,10 @@ export default async function DashboardLayout({
   if (!userId) redirect("/sign-in");
 
   return (
-    <div className="flex min-h-screen flex-col lg:flex-row bg-background overflow-x-hidden" suppressHydrationWarning>
+    <div className="min-h-screen bg-background" suppressHydrationWarning>
       <PanelMobileHeader variant="dashboard" homeLabel="الرئيسية" />
       <DashboardSidebar />
-      <div className="flex-1 min-w-0 p-4 sm:p-6 lg:p-10">{children}</div>
+      <div className="min-w-0 p-4 sm:p-6 lg:p-10 lg:ps-72">{children}</div>
     </div>
   );
 }

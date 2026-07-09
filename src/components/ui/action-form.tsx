@@ -15,6 +15,7 @@ type ActionFormProps = {
   locale?: ActionLocale;
   redirectTo?: string;
   className?: string;
+  id?: string;
   children: React.ReactNode;
 };
 
@@ -24,6 +25,7 @@ export function ActionForm({
   locale = "ar",
   redirectTo,
   className,
+  id,
   children,
 }: ActionFormProps) {
   const router = useRouter();
@@ -54,6 +56,7 @@ export function ActionForm({
 
   return (
     <form
+      id={id}
       action={handleAction}
       className={cn(className, pending && "pointer-events-none opacity-80")}
     >

@@ -31,6 +31,7 @@ interface EmailLayoutOptions {
   cta?: { label: string; href: string };
   footerNote?: string;
   lang?: "ar" | "fr";
+  contactEmail?: string;
 }
 
 export function renderEmailLayout({
@@ -41,6 +42,7 @@ export function renderEmailLayout({
   cta,
   footerNote,
   lang = "ar",
+  contactEmail = siteConfig.contact.email,
 }: EmailLayoutOptions): string {
   const dir = lang === "ar" ? "rtl" : "ltr";
   const appUrl = siteConfig.url;
@@ -177,7 +179,7 @@ export function renderEmailLayout({
               <p style="margin: 0 0 8px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; color: rgba(255,255,255,0.7);">
                 <a href="${appUrl}" style="color: rgba(255,255,255,0.9); text-decoration: underline;">asmae-coaching.fr</a>
                 &nbsp;·&nbsp;
-                <a href="mailto:${siteConfig.contact.email}" style="color: rgba(255,255,255,0.9); text-decoration: underline;">${escapeHtml(siteConfig.contact.email)}</a>
+                <a href="mailto:${escapeHtml(contactEmail)}" style="color: rgba(255,255,255,0.9); text-decoration: underline;">${escapeHtml(contactEmail)}</a>
               </p>
               <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; color: rgba(255,255,255,0.5);">
                 © ${new Date().getFullYear()} ASMAE Coaching — ${lang === "ar" ? "جميع الحقوق محفوظة" : "Tous droits réservés"}
@@ -230,10 +232,12 @@ export function renderContactEmail({
   name,
   email,
   message,
+  contactEmail = siteConfig.contact.email,
 }: {
   name: string;
   email: string;
   message: string;
+  contactEmail?: string;
 }): string {
   const safeEmail = escapeHtml(email);
   return renderEmailLayout({
@@ -256,6 +260,7 @@ export function renderContactEmail({
     },
     footerNote: "Notification automatique — formulaire de contact",
     lang: "fr",
+    contactEmail,
   });
 }
 
@@ -265,12 +270,14 @@ export function renderBookingConfirmationEmail({
   date,
   time,
   meetingUrl,
+  contactEmail = siteConfig.contact.email,
 }: {
   clientName: string;
   serviceName: string;
   date: string;
   time: string;
   meetingUrl?: string;
+  contactEmail?: string;
 }): string {
   const visioBlock = meetingUrl
     ? infoCard(
@@ -300,6 +307,7 @@ export function renderBookingConfirmationEmail({
       ? { label: "انضم لجلستي", href: meetingUrl }
       : undefined,
     footerNote: "تلقيت هذا البريد بعد حجزك على asmae-coaching.fr",
+    contactEmail,
   });
 }
 
@@ -307,10 +315,12 @@ export function renderCoursePurchaseEmail({
   clientName,
   courseName,
   dashboardUrl,
+  contactEmail = siteConfig.contact.email,
 }: {
   clientName: string;
   courseName: string;
   dashboardUrl: string;
+  contactEmail?: string;
 }): string {
   return renderEmailLayout({
     preheader: `مرحباً بك في دورة ${courseName}`,
@@ -327,5 +337,6 @@ export function renderCoursePurchaseEmail({
     `,
     cta: { label: "الوصول إلى دورتي", href: dashboardUrl },
     footerNote: "تلقيت هذا البريد بعد شرائك على asmae-coaching.fr",
+    contactEmail,
   });
 }

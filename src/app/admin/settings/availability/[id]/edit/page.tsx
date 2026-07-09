@@ -1,8 +1,16 @@
+import { adminUrl } from "@/lib/admin-path";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { AdminFormField } from "@/components/admin/form-field";
+import {
+  AdminDangerButton,
+  AdminFormActions,
+  AdminPrimaryButton,
+} from "@/components/admin/form-actions";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   ensureAdmin,
   incomplete,
@@ -15,13 +23,13 @@ import { getUserRole } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 
 const dayOptions = [
-  { value: 0, label: "Dimanche" },
-  { value: 1, label: "Lundi" },
-  { value: 2, label: "Mardi" },
-  { value: 3, label: "Mercredi" },
-  { value: 4, label: "Jeudi" },
-  { value: 5, label: "Vendredi" },
-  { value: 6, label: "Samedi" },
+  { value: 0, label: "الأحد" },
+  { value: 1, label: "الإثنين" },
+  { value: 2, label: "الثلاثاء" },
+  { value: 3, label: "الأربعاء" },
+  { value: 4, label: "الخميس" },
+  { value: 5, label: "الجمعة" },
+  { value: 6, label: "السبت" },
 ];
 
 async function updateAvailability(formData: FormData): Promise<ActionResult> {
@@ -37,13 +45,13 @@ async function updateAvailability(formData: FormData): Promise<ActionResult> {
   const isActive = String(formData.get("isActive") || "") === "on";
 
   const dayOfWeek = Number(dayOfWeekRaw);
-  if (!id || !startTime || !endTime) return incomplete("fr");
+  if (!id || !startTime || !endTime) return incomplete("ar");
   if (!Number.isFinite(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
-    return incomplete("fr");
+    return incomplete("ar");
   }
 
   return runAction(
-    "fr",
+    "ar",
     async () => {
       await prisma.availability.update({
         where: { id },
@@ -58,7 +66,7 @@ async function updateAvailability(formData: FormData): Promise<ActionResult> {
       revalidatePath("/admin/settings/availability");
     },
     "updated",
-    "/admin/settings/availability"
+    adminUrl("/settings/availability")
   );
 }
 
@@ -69,16 +77,16 @@ async function deleteAvailability(formData: FormData): Promise<ActionResult> {
   if (denied) return denied;
 
   const id = String(formData.get("id") || "");
-  if (!id) return incomplete("fr");
+  if (!id) return incomplete("ar");
 
   return runAction(
-    "fr",
+    "ar",
     async () => {
       await prisma.availability.delete({ where: { id } });
       revalidatePath("/admin/settings/availability");
     },
     "deleted",
-    "/admin/settings/availability"
+    adminUrl("/settings/availability")
   );
 }
 
@@ -98,76 +106,78 @@ export default async function AdminAvailabilityEditPage({
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-header-title">
-            Modifier un créneau
-          </h1>
+          <h1 className="page-header-title">تعديل فترة</h1>
           <p className="text-sm text-text/70 mt-1">
             {dayOptions.find((d) => d.value === row.dayOfWeek)?.label ?? row.dayOfWeek}
           </p>
         </div>
         <Link
-          href="/admin/settings/availability"
+          href={adminUrl("/settings/availability")}
           className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
         >
-          Retour
+          رجوع
         </Link>
       </div>
 
       <Card className="p-5">
-        <ActionForm action={updateAvailability} locale="fr" className="grid md:grid-cols-5 gap-3">
+        <ActionForm action={updateAvailability} locale="ar" className="grid md:grid-cols-2 gap-4" id={`availability-update-${row.id}`}>
           <input type="hidden" name="id" value={row.id} />
 
-          <select
-            name="dayOfWeek"
-            defaultValue={row.dayOfWeek}
-            className="rounded-xl border border-border bg-card px-4 py-3 text-sm"
-          >
-            {dayOptions.map((d) => (
-              <option key={d.value} value={d.value}>
-                {d.label}
-              </option>
-            ))}
-          </select>
-
-          <input
-            name="startTime"
-            type="time"
-            defaultValue={row.startTime}
-            className="rounded-xl border border-border bg-card px-4 py-3 text-sm"
-            required
-          />
-          <input
-            name="endTime"
-            type="time"
-            defaultValue={row.endTime}
-            className="rounded-xl border border-border bg-card px-4 py-3 text-sm"
-            required
-          />
-
-          <label className="inline-flex items-center gap-2 text-sm text-text md:col-span-1">
-            <input type="checkbox" name="isActive" defaultChecked={row.isActive} />
-            Actif
-          </label>
-
-          <div className="flex gap-2 md:col-span-4 md:justify-end">
-            <button
-              type="submit"
-              className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
+          <AdminFormField label="اليوم" htmlFor="edit-avail-day">
+            <select
+              id="edit-avail-day"
+              name="dayOfWeek"
+              defaultValue={row.dayOfWeek}
+              className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm"
             >
-              Sauvegarder
-            </button>
-          </div>
+              {dayOptions.map((d) => (
+                <option key={d.value} value={d.value}>
+                  {d.label}
+                </option>
+              ))}
+            </select>
+          </AdminFormField>
+
+          <AdminFormField label="الحالة">
+            <label className="inline-flex items-center gap-2 text-sm text-text h-[46px]">
+              <input type="checkbox" name="isActive" defaultChecked={row.isActive} />
+              فترة نشطة
+            </label>
+          </AdminFormField>
+
+          <AdminFormField label="وقت البداية" htmlFor="edit-avail-start">
+            <Input
+              id="edit-avail-start"
+              name="startTime"
+              type="time"
+              defaultValue={row.startTime}
+              className="text-sm"
+              required
+            />
+          </AdminFormField>
+
+          <AdminFormField label="وقت النهاية" htmlFor="edit-avail-end">
+            <Input
+              id="edit-avail-end"
+              name="endTime"
+              type="time"
+              defaultValue={row.endTime}
+              className="text-sm"
+              required
+            />
+          </AdminFormField>
+
         </ActionForm>
 
-        <ActionForm action={deleteAvailability} locale="fr" className="mt-3 flex md:justify-end">
-          <input type="hidden" name="id" value={row.id} />
-          <button
-            type="submit"
-            className="rounded-full border border-red-300 px-5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
-          >
-            Supprimer
-          </button>
-        </ActionForm>
+        <AdminFormActions align="end" className="mt-4 pt-4 border-t border-border/50">
+          <AdminPrimaryButton form={`availability-update-${row.id}`}>
+            حفظ التعديلات
+          </AdminPrimaryButton>
+          <ActionForm action={deleteAvailability} locale="ar" className="inline-flex">
+            <input type="hidden" name="id" value={row.id} />
+            <AdminDangerButton>حذف الفترة</AdminDangerButton>
+          </ActionForm>
+        </AdminFormActions>
       </Card>
     </div>
   );

@@ -1,8 +1,10 @@
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
+import { AdminFormField } from "@/components/admin/form-field";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { Input, Textarea } from "@/components/ui/input";
 import { adminErrors } from "@/lib/api-errors";
 import {
   ensureAdmin,
@@ -10,6 +12,7 @@ import {
   runAction,
   type ActionResult,
 } from "@/lib/action-result";
+import { adminUrl } from "@/lib/admin-path";
 import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -34,12 +37,12 @@ async function createCourse(formData: FormData): Promise<ActionResult> {
   const title = String(formData.get("title") || "").trim();
   const description = String(formData.get("description") || "").trim();
   const priceRaw = String(formData.get("price") || "").trim();
-  if (!title || !description || !priceRaw) return incomplete("fr");
+  if (!title || !description || !priceRaw) return incomplete("ar");
 
   const price = Number(priceRaw);
-  if (!Number.isFinite(price)) return incomplete("fr");
+  if (!Number.isFinite(price)) return incomplete("ar");
 
-  return runAction("fr", async () => {
+  return runAction("ar", async () => {
     const baseSlug = slugify(title);
     const exists = await prisma.course.findUnique({ where: { slug: baseSlug } });
     const slug = exists ? `${baseSlug}-${Date.now().toString().slice(-4)}` : baseSlug;
@@ -66,9 +69,9 @@ async function toggleCoursePublish(formData: FormData): Promise<ActionResult> {
   if (denied) return denied;
 
   const id = String(formData.get("id") || "");
-  if (!id) return incomplete("fr");
+  if (!id) return incomplete("ar");
 
-  return runAction("fr", async () => {
+  return runAction("ar", async () => {
     const course = await prisma.course.findUnique({ where: { id } });
     if (!course) throw new Error(adminErrors.notFound);
 
@@ -138,82 +141,99 @@ export default async function AdminCoursesPage({
   return (
     <div>
       <h1 className="page-header-title mb-6 sm:mb-8">
-        Formations
+        الدورات التدريبية
       </h1>
 
       <Card className="mb-6">
-        <h2 className="font-heading text-xl text-heading mb-4">Nouvelle formation</h2>
-        <ActionForm action={createCourse} locale="fr" className="space-y-3">
-          <input
-            name="title"
-            placeholder="Titre"
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-            required
-          />
-          <textarea
-            name="description"
-            placeholder="Description"
-            rows={4}
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-            required
-          />
-          <input
-            name="price"
-            type="number"
-            min="0"
-            placeholder="Prix en centimes (ex: 19700)"
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-            required
-          />
+        <h2 className="font-heading text-xl text-heading mb-4">دورة جديدة</h2>
+        <ActionForm action={createCourse} locale="ar" className="space-y-4">
+          <AdminFormField label="عنوان الدورة" htmlFor="new-course-title">
+            <Input id="new-course-title" name="title" className="w-full" required />
+          </AdminFormField>
+
+          <AdminFormField label="وصف الدورة" htmlFor="new-course-description">
+            <Textarea
+              id="new-course-description"
+              name="description"
+              rows={4}
+              className="w-full"
+              required
+            />
+          </AdminFormField>
+
+          <AdminFormField
+            label="السعر (بالسنتيم)"
+            htmlFor="new-course-price"
+            hint="مثال: 19700 = 197,00 €"
+          >
+            <Input
+              id="new-course-price"
+              name="price"
+              type="number"
+              min="0"
+              className="w-full"
+              required
+            />
+          </AdminFormField>
           <div>
             <button
               type="submit"
               className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
             >
-              Créer le brouillon
+              إنشاء مسودة
             </button>
           </div>
         </ActionForm>
       </Card>
       <Card className="mb-6">
-        <form method="GET" className="grid md:grid-cols-4 gap-3">
-          <input
-            name="q"
-            defaultValue={q}
-            placeholder="Rechercher titre ou slug..."
-            className="rounded-xl border border-border bg-card px-4 py-3 text-sm"
-          />
-          <FilterSelect
-            name="published"
-            value={published}
-            options={[
-              { value: "", label: "Publié + brouillon" },
-              { value: "yes", label: "Publiées" },
-              { value: "no", label: "Brouillons" },
-            ]}
-          />
-          <FilterSelect
-            name="sort"
-            value={sort}
-            options={[
-              { value: "created_desc", label: "Plus récentes" },
-              { value: "title_asc", label: "Titre A→Z" },
-              { value: "price_desc", label: "Prix ↓" },
-              { value: "price_asc", label: "Prix ↑" },
-            ]}
-          />
-          <button
-            type="submit"
-            className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
-          >
-            Filtrer
-          </button>
+        <h2 className="font-heading text-xl text-heading mb-4">تصفية القائمة</h2>
+        <form method="GET" className="grid md:grid-cols-4 gap-4">
+          <AdminFormField label="بحث" htmlFor="course-filter-q">
+            <Input
+              id="course-filter-q"
+              name="q"
+              defaultValue={q}
+              placeholder="العنوان أو الرابط..."
+              className="text-sm"
+            />
+          </AdminFormField>
+          <AdminFormField label="حالة النشر">
+            <FilterSelect
+              name="published"
+              value={published}
+              options={[
+                { value: "", label: "منشور + مسودة" },
+                { value: "yes", label: "منشورة" },
+                { value: "no", label: "مسودات" },
+              ]}
+            />
+          </AdminFormField>
+          <AdminFormField label="ترتيب العرض">
+            <FilterSelect
+              name="sort"
+              value={sort}
+              options={[
+                { value: "created_desc", label: "الأحدث" },
+                { value: "title_asc", label: "العنوان أ→ي" },
+                { value: "price_desc", label: "السعر ↓" },
+                { value: "price_asc", label: "السعر ↑" },
+              ]}
+            />
+          </AdminFormField>
+          <div className="flex items-end">
+            <button
+              type="submit"
+              className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors w-full"
+            >
+              تصفية
+            </button>
+          </div>
         </form>
       </Card>
 
       {courses.length === 0 ? (
         <Card className="text-center py-12">
-          <p className="text-text/70">Aucune formation pour le moment.</p>
+          <p className="text-text/70">لا توجد دورات حالياً.</p>
         </Card>
       ) : (
         <div className="space-y-3">
@@ -226,23 +246,23 @@ export default async function AdminCoursesPage({
                     /courses/{course.slug} • {(course.price / 100).toFixed(2)} €
                   </p>
                   <p className="text-xs text-text/60">
-                    Modules: {course.modules.length} • Inscrits: {course.enrollments.length}
+                    الوحدات: {course.modules.length} • المسجلون: {course.enrollments.length}
                   </p>
                 </div>
                 <div className="flex gap-2">
                   <Link
-                    href={`/admin/courses/${course.id}/edit`}
+                    href={adminUrl(`/courses/${course.id}/edit`)}
                     className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
                   >
-                    Éditer
+                    تعديل
                   </Link>
-                  <ActionForm action={toggleCoursePublish} locale="fr">
+                  <ActionForm action={toggleCoursePublish} locale="ar">
                     <input type="hidden" name="id" value={course.id} />
                     <button
                       type="submit"
                       className="rounded-full border border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-primary hover:text-white transition-colors"
                     >
-                      {course.isPublished ? "Dépublier" : "Publier"}
+                      {course.isPublished ? "إلغاء النشر" : "نشر"}
                     </button>
                   </ActionForm>
                 </div>

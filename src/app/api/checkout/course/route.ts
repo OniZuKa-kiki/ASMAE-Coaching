@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { courseCheckoutSchema } from "@/lib/api-schemas";
+import { auditLog } from "@/lib/audit-log";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/user";
 import { friendlyErrors, toFriendlyError } from "@/lib/api-errors";
@@ -22,21 +25,11 @@ export async function POST(request: NextRequest) {
     }
 
     const user = await requireUser();
-    const { slug, provider } = (await request.json()) as {
-      slug?: string;
-      provider?: PaymentProviderId;
-    };
+    const { slug, provider } = courseCheckoutSchema.parse(await request.json());
 
     const paymentProvider: PaymentProviderId =
-      provider || getDefaultProvider();
+      (provider as PaymentProviderId | undefined) || getDefaultProvider();
     assertPaymentProviderAvailable(paymentProvider);
-
-    if (!slug) {
-      return NextResponse.json(
-        { error: friendlyErrors.incomplete },
-        { status: 400 }
-      );
-    }
 
     const course = await prisma.course.findUnique({
       where: { slug, isPublished: true },
@@ -68,8 +61,21 @@ export async function POST(request: NextRequest) {
       cancelPath: `/courses/${slug}`,
     });
 
+    auditLog({
+      action: "course.checkout_started",
+      actorId: user.id,
+      actorEmail: user.email,
+      target: course.id,
+    });
+
     return NextResponse.json(result);
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: friendlyErrors.incomplete },
+        { status: 400 }
+      );
+    }
     const raw =
       error instanceof Error ? error.message : friendlyErrors.generic;
     const status = raw === "Non authentifié" ? 401 : 500;

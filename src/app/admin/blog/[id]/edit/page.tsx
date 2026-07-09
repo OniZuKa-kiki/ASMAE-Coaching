@@ -1,8 +1,16 @@
+import { adminUrl } from "@/lib/admin-path";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { AdminFormField } from "@/components/admin/form-field";
+import {
+  AdminDangerButton,
+  AdminFormActions,
+  AdminPrimaryButton,
+} from "@/components/admin/form-actions";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
+import { Input, Textarea } from "@/components/ui/input";
 import {
   ensureAdmin,
   incomplete,
@@ -35,10 +43,10 @@ async function updateBlogPost(formData: FormData): Promise<ActionResult> {
   const category = String(formData.get("category") || "").trim() || "Coaching";
   const excerpt = String(formData.get("excerpt") || "").trim();
   const content = String(formData.get("content") || "").trim();
-  if (!id || !title || !excerpt || !content) return incomplete("fr");
+  if (!id || !title || !excerpt || !content) return incomplete("ar");
 
   return runAction(
-    "fr",
+    "ar",
     async () => {
       const baseSlug = slugify(title);
       const conflict = await prisma.blogPost.findFirst({
@@ -56,7 +64,7 @@ async function updateBlogPost(formData: FormData): Promise<ActionResult> {
       revalidatePath("/blog");
     },
     "updated",
-    "/admin/blog"
+    adminUrl("/blog")
   );
 }
 
@@ -66,17 +74,17 @@ async function deleteBlogPost(formData: FormData): Promise<ActionResult> {
   if (denied) return denied;
 
   const id = String(formData.get("id") || "");
-  if (!id) return incomplete("fr");
+  if (!id) return incomplete("ar");
 
   return runAction(
-    "fr",
+    "ar",
     async () => {
       await prisma.blogPost.delete({ where: { id } });
       revalidatePath("/admin/blog");
       revalidatePath("/blog");
     },
     "deleted",
-    "/admin/blog"
+    adminUrl("/blog")
   );
 }
 
@@ -96,63 +104,74 @@ export default async function AdminBlogEditPage({
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-header-title">Modifier l&apos;article</h1>
-          <p className="text-sm text-text/70 mt-1">Slug: {post.slug}</p>
+          <h1 className="page-header-title">تعديل المقال</h1>
+          <p className="text-sm text-text/70 mt-1">الرابط: /blog/{post.slug}</p>
         </div>
         <Link
-          href="/admin/blog"
+          href={adminUrl("/blog")}
           className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
         >
-          Retour
+          رجوع
         </Link>
       </div>
 
       <Card>
-        <ActionForm action={updateBlogPost} locale="fr" className="space-y-3">
+        <ActionForm action={updateBlogPost} locale="ar" className="space-y-4" id={`blog-update-${post.id}`}>
           <input type="hidden" name="id" value={post.id} />
-          <input
-            name="title"
-            defaultValue={post.title}
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-            required
-          />
-          <div className="grid sm:grid-cols-2 gap-3">
-            <input
-              name="category"
-              defaultValue={post.category}
-              className="w-full rounded-xl border border-border bg-card px-4 py-3"
-            />
-            <input
-              name="excerpt"
-              defaultValue={post.excerpt}
-              className="w-full rounded-xl border border-border bg-card px-4 py-3"
+
+          <AdminFormField label="عنوان المقال" htmlFor="post-title">
+            <Input
+              id="post-title"
+              name="title"
+              defaultValue={post.title}
+              className="w-full"
               required
             />
+          </AdminFormField>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            <AdminFormField label="الفئة" htmlFor="post-category" hint="مثال: الرفاهية، العلاقات">
+              <Input
+                id="post-category"
+                name="category"
+                defaultValue={post.category}
+                className="w-full"
+              />
+            </AdminFormField>
+
+            <AdminFormField label="ملخص قصير" htmlFor="post-excerpt" hint="يظهر في قائمة المدونة.">
+              <Input
+                id="post-excerpt"
+                name="excerpt"
+                defaultValue={post.excerpt}
+                className="w-full"
+                required
+              />
+            </AdminFormField>
           </div>
-          <textarea
-            name="content"
-            defaultValue={post.content}
-            rows={10}
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-            required
-          />
-          <button
-            type="submit"
-            className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
-          >
-            Sauvegarder
-          </button>
+
+          <AdminFormField label="محتوى المقال" htmlFor="post-content">
+            <Textarea
+              id="post-content"
+              name="content"
+              defaultValue={post.content}
+              rows={10}
+              className="w-full"
+              required
+            />
+          </AdminFormField>
+
         </ActionForm>
 
-        <ActionForm action={deleteBlogPost} locale="fr" className="mt-3">
-          <input type="hidden" name="id" value={post.id} />
-          <button
-            type="submit"
-            className="rounded-full border border-red-300 px-5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
-          >
-            Supprimer
-          </button>
-        </ActionForm>
+        <AdminFormActions className="mt-4 pt-4 border-t border-border/50">
+          <AdminPrimaryButton form={`blog-update-${post.id}`}>
+            حفظ التعديلات
+          </AdminPrimaryButton>
+          <ActionForm action={deleteBlogPost} locale="ar" className="inline-flex">
+            <input type="hidden" name="id" value={post.id} />
+            <AdminDangerButton>حذف المقال</AdminDangerButton>
+          </ActionForm>
+        </AdminFormActions>
       </Card>
     </div>
   );

@@ -4,7 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Toaster } from "sonner";
 
-const PANEL_ROUTES = ["/dashboard", "/admin"];
+import { getAdminBasePath, isAdminPublicPath } from "@/lib/admin-path";
+
+const PANEL_ROUTES = ["/dashboard", getAdminBasePath()];
 const AUTH_ROUTES = ["/sign-in", "/sign-up"];
 
 function hasPublicHeader(pathname: string) {
@@ -14,7 +16,10 @@ function hasPublicHeader(pathname: string) {
 }
 
 function hasPanelMobileHeader(pathname: string) {
-  return PANEL_ROUTES.some((route) => pathname.startsWith(route));
+  return (
+    PANEL_ROUTES.some((route) => pathname.startsWith(route)) ||
+    isAdminPublicPath(pathname)
+  );
 }
 
 function getTopOffset(pathname: string) {
@@ -35,7 +40,6 @@ function getTopOffset(pathname: string) {
 
 export function AppToaster() {
   const pathname = usePathname();
-  const isAdmin = pathname.startsWith("/admin");
   const [topOffset, setTopOffset] = useState(() => getTopOffset(pathname));
 
   useEffect(() => {
@@ -45,10 +49,7 @@ export function AppToaster() {
     return () => window.removeEventListener("resize", update);
   }, [pathname]);
 
-  const position = useMemo(
-    () => (isAdmin ? "top-right" : "top-left"),
-    [isAdmin]
-  );
+  const position = useMemo(() => "top-left" as const, []);
 
   const sideOffset = 12;
 
@@ -57,10 +58,10 @@ export function AppToaster() {
       position={position}
       richColors
       closeButton
-      dir={isAdmin ? "ltr" : "rtl"}
+      dir="rtl"
       offset={{
         top: topOffset,
-        ...(isAdmin ? { right: sideOffset } : { left: sideOffset }),
+        left: sideOffset,
       }}
       mobileOffset={{
         top: topOffset,

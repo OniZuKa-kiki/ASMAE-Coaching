@@ -3,14 +3,24 @@
 import { usePathname } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import type { PublicContact } from "@/lib/contact-info";
+import { getAdminBasePath, isAdminPublicPath } from "@/lib/admin-path";
 
-const noShellRoutes = ["/dashboard", "/admin", "/sign-in", "/sign-up"];
+const baseNoShellRoutes = ["/dashboard", "/sign-in", "/sign-up"];
 
-export function SiteShell({ children }: { children: React.ReactNode }) {
+export function SiteShell({
+  children,
+  contact,
+}: {
+  children: React.ReactNode;
+  contact: PublicContact;
+}) {
   const pathname = usePathname();
-  const hideShell = noShellRoutes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
-  );
+  const noShellRoutes = [...baseNoShellRoutes, getAdminBasePath()];
+  const hideShell =
+    noShellRoutes.some(
+      (route) => pathname === route || pathname.startsWith(`${route}/`)
+    ) || isAdminPublicPath(pathname);
 
   if (hideShell) {
     return <>{children}</>;
@@ -20,7 +30,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
     <>
       <Header />
       <main className="flex-1">{children}</main>
-      <Footer />
+      <Footer contact={contact} />
     </>
   );
 }

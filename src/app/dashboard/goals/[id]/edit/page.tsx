@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { AdminFormField } from "@/components/admin/form-field";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
+import { Input, Textarea } from "@/components/ui/input";
 import {
   incomplete,
   runAction,
@@ -93,48 +95,62 @@ export default async function DashboardGoalEditPage({
       </div>
 
       <Card>
-        <ActionForm action={updateGoal} className="space-y-3">
+        <ActionForm action={updateGoal} className="space-y-4">
           <input type="hidden" name="id" value={goal.id} />
-          <input
-            name="title"
-            defaultValue={goal.title}
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-            required
-          />
-          <textarea
-            name="description"
-            defaultValue={goal.description ?? ""}
-            rows={4}
-            className="w-full rounded-xl border border-border bg-card px-4 py-3"
-          />
-          <div className="grid sm:grid-cols-2 gap-3">
-            <input
-              name="targetDate"
-              type="date"
-              defaultValue={
-                goal.targetDate
-                  ? new Date(goal.targetDate).toISOString().slice(0, 10)
-                  : ""
-              }
-              className="w-full rounded-xl border border-border bg-card px-4 py-3"
+          <AdminFormField label="عنوان الهدف" htmlFor="edit-goal-title">
+            <Input
+              id="edit-goal-title"
+              name="title"
+              defaultValue={goal.title}
+              className="w-full"
+              required
             />
-            <input
-              name="progress"
-              type="number"
-              min="0"
-              max="100"
-              defaultValue={goal.progress}
-              className="w-full rounded-xl border border-border bg-card px-4 py-3"
+          </AdminFormField>
+          <AdminFormField label="الوصف (اختياري)" htmlFor="edit-goal-description">
+            <Textarea
+              id="edit-goal-description"
+              name="description"
+              defaultValue={goal.description ?? ""}
+              rows={4}
+              className="w-full"
             />
+          </AdminFormField>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <AdminFormField label="التاريخ المستهدف" htmlFor="edit-goal-target-date">
+              <Input
+                id="edit-goal-target-date"
+                name="targetDate"
+                type="date"
+                defaultValue={
+                  goal.targetDate
+                    ? new Date(goal.targetDate).toISOString().slice(0, 10)
+                    : ""
+                }
+                className="w-full"
+              />
+            </AdminFormField>
+            <AdminFormField label="نسبة التقدم (%)" htmlFor="edit-goal-progress">
+              <Input
+                id="edit-goal-progress"
+                name="progress"
+                type="number"
+                min="0"
+                max="100"
+                defaultValue={goal.progress}
+                className="w-full"
+              />
+            </AdminFormField>
           </div>
-          <label className="inline-flex items-center gap-2 text-sm text-text">
-            <input
-              type="checkbox"
-              name="isCompleted"
-              defaultChecked={goal.isCompleted}
-            />
-            الهدف مكتمل
-          </label>
+          <AdminFormField label="الحالة">
+            <label className="inline-flex items-center gap-2 text-sm text-text">
+              <input
+                type="checkbox"
+                name="isCompleted"
+                defaultChecked={goal.isCompleted}
+              />
+              الهدف مكتمل
+            </label>
+          </AdminFormField>
           <div className="flex flex-wrap gap-2">
             <button
               type="submit"
