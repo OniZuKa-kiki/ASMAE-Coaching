@@ -10,12 +10,14 @@ type PanelNavListProps = {
   links: PanelNavLink[];
   variant: "dashboard" | "admin";
   onNavigate?: () => void;
+  badgeByHref?: Record<string, number>;
 };
 
 export function PanelNavList({
   links,
   variant,
   onNavigate,
+  badgeByHref,
 }: PanelNavListProps) {
   const currentPath = usePathname();
   const isAdmin = variant === "admin";
@@ -33,6 +35,7 @@ export function PanelNavList({
           <Link
             key={link.href}
             href={link.href}
+            prefetch={false}
             onClick={onNavigate}
             className={cn(
               "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-200",
@@ -46,7 +49,17 @@ export function PanelNavList({
             )}
           >
             <link.icon className="w-5 h-5 shrink-0" />
-            {link.label}
+            <span className="flex-1">{link.label}</span>
+            {(badgeByHref?.[link.href] ?? 0) > 0 ? (
+              <span
+                className={cn(
+                  "inline-flex min-w-5 h-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold",
+                  isAdmin ? "bg-white text-heading" : "bg-primary text-white"
+                )}
+              >
+                {badgeByHref![link.href] > 9 ? "9+" : badgeByHref![link.href]}
+              </span>
+            ) : null}
           </Link>
         );
       })}

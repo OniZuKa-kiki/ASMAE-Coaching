@@ -1,4 +1,4 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { AdminSidebar } from "@/components/admin/sidebar";
 import { AdminTwoFactorGate } from "@/components/admin/two-factor-gate";
@@ -10,9 +10,6 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
-
   const role = await getUserRole();
   if (role !== "admin") redirect("/dashboard");
 
@@ -23,11 +20,11 @@ export default async function AdminLayout({
       <div
         dir="rtl"
         lang="ar"
-        className="flex min-h-screen flex-col bg-background overflow-x-hidden"
+        className="flex min-h-screen flex-col overflow-x-hidden bg-background"
         suppressHydrationWarning
       >
         <PanelMobileHeader variant="admin" homeLabel="عرض الموقع" />
-        <div className="flex-1 min-w-0 p-4 sm:p-6 lg:p-10">
+        <div className="min-w-0 flex-1 p-4 sm:p-6 lg:p-10">
           <AdminTwoFactorGate />
         </div>
       </div>
@@ -43,7 +40,12 @@ export default async function AdminLayout({
     >
       <PanelMobileHeader variant="admin" homeLabel="عرض الموقع" />
       <AdminSidebar />
-      <div className="min-w-0 p-4 sm:p-6 lg:p-10 lg:ps-72">{children}</div>
+      <div
+        className="min-w-0 p-4 sm:p-6 lg:p-10 lg:ps-72"
+        suppressHydrationWarning
+      >
+        {children}
+      </div>
     </div>
   );
 }

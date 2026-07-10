@@ -10,6 +10,7 @@ import {
   reserveBookingSlot,
   SlotUnavailableError,
 } from "@/lib/booking";
+import { formatBookingIntentNotes } from "@/lib/booking-reasons";
 import {
   assertPaymentProviderAvailable,
   startPaymentFlow,
@@ -29,7 +30,14 @@ export async function POST(request: NextRequest) {
 
     const user = await requireUser();
     const body = bookingCheckoutSchema.parse(await request.json());
-    const { serviceSlug, date, startTime, provider } = body;
+    const {
+      serviceSlug,
+      date,
+      startTime,
+      provider,
+      bookingReason,
+      bookingReasonDetail,
+    } = body;
 
     const paymentProvider: PaymentProviderId =
       (provider as PaymentProviderId | undefined) || getDefaultProvider();
@@ -51,6 +59,7 @@ export async function POST(request: NextRequest) {
       dateStr: date,
       startTime,
       serviceSlug,
+      notes: formatBookingIntentNotes(bookingReason, bookingReasonDetail),
     });
 
     const result = await startPaymentFlow({
@@ -60,7 +69,7 @@ export async function POST(request: NextRequest) {
       description: `${service.title} — ${formatBookingDate(booking.date)} à ${startTime}`,
       bookingId: booking.id,
       successPath: "/booking/success",
-      cancelPath: `/booking?service=${serviceSlug}`,
+      cancelPath: `/booking/cancel`,
     });
 
     auditLog({

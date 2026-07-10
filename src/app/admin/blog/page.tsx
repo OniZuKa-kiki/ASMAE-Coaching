@@ -15,6 +15,8 @@ import { adminUrl } from "@/lib/admin-path";
 import { adminErrors } from "@/lib/api-errors";
 import { prisma } from "@/lib/db";
 import { formatDate } from "@/lib/utils";
+import { AdminFilterCard } from "@/components/admin/filter-card";
+import { adminFilterLabels } from "@/lib/admin-filters";
 
 export const dynamic = "force-dynamic";
 
@@ -183,21 +185,19 @@ export default async function AdminBlogPage({
           </button>
         </ActionForm>
       </Card>
-      <Card className="mb-6">
-        <h2 className="font-heading text-xl text-heading mb-4">تصفية القائمة</h2>
-        <form method="GET" className="grid md:grid-cols-4 gap-4">
-          <AdminFormField label="بحث" htmlFor="blog-filter-q">
-            <Input
-              id="blog-filter-q"
-              name="q"
-              defaultValue={q}
-              placeholder="العنوان، الفئة أو الرابط..."
-              className="text-sm"
-            />
-          </AdminFormField>
-          <AdminFormField label="حالة النشر">
-            <FilterSelect
-              name="status"
+      <AdminFilterCard title={adminFilterLabels.blog.title}>
+        <AdminFormField label={adminFilterLabels.search} htmlFor="blog-filter-q">
+          <Input
+            id="blog-filter-q"
+            name="q"
+            defaultValue={q}
+            placeholder={adminFilterLabels.blog.searchPlaceholder}
+            className="text-sm"
+          />
+        </AdminFormField>
+        <AdminFormField label="حالة النشر">
+          <FilterSelect
+            name="status"
             value={status}
             options={[
               { value: "", label: "جميع الحالات" },
@@ -205,28 +205,19 @@ export default async function AdminBlogPage({
               { value: "draft", label: "مسودات" },
             ]}
           />
-          </AdminFormField>
-          <AdminFormField label="ترتيب العرض">
-            <FilterSelect
-              name="sort"
+        </AdminFormField>
+        <AdminFormField label={adminFilterLabels.sort}>
+          <FilterSelect
+            name="sort"
             value={sort}
             options={[
-              { value: "created_desc", label: "الأحدث" },
-              { value: "published_desc", label: "نُشر مؤخراً" },
-              { value: "title_asc", label: "العنوان أ→ي" },
+              { value: "created_desc", label: adminFilterLabels.sortNewest },
+              { value: "published_desc", label: "نُشر مؤخرًا" },
+              { value: "title_asc", label: adminFilterLabels.sortTitleAsc },
             ]}
           />
-          </AdminFormField>
-          <div className="flex items-end">
-            <button
-              type="submit"
-              className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors w-full"
-            >
-              تصفية
-            </button>
-          </div>
-        </form>
-      </Card>
+        </AdminFormField>
+      </AdminFilterCard>
 
       {posts.length === 0 ? (
         <Card className="text-center py-12">

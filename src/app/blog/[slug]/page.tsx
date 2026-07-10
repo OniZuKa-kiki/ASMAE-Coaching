@@ -59,12 +59,12 @@ export default async function BlogPostPage({
 
         <div className="mt-12 p-8 rounded-[20px] bg-primary/5 border border-primary/10 text-center">
           <h3 className="font-heading text-2xl font-semibold text-heading mb-3">
-            هل تحتاج إلى مرافقة شخصية؟
+            هل تحتاجين إلى مرافقة شخصية؟
           </h3>
           <p className="text-text mb-6">
-            احجز جلسة لتعميق هذا الموضوع معاً.
+            احجزي جلسة لتعميق هذا الموضوع معًا.
           </p>
-          <ButtonLink href="/booking">حجز جلسة</ButtonLink>
+          <ButtonLink href="/booking">احجزي جلسة</ButtonLink>
         </div>
       </div>
     </article>

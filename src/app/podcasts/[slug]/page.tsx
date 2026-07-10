@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Clock, Lock } from "lucide-react";
 import { AudioPlayer } from "@/components/podcasts/audio-player";
+import { podcastsPageContent } from "@/lib/constants";
 import {
   formatPodcastDuration,
   getPodcastBySlug,
@@ -9,6 +10,7 @@ import {
 } from "@/lib/content";
 import { getOrCreateUser } from "@/lib/user";
 import { prisma } from "@/lib/db";
+import { getPodcastProgressBySlug } from "@/lib/podcast-progress";
 
 export async function generateStaticParams() {
   const podcasts = await getPublishedPodcasts();
@@ -55,13 +57,18 @@ export default async function PodcastDetailPage({
             })) > 0)
       );
 
+  const progress =
+    user && canAccessPremium
+      ? await getPodcastProgressBySlug(slug, user.id)
+      : null;
+
   return (
     <section className="section-padding">
       <div className="container-narrow max-w-3xl">
         {podcast.isPremium && (
           <span className="inline-flex items-center gap-1 text-sm font-semibold text-accent bg-accent/10 px-4 py-1.5 rounded-full mb-6">
             <Lock className="w-4 h-4" />
-            محتوى مميز
+            {podcastsPageContent.premiumContentLabel}
           </span>
         )}
         <h1 className="font-heading text-4xl font-semibold text-heading mb-4">
@@ -78,17 +85,23 @@ export default async function PodcastDetailPage({
             <div className="text-center py-8">
               <Lock className="w-12 h-12 text-accent mx-auto mb-4" />
               <p className="text-heading font-semibold mb-2">
-                محتوى مخصص للأعضاء
+                {podcastsPageContent.premiumLockedTitle}
               </p>
               <p className="text-text/70 text-sm">
-                احجز جلسة أو اشترِ دورة تدريبية لفتح هذا البودكاست المميز.
+                {podcastsPageContent.premiumLockedMessage}
               </p>
             </div>
           ) : podcast.audioUrl ? (
-            <AudioPlayer src={podcast.audioUrl} title={podcast.title} />
+            <AudioPlayer
+              src={podcast.audioUrl}
+              title={podcast.title}
+              podcastSlug={slug}
+              initialPosition={progress?.positionSeconds ?? 0}
+              persistProgress={Boolean(user)}
+            />
           ) : (
             <p className="text-center text-text/70 py-8">
-              الصوت متاح قريباً.
+              {podcastsPageContent.audioComingSoon}
             </p>
           )}
         </div>

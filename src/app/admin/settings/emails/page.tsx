@@ -78,7 +78,7 @@ async function sendTestEmail(formData: FormData): Promise<ActionResult> {
     const { error } = await resend.emails.send({
       from: cfg.fromEmail,
       to,
-      subject: "Test — Emails ASMAE Coaching",
+      subject: "رسالة اختبار — ASMAE Coaching",
       html,
       attachments: [getEmailLogoAttachment()],
     });
@@ -182,7 +182,7 @@ export default async function AdminEmailSettingsPage() {
                 id="test-email-to"
                 name="to"
                 type="email"
-                placeholder="you@gmail.com"
+                placeholder="name@example.com"
                 className="w-full"
                 required
               />

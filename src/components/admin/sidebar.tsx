@@ -8,7 +8,7 @@ import { getAdminNavLinks } from "@/lib/admin-nav";
 export function AdminSidebar() {
   return (
     <aside className="scrollbar-panel hidden lg:flex lg:flex-col fixed top-0 right-0 z-30 w-64 h-dvh overflow-y-auto bg-heading text-white p-6 border-e border-white/10 shadow-[-8px_0_24px_rgba(0,0,0,0.06)]">
-      <h2 className="font-heading text-xl font-semibold mb-2">الإدارة</h2>
+      <h2 className="font-heading text-xl font-semibold mb-2">لوحة الإدارة</h2>
       <p className="text-white/50 text-sm mb-4">ASMAE Coaching</p>
       <Link
         href="/"

@@ -73,15 +73,30 @@ async function main() {
           },
         });
         for (const [lessonIndex, lesson] of mod.lessons.entries()) {
+          const category = lesson.resourceCategory ?? "VIDEO";
+          const videoUrl =
+            category === "AUDIO"
+              ? SAMPLE_AUDIO_URL
+              : category === "VIDEO" || category === "EXERCISE"
+                ? SAMPLE_VIDEO_URL
+                : null;
+          const pdfUrl =
+            category === "PDF" ||
+            category === "DOWNLOAD" ||
+            category === "SHEET"
+              ? "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+              : null;
+
           await prisma.courseLesson.create({
             data: {
               moduleId: module.id,
               title: lesson.title,
               description: lesson.description,
-              videoUrl: SAMPLE_VIDEO_URL,
-              pdfUrl: null,
+              videoUrl,
+              pdfUrl,
+              resourceCategory: category,
               order: lessonIndex + 1,
-              duration: 12,
+              duration: category === "AUDIO" ? 10 : 12,
             },
           });
         }

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Heart, Brain, Users, Briefcase } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Card } from "@/components/ui/card";
-import { problems } from "@/lib/constants";
+import { problems, problemsSection } from "@/lib/constants";
 
 const iconMap = {
   heart: Heart,
@@ -18,8 +18,8 @@ export function Problems() {
     <section className="section-padding bg-card/50">
       <div className="container-narrow">
         <SectionHeading
-          title="هل تتعرّفين على نفسك؟"
-          subtitle="أرافقك في التغلب على هذه التحديات اليومية"
+          title={problemsSection.title}
+          subtitle={problemsSection.subtitle}
         />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {problems.map((problem, index) => {

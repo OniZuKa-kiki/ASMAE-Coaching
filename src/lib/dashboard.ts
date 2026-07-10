@@ -1,4 +1,9 @@
+import { format } from "date-fns";
 import { prisma } from "@/lib/db";
+import {
+  resolveLessonResourceCategory,
+  type LessonResourceCategory,
+} from "@/lib/resource-categories";
 import { getOrCreateUser } from "@/lib/user";
 
 export async function getDashboardData() {
@@ -78,6 +83,47 @@ export async function getUserBookings() {
   return { upcoming, past };
 }
 
+export async function getUserBookingsPageData() {
+  const user = await getOrCreateUser();
+  if (!user) return null;
+
+  const now = new Date();
+
+  const allBookings = await prisma.booking.findMany({
+    where: {
+      userId: user.id,
+      status: { in: ["PENDING", "CONFIRMED", "COMPLETED"] },
+    },
+    include: {
+      service: true,
+      review: true,
+    },
+    orderBy: [{ date: "asc" }, { startTime: "asc" }],
+  });
+
+  const upcoming = allBookings.filter(
+    (booking) =>
+      booking.status === "CONFIRMED" && new Date(booking.date) >= now
+  );
+  const past = allBookings.filter(
+    (booking) =>
+      booking.status === "COMPLETED" ||
+      (booking.status === "CONFIRMED" && new Date(booking.date) < now)
+  );
+
+  const calendarItems = allBookings.map((booking) => ({
+    id: booking.id,
+    dateKey: format(new Date(booking.date), "yyyy-MM-dd"),
+    startTime: booking.startTime,
+    endTime: booking.endTime,
+    status: booking.status,
+    meetingUrl: booking.meetingUrl,
+    serviceTitle: booking.service.title,
+  }));
+
+  return { upcoming, past, calendarItems };
+}
+
 export async function getUserPayments() {
   const user = await getOrCreateUser();
   if (!user) return null;
@@ -121,16 +167,28 @@ export async function getUserEnrollments() {
     include: {
       lesson: {
         select: {
+          title: true,
           module: { select: { courseId: true } },
         },
       },
     },
+    orderBy: { createdAt: "desc" },
   });
 
   const completedByCourse = new Map<string, number>();
+  const lastLessonByCourse = new Map<
+    string,
+    { title: string; completedAt: Date }
+  >();
   for (const completion of completions) {
     const cid = completion.lesson.module.courseId;
     completedByCourse.set(cid, (completedByCourse.get(cid) ?? 0) + 1);
+    if (!lastLessonByCourse.has(cid)) {
+      lastLessonByCourse.set(cid, {
+        title: completion.lesson.title,
+        completedAt: completion.createdAt,
+      });
+    }
   }
 
   return enrollments.map((enrollment) => {
@@ -149,6 +207,7 @@ export async function getUserEnrollments() {
       progressAuto,
       completedLessons,
       totalLessons,
+      lastLesson: lastLessonByCourse.get(enrollment.courseId) ?? null,
     };
   });
 }
@@ -170,7 +229,6 @@ export async function getUserJournalEntries() {
   return prisma.journalEntry.findMany({
     where: { userId: user.id },
     orderBy: { createdAt: "desc" },
-    take: 20,
   });
 }
 
@@ -224,6 +282,12 @@ export async function getDashboardResources() {
         lessonTitle: lesson.title,
         videoUrl: lesson.videoUrl,
         pdfUrl: lesson.pdfUrl,
+        category: resolveLessonResourceCategory({
+          resourceCategory: lesson.resourceCategory,
+          videoUrl: lesson.videoUrl,
+          pdfUrl: lesson.pdfUrl,
+          title: lesson.title,
+        }) as LessonResourceCategory,
         completed: completedSet.has(lesson.id),
       }))
     )

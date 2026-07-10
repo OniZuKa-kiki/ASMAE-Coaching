@@ -5,6 +5,10 @@ import {
   sendBookingConfirmation,
   sendCoursePurchaseConfirmation,
 } from "@/lib/email";
+import {
+  notifyBookingConfirmed,
+  notifyCoursePurchase,
+} from "@/lib/notifications";
 import { createMeetingLink } from "@/lib/zoom";
 import type { VerifiedPayment } from "./types";
 
@@ -76,6 +80,14 @@ export async function fulfillVerifiedPayment(
       time: booking.startTime,
       meetingUrl,
     });
+
+    await notifyBookingConfirmed({
+      userId: booking.userId,
+      bookingId: booking.id,
+      serviceTitle: booking.service.title,
+      date: booking.date,
+      time: booking.startTime,
+    });
   }
 
   if (verified.metadata.type === "course" && payment.course) {
@@ -97,6 +109,13 @@ export async function fulfillVerifiedPayment(
       to: user.email,
       clientName,
       courseName: course.title,
+    });
+
+    await notifyCoursePurchase({
+      userId: user.id,
+      paymentId: payment.id,
+      courseId: course.id,
+      courseTitle: course.title,
     });
   }
 }

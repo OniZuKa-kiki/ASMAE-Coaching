@@ -2,15 +2,15 @@
 
 import { motion } from "framer-motion";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { methodSteps } from "@/lib/constants";
+import { methodSteps, methodSection } from "@/lib/constants";
 
 export function Method() {
   return (
     <section className="section-padding">
       <div className="container-narrow">
         <SectionHeading
-          title="منهجيتي"
-          subtitle="مرافقة منظمة لنتائج مستدامة"
+          title={methodSection.title}
+          subtitle={methodSection.subtitle}
         />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {methodSteps.map((step, index) => (

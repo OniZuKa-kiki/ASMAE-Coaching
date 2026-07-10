@@ -113,8 +113,26 @@ export async function sendContactMessage({
     from: getFromEmail(),
     to: coachEmail,
     replyTo: email,
-    subject: `Nouveau message de ${name} — ASMAE Coaching`,
+    subject: `رسالة جديدة من ${name} — ASMAE Coaching`,
     html: renderContactEmail({ name, email, message, contactEmail }),
+    attachments: [getLogoAttachment()],
+  });
+}
+
+export async function sendClerkAuthEmail({
+  to,
+  subject,
+  html,
+}: {
+  to: string;
+  subject: string;
+  html: string;
+}) {
+  await sendEmail({
+    from: getFromEmail(),
+    to,
+    subject,
+    html,
     attachments: [getLogoAttachment()],
   });
 }

@@ -20,6 +20,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: blob: https:",
+      "media-src 'self' https: blob: data:",
       "connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://api.stripe.com https://challenges.cloudflare.com https://*.neon.tech",
       "frame-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://challenges.cloudflare.com https://js.stripe.com https://hooks.stripe.com https://paiement.payzone.ma",
       "object-src 'none'",
@@ -30,6 +31,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["puppeteer"],
   images: {
     remotePatterns: [
       {

@@ -17,7 +17,7 @@ export function AdminFormField({
   children,
 }: AdminFormFieldProps) {
   return (
-    <div className={cn("space-y-1.5", className)}>
+    <div className={cn("space-y-1.5", className)} suppressHydrationWarning>
       <Label htmlFor={htmlFor}>{label}</Label>
       {children}
       {hint ? <p className="text-xs text-text/60">{hint}</p> : null}

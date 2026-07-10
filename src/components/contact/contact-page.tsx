@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label, Input, Textarea } from "@/components/ui/input";
 import { TurnstileWidget } from "@/components/ui/turnstile-widget";
+import { contactPageContent } from "@/lib/constants";
 import type { PublicContact } from "@/lib/contact-info";
 import { friendlyErrors } from "@/lib/api-errors";
 import { notifyError, notifySuccess } from "@/lib/notify";
@@ -77,9 +78,9 @@ export function ContactPageContent({ contact }: ContactPageContentProps) {
     <>
       <section className="section-padding bg-gradient-to-b from-primary/5 to-transparent">
         <div className="container-narrow text-center">
-          <h1 className="page-title mb-6">تواصل معنا</h1>
+          <h1 className="page-title mb-6">{contactPageContent.title}</h1>
           <p className="text-xl text-text/80 max-w-2xl mx-auto">
-            لديك سؤال؟ ترغب في معرفة المزيد؟ أنا هنا للإجابة عليك.
+            {contactPageContent.subtitle}
           </p>
         </div>
       </section>
@@ -89,8 +90,8 @@ export function ContactPageContent({ contact }: ContactPageContentProps) {
           <div className="grid lg:grid-cols-2 gap-12">
             <div>
               <SectionHeading
-                title="لنبقَ على تواصل"
-                subtitle="اختر الوسيلة التي تناسبك"
+                title={contactPageContent.channelsTitle}
+                subtitle={contactPageContent.channelsSubtitle}
                 centered={false}
                 className="mb-8"
               />
@@ -173,7 +174,7 @@ export function ContactPageContent({ contact }: ContactPageContentProps) {
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <h3 className="font-heading text-2xl font-semibold text-heading mb-6">
-                    أرسل لي رسالة
+                    {contactPageContent.formTitle}
                   </h3>
                   <div>
                     <Label htmlFor="name">الاسم</Label>
@@ -185,7 +186,7 @@ export function ContactPageContent({ contact }: ContactPageContentProps) {
                       id="email"
                       name="email"
                       type="email"
-                      placeholder="votre@email.com"
+                      placeholder="name@example.com"
                       required
                     />
                   </div>
@@ -194,7 +195,7 @@ export function ContactPageContent({ contact }: ContactPageContentProps) {
                     <Textarea
                       id="message"
                       name="message"
-                      placeholder="رسالتك..."
+                      placeholder={contactPageContent.messagePlaceholder}
                       required
                     />
                   </div>
@@ -212,7 +213,9 @@ export function ContactPageContent({ contact }: ContactPageContentProps) {
                     </div>
                   )}
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "جارٍ الإرسال..." : "إرسال"}
+                    {loading
+                      ? contactPageContent.submittingLabel
+                      : contactPageContent.submitLabel}
                   </Button>
                 </form>
               )}

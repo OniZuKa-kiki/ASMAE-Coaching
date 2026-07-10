@@ -16,12 +16,14 @@ export function FilterSelect({
   options,
   placeholder,
   className,
+  onChange,
 }: {
   name: string;
   value: string;
   options: FilterSelectOption[];
   placeholder?: string;
   className?: string;
+  onChange?: (value: string) => void;
 }) {
   const [open, setOpen] = React.useState(false);
   const [selected, setSelected] = React.useState(value);
@@ -101,6 +103,7 @@ export function FilterSelect({
                   aria-selected={isActive}
                   onClick={() => {
                     setSelected(opt.value);
+                    onChange?.(opt.value);
                     setOpen(false);
                   }}
                   className={[

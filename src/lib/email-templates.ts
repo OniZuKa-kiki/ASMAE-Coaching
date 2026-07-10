@@ -157,7 +157,7 @@ export function renderEmailLayout({
                 <tr>
                   <td style="padding-top: 24px; border-top: 1px solid ${colors.border};">
                     <p style="margin: 0 0 4px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; color: ${colors.text};">
-                      ${lang === "ar" ? "بكل حنان،" : "Avec bienveillance,"}
+                      بكل تقدير،
                     </p>
                     <p style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 18px; font-weight: 600; color: ${colors.sage};">
                       Asmae
@@ -182,7 +182,7 @@ export function renderEmailLayout({
                 <a href="mailto:${escapeHtml(contactEmail)}" style="color: rgba(255,255,255,0.9); text-decoration: underline;">${escapeHtml(contactEmail)}</a>
               </p>
               <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; color: rgba(255,255,255,0.5);">
-                © ${new Date().getFullYear()} ASMAE Coaching — ${lang === "ar" ? "جميع الحقوق محفوظة" : "Tous droits réservés"}
+                © ${new Date().getFullYear()} ASMAE Coaching — جميع الحقوق محفوظة
               </p>
             </td>
           </tr>
@@ -218,7 +218,7 @@ export function messageQuote(message: string): string {
       <tr>
         <td style="padding: 20px 24px; background-color: ${colors.white}; border: 1px solid ${colors.border}; border-radius: 12px; border-left: 4px solid ${colors.gold};">
           <p style="margin: 0 0 8px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 600; color: ${colors.gold}; text-transform: uppercase; letter-spacing: 1px;">
-            Message
+            الرسالة
           </p>
           <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; color: ${colors.text}; line-height: 1.7; font-style: italic;">
             «&nbsp;${safe}&nbsp;»
@@ -241,25 +241,25 @@ export function renderContactEmail({
 }): string {
   const safeEmail = escapeHtml(email);
   return renderEmailLayout({
-    preheader: `Nouveau message de ${name} via le site ASMAE Coaching`,
-    title: "Nouveau message reçu",
-    subtitle: "Un visiteur vous a écrit via le formulaire de contact.",
+    preheader: `رسالة جديدة من ${name} عبر موقع ASMAE Coaching`,
+    title: "وصلتك رسالة جديدة",
+    subtitle: "أرسل أحد زوار الموقع رسالة عبر نموذج التواصل.",
     body: `
-      ${infoCard("Nom", escapeHtml(name), true)}
-      ${infoCard("Email", `<a href="mailto:${safeEmail}" style="color: ${colors.sage}; text-decoration: none; font-weight: 600;">${safeEmail}</a>`, true)}
+      ${infoCard("الاسم", escapeHtml(name), true)}
+      ${infoCard("البريد الإلكتروني", `<a href="mailto:${safeEmail}" style="color: ${colors.sage}; text-decoration: none; font-weight: 600;">${safeEmail}</a>`, true)}
       <div style="margin-top: 20px;">
         ${messageQuote(message)}
       </div>
       <p style="margin: 24px 0 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; color: ${colors.muted}; text-align: center;">
-        Répondez directement à cet email pour contacter ${escapeHtml(name)}.
+        يمكنك الرد مباشرة على هذا البريد للتواصل مع ${escapeHtml(name)}.
       </p>
     `,
     cta: {
-      label: `Répondre à ${name.split(" ")[0]}`,
+      label: `الرد على ${name.split(" ")[0]}`,
       href: `mailto:${safeEmail}`,
     },
-    footerNote: "Notification automatique — formulaire de contact",
-    lang: "fr",
+    footerNote: "إشعار تلقائي — نموذج التواصل",
+    lang: "ar",
     contactEmail,
   });
 }
@@ -337,6 +337,119 @@ export function renderCoursePurchaseEmail({
     `,
     cta: { label: "الوصول إلى دورتي", href: dashboardUrl },
     footerNote: "تلقيت هذا البريد بعد شرائك على asmae-coaching.fr",
+    contactEmail,
+  });
+}
+
+function otpCodeBlock(code: string): string {
+  const safe = escapeHtml(code);
+  return `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td align="center" style="padding: 8px 0 20px 0;">
+          <div style="display: inline-block; padding: 20px 32px; background-color: ${colors.ivory}; border: 2px solid ${colors.sage}; border-radius: 16px;">
+            <span style="font-family: 'Courier New', Courier, monospace; font-size: 32px; font-weight: 700; letter-spacing: 10px; color: ${colors.sage};">${safe}</span>
+          </div>
+        </td>
+      </tr>
+    </table>`;
+}
+
+export function renderClerkVerificationCodeEmail({
+  code,
+  contactEmail = siteConfig.contact.email,
+}: {
+  code: string;
+  contactEmail?: string;
+}): string {
+  return renderEmailLayout({
+    preheader: `رمز التحقق الخاص بك: ${code}`,
+    title: "رمز التحقق",
+    subtitle: "أدخلي الرمز التالي لمتابعة تسجيل الدخول إلى ASMAE Coaching.",
+    body: `
+      <p style="margin: 0 0 8px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; color: ${colors.text}; line-height: 1.7; text-align: center;">
+        هذا الرمز صالح لفترة محدودة. لا تشاركيه مع أي شخص.
+      </p>
+      ${otpCodeBlock(code)}
+      <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; color: ${colors.muted}; line-height: 1.6; text-align: center;">
+        إن لم تطلُبي هذا الرمز، يمكنك تجاهل هذا البريد بأمان.
+      </p>
+    `,
+    footerNote: "بريد أمان — تسجيل الدخول إلى مساحتكِ",
+    lang: "ar",
+    contactEmail,
+  });
+}
+
+export function renderClerkPasswordResetEmail({
+  code,
+  contactEmail = siteConfig.contact.email,
+}: {
+  code: string;
+  contactEmail?: string;
+}): string {
+  return renderEmailLayout({
+    preheader: `رمز إعادة تعيين كلمة المرور: ${code}`,
+    title: "إعادة تعيين كلمة المرور",
+    subtitle: "استخدمي الرمز التالي لإنشاء كلمة مرور جديدة.",
+    body: `
+      <p style="margin: 0 0 8px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; color: ${colors.text}; line-height: 1.7; text-align: center;">
+        إن لم تطلُبي إعادة التعيين، تجاهلي هذا البريد.
+      </p>
+      ${otpCodeBlock(code)}
+    `,
+    footerNote: "بريد أمان — إعادة تعيين كلمة المرور",
+    lang: "ar",
+    contactEmail,
+  });
+}
+
+export function renderClerkMagicLinkEmail({
+  actionUrl,
+  contactEmail = siteConfig.contact.email,
+}: {
+  actionUrl: string;
+  contactEmail?: string;
+}): string {
+  const safeUrl = escapeHtml(actionUrl);
+  return renderEmailLayout({
+    preheader: "رابط تسجيل الدخول إلى ASMAE Coaching",
+    title: "تسجيل الدخول",
+    subtitle: "اضغطي على الزر أدناه للوصول إلى مساحتكِ بأمان.",
+    body: `
+      <p style="margin: 0 0 8px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; color: ${colors.text}; line-height: 1.7; text-align: center;">
+        الرابط صالح لفترة محدودة ولمرة واحدة.
+      </p>
+      <p style="margin: 16px 0 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; color: ${colors.muted}; line-height: 1.5; word-break: break-all; text-align: center;">
+        ${safeUrl}
+      </p>
+    `,
+    cta: { label: "تسجيل الدخول", href: actionUrl },
+    footerNote: "بريد أمان — رابط تسجيل الدخول",
+    lang: "ar",
+    contactEmail,
+  });
+}
+
+export function renderClerkNewDeviceEmail({
+  code,
+  contactEmail = siteConfig.contact.email,
+}: {
+  code: string;
+  contactEmail?: string;
+}): string {
+  return renderEmailLayout({
+    preheader: `رمز التحقق من جهاز جديد: ${code}`,
+    title: "تسجيل دخول من جهاز جديد",
+    subtitle: "لحماية حسابكِ، نحتاج للتحقق من هويتكِ قبل المتابعة.",
+    body: `
+      <p style="margin: 0 0 8px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; color: ${colors.text}; line-height: 1.7; text-align: center;">
+        إن لم تكوني أنتِ من حاول تسجيل الدخول، تجاهلي هذا البريد وغيّري كلمة المرور.
+      </p>
+      ${otpCodeBlock(code)}
+    `,
+    footerNote: "بريد أمان — جهاز جديد",
+    lang: "ar",
     contactEmail,
   });
 }

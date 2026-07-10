@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Clock, Check } from "lucide-react";
+import { servicesPageContent } from "@/lib/constants";
 import { ButtonLink } from "@/components/ui/button";
 import { getPublicServiceBySlug, getPublicServices } from "@/lib/services";
 import { formatPrice } from "@/lib/utils";
@@ -37,7 +38,7 @@ export default async function ServiceDetailPage({
     <section className="section-padding">
       <div className="container-narrow max-w-3xl">
         <p className="text-accent font-medium text-sm tracking-[0.2em] uppercase mb-4">
-          التدريب
+          {servicesPageContent.eyebrow}
         </p>
         <h1 className="page-title mb-6">{service.title}</h1>
         <p className="text-xl text-text/80 mb-8">{service.description}</p>
@@ -65,7 +66,7 @@ export default async function ServiceDetailPage({
         </ul>
 
         <ButtonLink href={`/booking?service=${service.slug}`} size="lg">
-          حجز جلسة
+          {servicesPageContent.bookNowLabel}
         </ButtonLink>
       </div>
     </section>

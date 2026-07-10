@@ -133,10 +133,11 @@ interface ReserveBookingSlotInput {
   dateStr: string;
   startTime: string;
   serviceSlug: string;
+  notes?: string;
 }
 
 export async function reserveBookingSlot(input: ReserveBookingSlotInput) {
-  const { userId, serviceId, dateStr, startTime, serviceSlug } = input;
+  const { userId, serviceId, dateStr, startTime, serviceSlug, notes } = input;
 
   const available = await isSlotAvailable(dateStr, startTime, serviceSlug);
   if (!available) {
@@ -187,6 +188,7 @@ export async function reserveBookingSlot(input: ReserveBookingSlotInput) {
             endTime,
             status: "PENDING",
             slotKey,
+            notes: notes?.trim() || null,
           },
         });
       },

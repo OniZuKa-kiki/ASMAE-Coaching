@@ -14,6 +14,8 @@ import {
 } from "@/lib/action-result";
 import { adminUrl } from "@/lib/admin-path";
 import { prisma } from "@/lib/db";
+import { AdminFilterCard } from "@/components/admin/filter-card";
+import { adminFilterLabels } from "@/lib/admin-filters";
 
 export const dynamic = "force-dynamic";
 
@@ -185,51 +187,40 @@ export default async function AdminCoursesPage({
           </div>
         </ActionForm>
       </Card>
-      <Card className="mb-6">
-        <h2 className="font-heading text-xl text-heading mb-4">تصفية القائمة</h2>
-        <form method="GET" className="grid md:grid-cols-4 gap-4">
-          <AdminFormField label="بحث" htmlFor="course-filter-q">
-            <Input
-              id="course-filter-q"
-              name="q"
-              defaultValue={q}
-              placeholder="العنوان أو الرابط..."
-              className="text-sm"
-            />
-          </AdminFormField>
-          <AdminFormField label="حالة النشر">
-            <FilterSelect
-              name="published"
-              value={published}
-              options={[
-                { value: "", label: "منشور + مسودة" },
-                { value: "yes", label: "منشورة" },
-                { value: "no", label: "مسودات" },
-              ]}
-            />
-          </AdminFormField>
-          <AdminFormField label="ترتيب العرض">
-            <FilterSelect
-              name="sort"
-              value={sort}
-              options={[
-                { value: "created_desc", label: "الأحدث" },
-                { value: "title_asc", label: "العنوان أ→ي" },
-                { value: "price_desc", label: "السعر ↓" },
-                { value: "price_asc", label: "السعر ↑" },
-              ]}
-            />
-          </AdminFormField>
-          <div className="flex items-end">
-            <button
-              type="submit"
-              className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors w-full"
-            >
-              تصفية
-            </button>
-          </div>
-        </form>
-      </Card>
+      <AdminFilterCard title={adminFilterLabels.courses.title}>
+        <AdminFormField label={adminFilterLabels.search} htmlFor="course-filter-q">
+          <Input
+            id="course-filter-q"
+            name="q"
+            defaultValue={q}
+            placeholder={adminFilterLabels.courses.searchPlaceholder}
+            className="text-sm"
+          />
+        </AdminFormField>
+        <AdminFormField label="حالة النشر">
+          <FilterSelect
+            name="published"
+            value={published}
+            options={[
+              { value: "", label: "منشور + مسودة" },
+              { value: "yes", label: "منشورة" },
+              { value: "no", label: "مسودات" },
+            ]}
+          />
+        </AdminFormField>
+        <AdminFormField label={adminFilterLabels.sort}>
+          <FilterSelect
+            name="sort"
+            value={sort}
+            options={[
+              { value: "created_desc", label: adminFilterLabels.sortNewest },
+              { value: "title_asc", label: adminFilterLabels.sortTitleAsc },
+              { value: "price_desc", label: "السعر ↓" },
+              { value: "price_asc", label: "السعر ↑" },
+            ]}
+          />
+        </AdminFormField>
+      </AdminFilterCard>
 
       {courses.length === 0 ? (
         <Card className="text-center py-12">

@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { prisma } from "@/lib/db";
 import { getUserRole } from "@/lib/auth";
 import { formatDate } from "@/lib/utils";
+import { AdminFilterCard } from "@/components/admin/filter-card";
+import { adminFilterLabels } from "@/lib/admin-filters";
 
 export const dynamic = "force-dynamic";
 
@@ -74,38 +76,30 @@ export default async function AdminIntakeFormsPage({
         </Link>
       </div>
 
-      <Card className="mb-6">
-        <h2 className="font-heading text-xl text-heading mb-4">تصفية القائمة</h2>
-        <form method="GET" className="grid md:grid-cols-3 gap-4">
-          <AdminFormField label="بحث عن عميل" htmlFor="intake-filter-q">
-            <Input
-              id="intake-filter-q"
-              name="q"
-              defaultValue={q}
-              placeholder="الاسم أو البريد..."
-              className="text-sm"
-            />
-          </AdminFormField>
-          <AdminFormField label="ترتيب العرض">
-            <FilterSelect
-              name="sort"
-              value={sort}
-              options={[
-                { value: "newest", label: "الأحدث" },
-                { value: "oldest", label: "الأقدم" },
-              ]}
-            />
-          </AdminFormField>
-          <div className="flex items-end">
-            <button
-              type="submit"
-              className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors w-full"
-            >
-              تصفية
-            </button>
-          </div>
-        </form>
-      </Card>
+      <AdminFilterCard
+        title={adminFilterLabels.intakeForms.title}
+        formClassName="grid md:grid-cols-3 gap-4"
+      >
+        <AdminFormField label={adminFilterLabels.search} htmlFor="intake-filter-q">
+          <Input
+            id="intake-filter-q"
+            name="q"
+            defaultValue={q}
+            placeholder={adminFilterLabels.intakeForms.searchPlaceholder}
+            className="text-sm"
+          />
+        </AdminFormField>
+        <AdminFormField label={adminFilterLabels.sort}>
+          <FilterSelect
+            name="sort"
+            value={sort}
+            options={[
+              { value: "newest", label: adminFilterLabels.sortNewest },
+              { value: "oldest", label: adminFilterLabels.sortOldest },
+            ]}
+          />
+        </AdminFormField>
+      </AdminFilterCard>
 
       {forms.length === 0 ? (
         <Card className="text-center py-12">

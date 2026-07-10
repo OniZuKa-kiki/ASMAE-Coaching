@@ -5,7 +5,9 @@ import { FilterSelect } from "@/components/ui/filter-select";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatUserRole } from "@/lib/utils";
+import { AdminFilterCard } from "@/components/admin/filter-card";
+import { adminFilterLabels } from "@/lib/admin-filters";
 
 export const dynamic = "force-dynamic";
 
@@ -72,50 +74,39 @@ export default async function AdminUsersPage({
   return (
     <div>
       <h1 className="page-header-title mb-6 sm:mb-8">العملاء</h1>
-      <Card className="mb-6">
-        <h2 className="font-heading text-xl text-heading mb-4">تصفية القائمة</h2>
-        <form method="GET" className="grid md:grid-cols-4 gap-4">
-          <AdminFormField label="بحث" htmlFor="user-filter-q">
-            <Input
-              id="user-filter-q"
-              name="q"
-              defaultValue={q}
-              placeholder="الاسم أو البريد..."
-              className="text-sm"
-            />
-          </AdminFormField>
-          <AdminFormField label="الدور">
-            <FilterSelect
-              name="role"
-              value={role}
-              options={[
-                { value: "", label: "جميع الأدوار" },
-                { value: "CLIENT", label: "عميل" },
-                { value: "ADMIN", label: "مدير" },
-              ]}
-            />
-          </AdminFormField>
-          <AdminFormField label="ترتيب العرض">
-            <FilterSelect
-              name="sort"
-              value={sort}
-              options={[
-                { value: "created_desc", label: "الأحدث" },
-                { value: "created_asc", label: "الأقدم" },
-                { value: "email_asc", label: "البريد أ→ي" },
-              ]}
-            />
-          </AdminFormField>
-          <div className="flex items-end">
-            <button
-              type="submit"
-              className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors w-full"
-            >
-              تصفية
-            </button>
-          </div>
-        </form>
-      </Card>
+      <AdminFilterCard title={adminFilterLabels.users.title}>
+        <AdminFormField label={adminFilterLabels.search} htmlFor="user-filter-q">
+          <Input
+            id="user-filter-q"
+            name="q"
+            defaultValue={q}
+            placeholder={adminFilterLabels.users.searchPlaceholder}
+            className="text-sm"
+          />
+        </AdminFormField>
+        <AdminFormField label="الدور">
+          <FilterSelect
+            name="role"
+            value={role}
+            options={[
+              { value: "", label: "جميع الأدوار" },
+              { value: "CLIENT", label: "العميلة" },
+              { value: "ADMIN", label: "مدير النظام" },
+            ]}
+          />
+        </AdminFormField>
+        <AdminFormField label={adminFilterLabels.sort}>
+          <FilterSelect
+            name="sort"
+            value={sort}
+            options={[
+              { value: "created_desc", label: adminFilterLabels.sortNewest },
+              { value: "created_asc", label: adminFilterLabels.sortOldest },
+              { value: "email_asc", label: "البريد أ→ي" },
+            ]}
+          />
+        </AdminFormField>
+      </AdminFilterCard>
       {users.length === 0 ? (
         <Card className="text-center py-12">
           <p className="text-text/70">لا يوجد عملاء حالياً.</p>
@@ -128,16 +119,17 @@ export default async function AdminUsersPage({
                 <div>
                   <p className="font-semibold text-heading">
                     {user.firstName || ""} {user.lastName || ""}{" "}
-                    {!user.firstName && !user.lastName ? "عميل" : ""}
+                    {!user.firstName && !user.lastName ? "عميلة" : ""}
                   </p>
                   <p className="text-sm text-text/70">{user.email}</p>
                   <p className="text-xs text-text/60">
-                    مسجل في {formatDate(user.createdAt)} • الدور: {user.role}
+                    تاريخ التسجيل: {formatDate(user.createdAt)} • الدور:{" "}
+                    {formatUserRole(user.role)}
                   </p>
                 </div>
                 <div className="text-sm text-text/70">
-                  <p>الحجوزات: {user._count.bookings}</p>
-                  <p>الدورات: {user._count.enrollments}</p>
+                  <p>عدد الحجوزات: {user._count.bookings}</p>
+                  <p>الدورات المسجل بها: {user._count.enrollments}</p>
                   <p>المدفوعات: {user._count.payments}</p>
                   {user.intakeForms[0] ? (
                     <Link
@@ -147,7 +139,7 @@ export default async function AdminUsersPage({
                       عرض الاستبيان ({formatDate(user.intakeForms[0].createdAt)})
                     </Link>
                   ) : (
-                    <p className="mt-2 text-text/50">لم يُملأ الاستبيان</p>
+                    <p className="mt-2 text-text/50">لم يُكمل الاستبيان بعد</p>
                   )}
                 </div>
               </div>

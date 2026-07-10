@@ -1,14 +1,12 @@
 import { revalidatePath } from "next/cache";
-import Link from "next/link";
-import { AdminFormField } from "@/components/admin/form-field";
-import { ActionForm } from "@/components/ui/action-form";
+import { JournalEntryList } from "@/components/dashboard/journal-entry-list";
+import { JournalNewEntry } from "@/components/dashboard/journal-new-entry";
 import { Card } from "@/components/ui/card";
-import { Input, Textarea } from "@/components/ui/input";
 import { incomplete, runAction, type ActionResult } from "@/lib/action-result";
 import { getUserJournalEntries } from "@/lib/dashboard";
+import { isJournalMoodId } from "@/lib/journal-moods";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/user";
-import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +14,9 @@ async function createJournalEntry(formData: FormData): Promise<ActionResult> {
   "use server";
   const user = await requireUser();
   const content = String(formData.get("content") || "").trim();
-  const mood = String(formData.get("mood") || "").trim();
+  const moodRaw = String(formData.get("mood") || "").trim();
+  const mood =
+    moodRaw && isJournalMoodId(moodRaw) ? moodRaw : moodRaw || null;
   if (!content) return incomplete("ar");
 
   return runAction("ar", async () => {
@@ -24,7 +24,7 @@ async function createJournalEntry(formData: FormData): Promise<ActionResult> {
       data: {
         userId: user.id,
         content,
-        mood: mood || null,
+        mood,
       },
     });
     revalidatePath("/dashboard/journal");
@@ -34,71 +34,32 @@ async function createJournalEntry(formData: FormData): Promise<ActionResult> {
 export default async function DashboardJournalPage() {
   const entries = await getUserJournalEntries();
 
+  const items =
+    entries?.map((entry) => ({
+      id: entry.id,
+      content: entry.content,
+      mood: entry.mood,
+      createdAt: entry.createdAt.toISOString(),
+    })) ?? [];
+
   return (
     <div>
-      <h1 className="page-header-title mb-2">اليوميات الشخصية</h1>
-      <p className="text-text/70 mb-8">
-        دوّن تأملاتك بين الجلسات. مرئية لك ولمدربتك فقط.
+      <h1 className="page-header-title mb-2">يومياتي</h1>
+      <p className="text-text/70 mb-6">
+        دوّني تأملاتكِ بين الجلسات. مرئية لكِ ولمدربتك فقط.
       </p>
-      <Card className="mb-6">
-        <h2 className="font-heading text-xl text-heading mb-4">ملاحظة جديدة</h2>
-        <ActionForm action={createJournalEntry} className="space-y-4">
-          <AdminFormField label="المزاج (اختياري)" htmlFor="journal-mood">
-            <Input
-              id="journal-mood"
-              name="mood"
-              placeholder="مثال: متحفز، هادئ..."
-              className="w-full"
-            />
-          </AdminFormField>
-          <AdminFormField label="الملاحظة" htmlFor="journal-content">
-            <Textarea
-              id="journal-content"
-              name="content"
-              rows={5}
-              className="w-full"
-              required
-            />
-          </AdminFormField>
-          <button
-            type="submit"
-            className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
-          >
-            إضافة
-          </button>
-        </ActionForm>
-      </Card>
-      {!entries || entries.length === 0 ? (
-        <Card className="text-center py-12">
+
+      <JournalNewEntry action={createJournalEntry} />
+
+      {items.length === 0 ? (
+        <Card className="text-center py-12 mt-6">
           <p className="text-text/70">
-            ستكون يومياتك متاحة بعد جلستك الأولى.
+            ابدئي بملاحظة جديدة لمشاركة ما يمرّ بكِ بين الجلسات.
           </p>
         </Card>
       ) : (
-        <div className="space-y-4">
-          {entries.map((entry) => (
-            <Card key={entry.id}>
-              <div className="flex items-start justify-between gap-4 mb-3">
-                <p className="text-xs text-text/60">{formatDate(entry.createdAt)}</p>
-                {entry.mood && (
-                  <span className="text-xs px-3 py-1 rounded-full bg-primary/10 text-primary font-medium">
-                    المزاج: {entry.mood}
-                  </span>
-                )}
-              </div>
-              <p className="text-text whitespace-pre-wrap leading-relaxed">
-                {entry.content}
-              </p>
-              <div className="mt-4">
-                <Link
-                  href={`/dashboard/journal/${entry.id}/edit`}
-                  className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
-                >
-                  تعديل
-                </Link>
-              </div>
-            </Card>
-          ))}
+        <div className="mt-6">
+          <JournalEntryList entries={items} />
         </div>
       )}
     </div>

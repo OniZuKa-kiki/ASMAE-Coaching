@@ -50,7 +50,10 @@ export const clerkAppearance = {
     modalBackdrop:
       "fixed inset-0 z-[9999] flex items-center justify-center bg-[#2E2E2E]/55 backdrop-blur-[2px] p-4 sm:p-6",
     modalContent:
-      "relative flex items-center justify-center w-full max-w-[420px] mx-auto my-auto",
+      "relative mx-auto flex w-full items-center justify-center max-w-[min(56rem,calc(100vw-2rem))]",
+    userProfile: "w-full",
+    userProfilePage: "w-full",
+    userProfileRoot: "w-full",
     modalCloseButton: "text-[#555555] hover:text-[#2E2E2E]",
     logoBox: "hidden",
     logoImage: "hidden",

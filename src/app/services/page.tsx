@@ -3,13 +3,14 @@ import Link from "next/link";
 import { Clock, Check } from "lucide-react";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
+import { servicesPageContent } from "@/lib/constants";
 import { getPublicServices } from "@/lib/services";
 import { formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "التدريب",
+  title: "خدمات الكوتشينغ",
   description:
-    "اكتشف خدمات التدريب: فردي، زوجي، مهني، وتنمية شخصية.",
+    "مرافقة شخصية في الكوتشينغ الفردي، التطوير الشخصي، المسار المهني، وكوتشينغ الأزواج — مصممة لكِ.",
 };
 
 export default async function ServicesPage() {
@@ -19,10 +20,10 @@ export default async function ServicesPage() {
       <section className="section-padding bg-gradient-to-b from-primary/5 to-transparent">
         <div className="container-narrow text-center">
           <h1 className="page-title mb-6">
-            خدمات التدريب
+            {servicesPageContent.title}
           </h1>
           <p className="text-xl text-text/80 max-w-2xl mx-auto">
-            مرافقة مخصصة، تتكيف مع احتياجاتك وإيقاعك.
+            {servicesPageContent.subtitle}
           </p>
         </div>
       </section>
@@ -58,13 +59,13 @@ export default async function ServicesPage() {
                     href={`/booking?service=${service.slug}`}
                     className="flex-1 text-center"
                   >
-                    احجز
+                    {servicesPageContent.bookNowLabel}
                   </ButtonLink>
                   <Link
                     href={`/services/${service.slug}`}
                     className="flex-1 text-center py-3.5 text-sm font-semibold text-primary border-2 border-primary rounded-full hover:bg-primary hover:text-white transition-colors"
                   >
-                    اعرف المزيد
+                    {servicesPageContent.learnMoreLabel}
                   </Link>
                 </div>
               </Card>

@@ -21,3 +21,13 @@ export function formatDate(date: Date | string): string {
     year: "numeric",
   }).format(new Date(date));
 }
+
+const userRoleLabels: Record<string, string> = {
+  ADMIN: "مدير النظام",
+  COACH: "المدربة",
+  CLIENT: "العميلة",
+};
+
+export function formatUserRole(role: string): string {
+  return userRoleLabels[role] ?? role;
+}

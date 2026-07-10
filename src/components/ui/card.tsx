@@ -11,6 +11,7 @@ export function Card({
         "rounded-[20px] bg-card p-4 sm:p-6 lg:p-8 shadow-soft border border-border/50 transition-all duration-300 ease-out",
         className
       )}
+      suppressHydrationWarning
       {...props}
     >
       {children}

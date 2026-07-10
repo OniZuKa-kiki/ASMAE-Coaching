@@ -16,7 +16,7 @@ export function Hero() {
           className="max-w-3xl mx-auto text-center"
         >
           <p className="text-accent font-body font-medium text-sm tracking-[0.2em] uppercase mb-6">
-            كوتشينغ حياة متميز
+            {heroContent.eyebrow}
           </p>
           <h1 className="font-heading text-5xl md:text-6xl font-semibold text-heading leading-tight mb-6">
             {heroContent.title}

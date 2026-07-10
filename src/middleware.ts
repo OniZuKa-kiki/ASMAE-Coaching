@@ -6,11 +6,13 @@ import {
   usesCustomAdminPath,
 } from "@/lib/admin-path";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
+import { getSafeRedirectUrl } from "@/lib/safe-redirect";
 
 const adminBase = getAdminBasePath();
 const customAdmin = usesCustomAdminPath();
 
 const isDashboardRoute = createRouteMatcher(["/dashboard(.*)"]);
+const isAuthPage = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
 const isPublicAdminRoute = createRouteMatcher([`${adminBase}(.*)`]);
 const isLegacyAdminRoute = createRouteMatcher(["/admin(.*)"]);
 const isAuthApiRoute = createRouteMatcher([
@@ -18,6 +20,10 @@ const isAuthApiRoute = createRouteMatcher([
   "/api/checkout/course",
 ]);
 const isContactApiRoute = createRouteMatcher(["/api/contact"]);
+const isInvoiceApiRoute = createRouteMatcher([
+  "/api/payments/sample/invoice",
+  "/api/payments/:id/invoice",
+]);
 
 function getAdminRole(
   sessionClaims: Record<string, unknown> | null | undefined
@@ -28,6 +34,7 @@ function getAdminRole(
     | undefined;
   return metadata?.role || publicMetadata?.role;
 }
+
 
 export default clerkMiddleware(async (auth, req) => {
   const { pathname } = req.nextUrl;
@@ -68,10 +75,20 @@ export default clerkMiddleware(async (auth, req) => {
     isPublicAdminRoute(req) ||
     (customAdmin && isAdminInternalPath(pathname)) ||
     (!customAdmin && isLegacyAdminRoute(req)) ||
-    isAuthApiRoute(req);
+    isAuthApiRoute(req) ||
+    isInvoiceApiRoute(req);
 
   if (needsAuth) {
     await auth.protect();
+  }
+
+  const { userId, sessionClaims } = await auth();
+
+  if (isAuthPage(req) && userId) {
+    const redirectUrl = getSafeRedirectUrl(
+      req.nextUrl.searchParams.get("redirect_url")
+    );
+    return NextResponse.redirect(new URL(redirectUrl, req.url));
   }
 
   const isAdminArea =
@@ -80,7 +97,6 @@ export default clerkMiddleware(async (auth, req) => {
     (customAdmin && isAdminInternalPath(pathname));
 
   if (isAdminArea) {
-    const { sessionClaims, userId } = await auth();
     if (userId && getAdminRole(sessionClaims as Record<string, unknown>) !== "admin") {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }

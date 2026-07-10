@@ -1,4 +1,4 @@
-import { arMA } from "date-fns/locale";
+import { ar } from "date-fns/locale";
 
-export const siteLocale = "ar-MA" as const;
-export const dateFnsLocale = arMA;
+export const siteLocale = "ar" as const;
+export const dateFnsLocale = ar;

@@ -76,7 +76,7 @@ export default async function DashboardGoalEditPage({
   params: Promise<{ id: string }>;
 }) {
   const user = await requireUser();
-  if (!user) redirect("/sign-in");
+  if (!user) redirect("/sign-in?redirect_url=/dashboard/goals");
 
   const { id } = await params;
   const goal = await prisma.goal.findFirst({ where: { id, userId: user.id } });

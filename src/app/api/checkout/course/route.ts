@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       description: course.title,
       courseId: course.id,
       successPath: "/dashboard/courses",
-      cancelPath: `/courses/${slug}`,
+      cancelPath: `/booking/cancel?from=course&slug=${slug}`,
     });
 
     auditLog({

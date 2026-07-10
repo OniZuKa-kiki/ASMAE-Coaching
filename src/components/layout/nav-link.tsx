@@ -1,0 +1,37 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
+import { isNavLinkActive } from "@/lib/nav";
+import { cn } from "@/lib/utils";
+
+type NavLinkProps = {
+  href: string;
+  children: ReactNode;
+  className?: string;
+  activeClassName?: string;
+  onClick?: () => void;
+};
+
+export function NavLink({
+  href,
+  children,
+  className,
+  activeClassName,
+  onClick,
+}: NavLinkProps) {
+  const pathname = usePathname();
+  const active = isNavLinkActive(pathname, href);
+
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      onClick={onClick}
+      className={cn(className, active && activeClassName)}
+    >
+      {children}
+    </Link>
+  );
+}

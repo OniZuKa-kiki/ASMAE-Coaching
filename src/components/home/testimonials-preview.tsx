@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Card } from "@/components/ui/card";
+import { testimonialsSection } from "@/lib/constants";
 
 export function TestimonialsPreview({
   testimonials,
@@ -19,8 +20,8 @@ export function TestimonialsPreview({
     <section className="section-padding bg-card/50">
       <div className="container-narrow">
         <SectionHeading
-          title="ماذا يقولون"
-          subtitle="ثقة من رافقتهم في رحلتهم"
+          title={testimonialsSection.title}
+          subtitle={testimonialsSection.subtitle}
         />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {testimonials.slice(0, 3).map((testimonial, index) => (

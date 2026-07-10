@@ -1,8 +1,9 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Header } from "@/components/layout/header";
+import { CookieConsentBanner } from "@/components/legal/cookie-consent-banner";
 import { Footer } from "@/components/layout/footer";
+import { Header } from "@/components/layout/header";
 import type { PublicContact } from "@/lib/contact-info";
 import { getAdminBasePath, isAdminPublicPath } from "@/lib/admin-path";
 
@@ -31,6 +32,7 @@ export function SiteShell({
       <Header />
       <main className="flex-1">{children}</main>
       <Footer contact={contact} />
+      <CookieConsentBanner />
     </>
   );
 }

@@ -5,9 +5,10 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, User } from "lucide-react";
 import { SignInButton, Show } from "@clerk/nextjs";
-import { navigation, primaryNavigation } from "@/lib/constants";
+import { navigation } from "@/lib/constants";
 import { Logo } from "@/components/layout/logo";
-import { NavMoreMenu } from "@/components/layout/nav-more-menu";
+import { DesktopNav } from "@/components/layout/desktop-nav";
+import { NavLink } from "@/components/layout/nav-link";
 import { UserAccountButton } from "@/components/layout/user-account-button";
 import { ButtonLink } from "@/components/ui/button";
 
@@ -55,18 +56,7 @@ export function Header() {
           <div className="hidden xl:flex items-center justify-between gap-4 h-full">
             <Logo size="header" />
 
-            <nav className="flex items-center gap-6">
-              {primaryNavigation.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="text-sm font-medium text-text hover:text-primary transition-colors duration-200 whitespace-nowrap"
-                >
-                  {item.label}
-                </Link>
-              ))}
-              <NavMoreMenu />
-            </nav>
+            <DesktopNav />
 
             <div className="flex items-center gap-3 shrink-0">
               <Show when="signed-out">
@@ -77,7 +67,7 @@ export function Header() {
                   </button>
                 </SignInButton>
                 <ButtonLink href="/booking" size="sm">
-                  احجز
+                  احجز جلسة
                 </ButtonLink>
               </Show>
               <Show when="signed-in">
@@ -132,14 +122,15 @@ export function Header() {
 
               <nav className="flex-1 overflow-y-auto p-3 flex flex-col gap-0.5">
                 {navigation.map((item) => (
-                  <Link
+                  <NavLink
                     key={item.href}
                     href={item.href}
                     className="block py-2.5 px-3 text-text hover:text-primary hover:bg-primary/5 rounded-xl transition-colors text-sm"
+                    activeClassName="text-primary font-semibold bg-primary/10"
                     onClick={() => setMobileOpen(false)}
                   >
                     {item.label}
-                  </Link>
+                  </NavLink>
                 ))}
 
                 <div className="pt-3 mt-2 border-t border-border/50 flex flex-col gap-2">
@@ -151,7 +142,7 @@ export function Header() {
                       </button>
                     </SignInButton>
                     <ButtonLink href="/booking" className="text-center" size="sm">
-                      احجز
+                      احجز جلسة
                     </ButtonLink>
                   </Show>
                   <Show when="signed-in">

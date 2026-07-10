@@ -14,6 +14,8 @@ import {
 } from "@/lib/action-result";
 import { prisma } from "@/lib/db";
 import { formatDate } from "@/lib/utils";
+import { AdminFilterCard } from "@/components/admin/filter-card";
+import { adminFilterLabels } from "@/lib/admin-filters";
 
 export const dynamic = "force-dynamic";
 
@@ -118,7 +120,7 @@ export default async function AdminCouponsPage({
 
   return (
     <div>
-      <h1 className="page-header-title mb-6 sm:mb-8">قسائم الخصم</h1>
+      <h1 className="page-header-title mb-6 sm:mb-8">القسائم</h1>
 
       <Card className="mb-6">
         <h2 className="font-heading text-xl text-heading mb-4">قسيمة جديدة</h2>
@@ -167,50 +169,39 @@ export default async function AdminCouponsPage({
           </div>
         </ActionForm>
       </Card>
-      <Card className="mb-6">
-        <h2 className="font-heading text-xl text-heading mb-4">تصفية القائمة</h2>
-        <form method="GET" className="grid md:grid-cols-4 gap-4">
-          <AdminFormField label="بحث" htmlFor="coupon-filter-q">
-            <Input
-              id="coupon-filter-q"
-              name="q"
-              defaultValue={q}
-              placeholder="رمز القسيمة..."
-              className="text-sm"
-            />
-          </AdminFormField>
-          <AdminFormField label="الحالة">
-            <FilterSelect
-              name="active"
-              value={active}
-              options={[
-                { value: "", label: "نشط + غير نشط" },
-                { value: "yes", label: "نشطة" },
-                { value: "no", label: "غير نشطة" },
-              ]}
-            />
-          </AdminFormField>
-          <AdminFormField label="ترتيب العرض">
-            <FilterSelect
-              name="sort"
-              value={sort}
-              options={[
-                { value: "created_desc", label: "الأحدث" },
-                { value: "code_asc", label: "الرمز أ→ي" },
-                { value: "expires_asc", label: "تنتهي قريباً" },
-              ]}
-            />
-          </AdminFormField>
-          <div className="flex items-end">
-            <button
-              type="submit"
-              className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors w-full"
-            >
-              تصفية
-            </button>
-          </div>
-        </form>
-      </Card>
+      <AdminFilterCard title={adminFilterLabels.coupons.title}>
+        <AdminFormField label={adminFilterLabels.search} htmlFor="coupon-filter-q">
+          <Input
+            id="coupon-filter-q"
+            name="q"
+            defaultValue={q}
+            placeholder={adminFilterLabels.coupons.searchPlaceholder}
+            className="text-sm"
+          />
+        </AdminFormField>
+        <AdminFormField label="الحالة">
+          <FilterSelect
+            name="active"
+            value={active}
+            options={[
+              { value: "", label: "نشطة + غير نشطة" },
+              { value: "yes", label: "نشطة" },
+              { value: "no", label: "غير نشطة" },
+            ]}
+          />
+        </AdminFormField>
+        <AdminFormField label={adminFilterLabels.sort}>
+          <FilterSelect
+            name="sort"
+            value={sort}
+            options={[
+              { value: "created_desc", label: adminFilterLabels.sortNewest },
+              { value: "code_asc", label: "الرمز أ→ي" },
+              { value: "expires_asc", label: "تنتهي قريبًا" },
+            ]}
+          />
+        </AdminFormField>
+      </AdminFilterCard>
 
       {coupons.length === 0 ? (
         <Card className="text-center py-12">

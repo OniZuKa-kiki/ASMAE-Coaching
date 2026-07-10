@@ -14,6 +14,7 @@ type ActionFormProps = {
   successMessage?: string;
   locale?: ActionLocale;
   redirectTo?: string;
+  onSuccess?: () => void;
   className?: string;
   id?: string;
   children: React.ReactNode;
@@ -24,6 +25,7 @@ export function ActionForm({
   successMessage,
   locale = "ar",
   redirectTo,
+  onSuccess,
   className,
   id,
   children,
@@ -41,6 +43,7 @@ export function ActionForm({
         }
         if (result.ok) {
           toast.success(result.message || successMessage || actionMessagesFallback(locale));
+          onSuccess?.();
           const target = result.redirect || redirectTo;
           if (target) router.push(target);
           else router.refresh();

@@ -2,10 +2,12 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { AdminFormField } from "@/components/admin/form-field";
+import { JournalMoodPicker } from "@/components/dashboard/journal-mood-picker";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
-import { Input, Textarea } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/input";
 import { incomplete, runAction, type ActionResult } from "@/lib/action-result";
+import { isJournalMoodId } from "@/lib/journal-moods";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/user";
 
@@ -16,7 +18,9 @@ async function updateJournalEntry(formData: FormData): Promise<ActionResult> {
   const user = await requireUser();
   const id = String(formData.get("id") || "");
   const content = String(formData.get("content") || "").trim();
-  const mood = String(formData.get("mood") || "").trim();
+  const moodRaw = String(formData.get("mood") || "").trim();
+  const mood =
+    moodRaw && isJournalMoodId(moodRaw) ? moodRaw : moodRaw || null;
   if (!id || !content) return incomplete("ar");
 
   return runAction(
@@ -24,7 +28,7 @@ async function updateJournalEntry(formData: FormData): Promise<ActionResult> {
     async () => {
       await prisma.journalEntry.updateMany({
         where: { id, userId: user.id },
-        data: { content, mood: mood || null },
+        data: { content, mood },
       });
       revalidatePath("/dashboard/journal");
     },
@@ -56,7 +60,7 @@ export default async function DashboardJournalEditPage({
   params: Promise<{ id: string }>;
 }) {
   const user = await requireUser();
-  if (!user) redirect("/sign-in");
+  if (!user) redirect("/sign-in?redirect_url=/dashboard/journal");
 
   const { id } = await params;
   const entry = await prisma.journalEntry.findFirst({
@@ -77,23 +81,16 @@ export default async function DashboardJournalEditPage({
       </div>
 
       <Card>
-        <ActionForm action={updateJournalEntry} className="space-y-4">
+        <ActionForm action={updateJournalEntry} className="space-y-5">
           <input type="hidden" name="id" value={entry.id} />
-          <AdminFormField label="المزاج (اختياري)" htmlFor="edit-journal-mood">
-            <Input
-              id="edit-journal-mood"
-              name="mood"
-              defaultValue={entry.mood ?? ""}
-              className="w-full"
-            />
-          </AdminFormField>
-          <AdminFormField label="الملاحظة" htmlFor="edit-journal-content">
+          <JournalMoodPicker defaultValue={entry.mood} />
+          <AdminFormField label="ماذا تودين مشاركته؟" htmlFor="edit-journal-content">
             <Textarea
               id="edit-journal-content"
               name="content"
               defaultValue={entry.content}
               rows={10}
-              className="w-full"
+              className="w-full resize-none"
               required
             />
           </AdminFormField>

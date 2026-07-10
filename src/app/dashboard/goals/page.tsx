@@ -1,6 +1,6 @@
 import { revalidatePath } from "next/cache";
-import Link from "next/link";
 import { AdminFormField } from "@/components/admin/form-field";
+import { GoalsList } from "@/components/dashboard/goals-list";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
@@ -12,7 +12,6 @@ import {
 import { getUserGoals } from "@/lib/dashboard";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/user";
-import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -44,11 +43,22 @@ async function createGoal(formData: FormData): Promise<ActionResult> {
 export default async function DashboardGoalsPage() {
   const goals = await getUserGoals();
 
+  const items =
+    goals?.map((goal) => ({
+      id: goal.id,
+      title: goal.title,
+      description: goal.description,
+      targetDate: goal.targetDate?.toISOString() ?? null,
+      progress: goal.progress,
+      isCompleted: goal.isCompleted,
+      updatedAt: goal.updatedAt.toISOString(),
+    })) ?? [];
+
   return (
     <div>
       <h1 className="page-header-title mb-2">أهدافي</h1>
       <p className="text-text/70 mb-8">
-        حدّد أهدافك وتابع تقدمك مع مدربتك.
+        حدّدي أهدافكِ وتابعي تقدمكِ مع مدربتك.
       </p>
       <Card className="mb-6">
         <h2 className="font-heading text-xl text-heading mb-4">إضافة هدف</h2>
@@ -70,54 +80,15 @@ export default async function DashboardGoalsPage() {
           </button>
         </ActionForm>
       </Card>
-      {!goals || goals.length === 0 ? (
+
+      {items.length === 0 ? (
         <Card className="text-center py-12">
           <p className="text-text/70">
-            ستُحدَّد أهدافك معاً خلال جلستك الأولى.
+            ستُحدَّد أهدافكِ معًا خلال جلستكِ الأولى.
           </p>
         </Card>
       ) : (
-        <div className="space-y-4">
-          {goals.map((goal) => (
-            <Card key={goal.id}>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                  <p className="font-semibold text-heading">{goal.title}</p>
-                  {goal.description && (
-                    <p className="text-sm text-text/70 mt-1">{goal.description}</p>
-                  )}
-                  <p className="text-xs text-text/60 mt-2">
-                    {goal.targetDate
-                      ? `التاريخ المستهدف: ${formatDate(goal.targetDate)}`
-                      : "بدون تاريخ مستهدف"}
-                  </p>
-                </div>
-                <div className="min-w-[180px]">
-                  <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="text-text/70">التقدم</span>
-                    <span className="font-semibold text-primary">
-                      {goal.progress}%
-                    </span>
-                  </div>
-                  <div className="w-full h-2 rounded-full bg-border">
-                    <div
-                      className="h-2 rounded-full bg-primary transition-all"
-                      style={{ width: `${goal.progress}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="mt-4">
-                <Link
-                  href={`/dashboard/goals/${goal.id}/edit`}
-                  className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
-                >
-                  تعديل
-                </Link>
-              </div>
-            </Card>
-          ))}
-        </div>
+        <GoalsList goals={items} />
       )}
     </div>
   );

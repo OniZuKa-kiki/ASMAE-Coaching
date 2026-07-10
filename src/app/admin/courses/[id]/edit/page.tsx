@@ -12,6 +12,7 @@ import {
 import { MediaUrlField } from "@/components/admin/media-url-field";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
 import {
   ensureAdmin,
@@ -21,6 +22,10 @@ import {
 } from "@/lib/action-result";
 import { prisma } from "@/lib/db";
 import { getUserRole } from "@/lib/auth";
+import {
+  parseLessonResourceCategory,
+  resourceCategoryFilterOptions,
+} from "@/lib/resource-categories";
 
 export const dynamic = "force-dynamic";
 
@@ -192,6 +197,8 @@ async function addLesson(formData: FormData): Promise<ActionResult> {
   const description = String(formData.get("description") || "").trim();
   const videoUrl = String(formData.get("videoUrl") || "").trim();
   const pdfUrl = String(formData.get("pdfUrl") || "").trim();
+  const categoryRaw = String(formData.get("resourceCategory") || "").trim();
+  const resourceCategory = parseLessonResourceCategory(categoryRaw);
   const durationRaw = Number(String(formData.get("duration") || ""));
   if (!courseId || !moduleId || !title) return incomplete("ar");
 
@@ -210,6 +217,7 @@ async function addLesson(formData: FormData): Promise<ActionResult> {
           description: description || null,
           videoUrl: videoUrl || null,
           pdfUrl: pdfUrl || null,
+          resourceCategory,
           duration: Number.isFinite(durationRaw) && durationRaw > 0 ? Math.round(durationRaw) : null,
           order: (max._max.order ?? 0) + 1,
         },
@@ -236,6 +244,8 @@ async function updateLesson(formData: FormData): Promise<ActionResult> {
   const description = String(formData.get("description") || "").trim();
   const videoUrl = String(formData.get("videoUrl") || "").trim();
   const pdfUrl = String(formData.get("pdfUrl") || "").trim();
+  const categoryRaw = String(formData.get("resourceCategory") || "").trim();
+  const resourceCategory = parseLessonResourceCategory(categoryRaw);
   const durationRaw = Number(String(formData.get("duration") || ""));
   const orderRaw = Number(String(formData.get("order") || ""));
   if (!courseId || !lessonId || !title || !Number.isFinite(orderRaw)) return incomplete("ar");
@@ -250,6 +260,7 @@ async function updateLesson(formData: FormData): Promise<ActionResult> {
           description: description || null,
           videoUrl: videoUrl || null,
           pdfUrl: pdfUrl || null,
+          resourceCategory,
           duration: Number.isFinite(durationRaw) && durationRaw > 0 ? Math.round(durationRaw) : null,
           order: Math.max(1, Math.round(orderRaw)),
         },
@@ -464,6 +475,18 @@ export default async function AdminCourseEditPage({
                       <AdminFormField label="رابط PDF">
                         <Input name="pdfUrl" className="w-full" placeholder="https://..." />
                       </AdminFormField>
+                      <AdminFormField label="فئة المورد">
+                        <FilterSelect
+                          name="resourceCategory"
+                          value=""
+                          options={[
+                            { value: "", label: "تلقائي (حسب الرابط)" },
+                            ...resourceCategoryFilterOptions.filter(
+                              (option) => option.value !== "all"
+                            ),
+                          ]}
+                        />
+                      </AdminFormField>
                     </div>
 
                     <AdminFormField label="وصف الدرس (اختياري)">
@@ -513,6 +536,18 @@ export default async function AdminCourseEditPage({
                                 name="pdfUrl"
                                 defaultValue={lesson.pdfUrl ?? ""}
                                 className="w-full"
+                              />
+                            </AdminFormField>
+                            <AdminFormField label="فئة المورد">
+                              <FilterSelect
+                                name="resourceCategory"
+                                value={lesson.resourceCategory ?? ""}
+                                options={[
+                                  { value: "", label: "تلقائي (حسب الرابط)" },
+                                  ...resourceCategoryFilterOptions.filter(
+                                    (option) => option.value !== "all"
+                                  ),
+                                ]}
                               />
                             </AdminFormField>
                             <AdminFormField label="الترتيب">

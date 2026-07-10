@@ -1,6 +1,7 @@
 import { adminUrl } from "@/lib/admin-path";
 import { format } from "date-fns";
 import { revalidatePath } from "next/cache";
+import { Star } from "lucide-react";
 import { AdminFormField } from "@/components/admin/form-field";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
@@ -16,6 +17,9 @@ import {
 import { prisma } from "@/lib/db";
 import { slotKeyForStatus } from "@/lib/booking";
 import { formatDate } from "@/lib/utils";
+import { notifySessionReview } from "@/lib/notifications";
+import { AdminFilterCard } from "@/components/admin/filter-card";
+import { adminFilterLabels } from "@/lib/admin-filters";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +47,12 @@ async function updateBookingStatus(formData: FormData): Promise<ActionResult> {
   return runAction("ar", async () => {
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
-      select: { date: true, startTime: true },
+      select: {
+        date: true,
+        startTime: true,
+        userId: true,
+        service: { select: { title: true } },
+      },
     });
     if (!booking) throw new Error(adminErrors.notFound);
 
@@ -57,6 +66,14 @@ async function updateBookingStatus(formData: FormData): Promise<ActionResult> {
         slotKey: slotKeyForStatus(nextStatus, dateStr, booking.startTime),
       },
     });
+
+    if (nextStatus === "COMPLETED") {
+      await notifySessionReview({
+        userId: booking.userId,
+        bookingId,
+        serviceTitle: booking.service.title,
+      });
+    }
 
     revalidatePath("/admin/bookings");
   }, "updated");
@@ -111,6 +128,7 @@ export default async function AdminBookingsPage({
       user: true,
       service: true,
       payment: true,
+      review: true,
     },
     orderBy,
     take: 100,
@@ -119,53 +137,42 @@ export default async function AdminBookingsPage({
   return (
     <div>
       <h1 className="page-header-title mb-6 sm:mb-8">الحجوزات</h1>
-      <Card className="mb-6">
-        <h2 className="font-heading text-xl text-heading mb-4">تصفية القائمة</h2>
-        <form method="GET" className="grid md:grid-cols-4 gap-4">
-          <AdminFormField label="بحث" htmlFor="booking-filter-q">
-            <Input
-              id="booking-filter-q"
-              name="q"
-              defaultValue={q}
-              placeholder="العميل، البريد أو الخدمة..."
-              className="text-sm"
-            />
-          </AdminFormField>
-          <AdminFormField label="حالة الحجز">
-            <FilterSelect
-              name="status"
-              value={status}
-              options={[
-                { value: "", label: "جميع الحالات" },
-                { value: "PENDING", label: "قيد الانتظار" },
-                { value: "CONFIRMED", label: "مؤكد" },
-                { value: "COMPLETED", label: "مكتمل" },
-                { value: "CANCELLED", label: "ملغى" },
-              ]}
-            />
-          </AdminFormField>
-          <AdminFormField label="ترتيب العرض">
-            <FilterSelect
-              name="sort"
-              value={sort}
-              options={[
-                { value: "created_desc", label: "الأحدث" },
-                { value: "created_asc", label: "الأقدم" },
-                { value: "date_asc", label: "تاريخ الجلسة ↑" },
-                { value: "date_desc", label: "تاريخ الجلسة ↓" },
-              ]}
-            />
-          </AdminFormField>
-          <div className="flex items-end">
-            <button
-              type="submit"
-              className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors w-full"
-            >
-              تصفية
-            </button>
-          </div>
-        </form>
-      </Card>
+      <AdminFilterCard title={adminFilterLabels.bookings.title}>
+        <AdminFormField label={adminFilterLabels.search} htmlFor="booking-filter-q">
+          <Input
+            id="booking-filter-q"
+            name="q"
+            defaultValue={q}
+            placeholder={adminFilterLabels.bookings.searchPlaceholder}
+            className="text-sm"
+          />
+        </AdminFormField>
+        <AdminFormField label="حالة الحجز">
+          <FilterSelect
+            name="status"
+            value={status}
+            options={[
+              { value: "", label: "جميع الحالات" },
+              { value: "PENDING", label: "قيد الانتظار" },
+              { value: "CONFIRMED", label: "مؤكد" },
+              { value: "COMPLETED", label: "مكتمل" },
+              { value: "CANCELLED", label: "ملغى" },
+            ]}
+          />
+        </AdminFormField>
+        <AdminFormField label={adminFilterLabels.sort}>
+          <FilterSelect
+            name="sort"
+            value={sort}
+            options={[
+              { value: "created_desc", label: adminFilterLabels.sortNewest },
+              { value: "created_asc", label: adminFilterLabels.sortOldest },
+              { value: "date_asc", label: "تاريخ الجلسة ↑" },
+              { value: "date_desc", label: "تاريخ الجلسة ↓" },
+            ]}
+          />
+        </AdminFormField>
+      </AdminFilterCard>
       {bookings.length === 0 ? (
         <Card className="text-center py-12">
           <p className="text-text/70">لا توجد حجوزات حالياً.</p>
@@ -184,6 +191,33 @@ export default async function AdminBookingsPage({
                   <p className="text-sm text-text/70">
                     {formatDate(booking.date)} في {booking.startTime}
                   </p>
+                  {booking.notes ? (
+                    <p className="text-sm text-text/80 mt-2 rounded-xl bg-muted/50 px-3 py-2">
+                      {booking.notes}
+                    </p>
+                  ) : null}
+                  {booking.review ? (
+                    <div className="mt-2 rounded-xl border border-accent/20 bg-accent/5 px-3 py-2">
+                      <p className="text-xs font-semibold text-heading">
+                        تقييم الجلسة
+                      </p>
+                      <div className="mt-1 flex items-center gap-0.5">
+                        {Array.from({ length: booking.review.rating }).map(
+                          (_, index) => (
+                            <Star
+                              key={index}
+                              className="h-3.5 w-3.5 fill-accent text-accent"
+                            />
+                          )
+                        )}
+                      </div>
+                      {booking.review.comment ? (
+                        <p className="mt-2 text-sm text-text/80">
+                          {booking.review.comment}
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : null}
                   <p className="text-xs text-text/60 mt-1">
                     الدفع: {booking.payment?.status || "لا يوجد"}
                   </p>

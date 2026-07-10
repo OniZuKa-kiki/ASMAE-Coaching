@@ -18,13 +18,13 @@ export const actionMessages = {
     completed: "تم التحديث بنجاح",
   },
   fr: {
-    saved: "Enregistré avec succès",
-    created: "Créé avec succès",
-    deleted: "Supprimé avec succès",
-    updated: "Mis à jour avec succès",
-    toggled: "Mis à jour avec succès",
-    sent: "Email envoyé avec succès",
-    completed: "Mis à jour avec succès",
+    saved: "تم الحفظ بنجاح",
+    created: "تم الإنشاء بنجاح",
+    deleted: "تم الحذف بنجاح",
+    updated: "تم التحديث بنجاح",
+    toggled: "تم التحديث بنجاح",
+    sent: "تم إرسال الرسالة بنجاح",
+    completed: "تم التحديث بنجاح",
   },
 } as const;
 

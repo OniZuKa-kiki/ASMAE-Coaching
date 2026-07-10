@@ -20,14 +20,14 @@ export type PanelNavLink = {
 
 export function getAdminNavLinks(): PanelNavLink[] {
   return [
-    { href: adminUrl(), label: "نظرة عامة", icon: BarChart3 },
+    { href: adminUrl(), label: "لوحة التحكم", icon: BarChart3 },
     { href: adminUrl("/users"), label: "العملاء", icon: Users },
     { href: adminUrl("/bookings"), label: "الحجوزات", icon: Calendar },
     { href: adminUrl("/courses"), label: "الدورات", icon: BookOpen },
-    { href: adminUrl("/podcasts"), label: "بودكاست", icon: Headphones },
+    { href: adminUrl("/podcasts"), label: "البودكاست", icon: Headphones },
     { href: adminUrl("/blog"), label: "المدونة", icon: FileText },
-    { href: adminUrl("/payments"), label: "المدفوعات", icon: CreditCard },
-    { href: adminUrl("/coupons"), label: "الكوبونات", icon: Tag },
+    { href: adminUrl("/payments"), label: "الفواتير", icon: CreditCard },
+    { href: adminUrl("/coupons"), label: "القسائم", icon: Tag },
     { href: adminUrl("/settings"), label: "الإعدادات", icon: Settings },
   ];
 }

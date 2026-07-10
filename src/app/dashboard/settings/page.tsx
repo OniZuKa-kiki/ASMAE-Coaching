@@ -52,8 +52,8 @@ export default async function DashboardSettingsPage() {
       <div className="space-y-6">
         <Card>
           <p className="text-text/70">
-            يتيح لك هذا القسم الاستعداد لمرافقتك ومشاركة المعلومات المفيدة
-            قبل جلستك القادمة.
+            يتيح لكِ هذا القسم الاستعداد لمرافقتكِ ومشاركة المعلومات المفيدة
+            قبل جلستكِ القادمة.
           </p>
         </Card>
 
@@ -62,13 +62,13 @@ export default async function DashboardSettingsPage() {
             استبيان ما قبل الجلسة الأولى
           </h2>
           <p className="text-text/70 text-sm mb-6">
-            املأ هذه المعلومات لمساعدة مدربتك على إعداد مرافقة شخصية.
+            املئي هذه المعلومات لمساعدة مدربتك على إعداد مرافقة شخصية.
           </p>
 
           <ActionForm action={saveIntakeForm} className="space-y-4">
             <div>
               <label className="text-sm font-semibold text-heading">
-                أهدافك (حالياً)
+                أهدافكِ (حاليًا)
               </label>
               <textarea
                 name="goals"
@@ -81,7 +81,7 @@ export default async function DashboardSettingsPage() {
 
             <div>
               <label className="text-sm font-semibold text-heading">
-                تحدياتك / العوائق
+                تحدياتكِ / العوائق
               </label>
               <textarea
                 name="challenges"
@@ -94,7 +94,7 @@ export default async function DashboardSettingsPage() {
 
             <div>
               <label className="text-sm font-semibold text-heading">
-                توقعاتك
+                توقعاتكِ
               </label>
               <textarea
                 name="expectations"

@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
 
   if (!paymentId || typeof encryptedData !== "string") {
     return NextResponse.redirect(
-      new URL("/booking?error=payment", request.url)
+      new URL("/booking/cancel", request.url)
     );
   }
 
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
   if (!payment?.providerSessionId) {
     return NextResponse.redirect(
-      new URL("/booking?error=payment", request.url)
+      new URL("/booking/cancel", request.url)
     );
   }
 
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       data: { status: "FAILED" },
     });
     return NextResponse.redirect(
-      new URL("/booking?error=payment_failed", request.url)
+      new URL("/booking/cancel", request.url)
     );
   }
 

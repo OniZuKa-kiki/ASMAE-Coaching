@@ -1,18 +1,12 @@
 import Link from "next/link";
 import { Mail, MessageCircle, Phone, Share2 } from "lucide-react";
-import { navigation, siteConfig } from "@/lib/constants";
+import { footerBrowseLinks, siteConfig } from "@/lib/constants";
+import { legalFooterLinks } from "@/lib/legal-content";
 import { Logo } from "@/components/layout/logo";
 import {
   getDefaultContact,
   type PublicContact,
 } from "@/lib/contact-info";
-
-const resourceLinks = [
-  { href: "/blog", label: "المدونة" },
-  { href: "/podcasts", label: "بودكاست" },
-  { href: "/courses", label: "الدورات" },
-  { href: "/testimonials", label: "شهادات" },
-];
 
 type FooterProps = {
   contact?: PublicContact;
@@ -22,7 +16,7 @@ export function Footer({ contact = getDefaultContact() }: FooterProps) {
   return (
     <footer className="bg-heading text-white/90 mt-auto">
       <div className="container-wide px-4 py-8 sm:px-6 sm:py-10 lg:py-14">
-        <div className="grid grid-cols-2 items-start gap-x-4 gap-y-6 sm:gap-6 lg:grid-cols-4 lg:gap-10">
+        <div className="grid grid-cols-2 items-start gap-x-4 gap-y-6 sm:gap-6 lg:grid-cols-3 lg:gap-10">
           <div className="col-span-2 flex flex-col items-center gap-3 text-center sm:items-start sm:text-start lg:col-span-1 lg:max-w-[240px]">
             <Logo size="footer" className="block" />
             <p className="text-white/70 text-xs sm:text-sm leading-relaxed line-clamp-3 sm:line-clamp-none">
@@ -31,9 +25,9 @@ export function Footer({ contact = getDefaultContact() }: FooterProps) {
           </div>
 
           <div>
-            <h4 className="font-body font-semibold text-white text-sm mb-2 sm:mb-3">التنقل</h4>
+            <h4 className="font-body font-semibold text-white text-sm mb-2 sm:mb-3">التصفح</h4>
             <ul className="space-y-1.5">
-              {navigation.slice(0, 6).map((item) => (
+              {footerBrowseLinks.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
@@ -46,23 +40,7 @@ export function Footer({ contact = getDefaultContact() }: FooterProps) {
             </ul>
           </div>
 
-          <div>
-            <h4 className="font-body font-semibold text-white text-sm mb-2 sm:mb-3">الموارد</h4>
-            <ul className="space-y-1.5">
-              {resourceLinks.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="text-xs sm:text-sm text-white/70 hover:text-accent transition-colors"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="col-span-2 sm:col-span-1 lg:col-span-1">
+          <div className="col-span-2 sm:col-span-1">
             <h4 className="font-body font-semibold text-white text-sm mb-2 sm:mb-3">تواصل</h4>
             <ul className="flex flex-wrap gap-x-4 gap-y-2 sm:flex-col sm:gap-2">
               <li>
@@ -119,13 +97,16 @@ export function Footer({ contact = getDefaultContact() }: FooterProps) {
           <p className="text-xs sm:text-sm text-white/50 text-center sm:text-start">
             © {new Date().getFullYear()} {siteConfig.name}. جميع الحقوق محفوظة.
           </p>
-          <div className="flex gap-4 text-xs sm:text-sm text-white/50">
-            <Link href="/mentions-legales" className="hover:text-accent transition-colors">
-              الإشعارات القانونية
-            </Link>
-            <Link href="/confidentialite" className="hover:text-accent transition-colors">
-              الخصوصية
-            </Link>
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs sm:text-sm text-white/50 sm:justify-end">
+            {legalFooterLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="hover:text-accent transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>

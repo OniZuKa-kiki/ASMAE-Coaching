@@ -2,8 +2,22 @@ import { AdminFormField } from "@/components/admin/form-field";
 import { Card } from "@/components/ui/card";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input } from "@/components/ui/input";
+import { InvoiceAdminStatsCards } from "@/components/payments/invoice-admin-stats";
+import { InvoiceListTable } from "@/components/payments/invoice-list-table";
 import { prisma } from "@/lib/db";
-import { formatDate, formatPrice } from "@/lib/utils";
+import { AdminFilterCard } from "@/components/admin/filter-card";
+import { adminFilterLabels } from "@/lib/admin-filters";
+import {
+  buildInvoiceNumber,
+  buildPaymentPeriodWhere,
+  buildPaymentSearchWhere,
+  getClientDisplayName,
+  getInvoiceAdminStats,
+  getPaymentServiceTitle,
+  paymentStatusLabels,
+} from "@/lib/invoice-utils";
+import { formatProviderAmount } from "@/lib/payments/currency";
+import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -24,20 +38,16 @@ export default async function AdminPaymentsPage({
   const q = getQueryValue(params.q).trim();
   const status = getQueryValue(params.status).trim();
   const provider = getQueryValue(params.provider).trim();
+  const period = getQueryValue(params.period).trim();
   const sort = getQueryValue(params.sort, "created_desc");
 
   const where = {
-    ...(status ? { status: status as "PENDING" | "PAID" | "REFUNDED" | "FAILED" } : {}),
-    ...(provider ? { provider: provider as "PAYZONE" | "STRIPE" } : {}),
-    ...(q
-      ? {
-          OR: [
-            { user: { email: { contains: q, mode: "insensitive" as const } } },
-            { booking: { service: { title: { contains: q, mode: "insensitive" as const } } } },
-            { course: { title: { contains: q, mode: "insensitive" as const } } },
-          ],
-        }
+    ...(status
+      ? { status: status as "PENDING" | "PAID" | "REFUNDED" | "FAILED" }
       : {}),
+    ...(provider ? { provider: provider as "PAYZONE" | "STRIPE" } : {}),
+    ...(buildPaymentPeriodWhere(period) ?? {}),
+    ...(buildPaymentSearchWhere(q) ?? {}),
   };
 
   const orderBy =
@@ -49,107 +59,115 @@ export default async function AdminPaymentsPage({
       ? ({ amount: "asc" } as const)
       : ({ createdAt: "desc" } as const);
 
-  const payments = await prisma.payment.findMany({
-    where,
-    include: {
-      user: true,
-      booking: { include: { service: true } },
-      course: true,
-    },
-    orderBy,
-    take: 100,
-  });
+  const [payments, stats] = await Promise.all([
+    prisma.payment.findMany({
+      where,
+      include: {
+        user: true,
+        booking: { include: { service: true } },
+        course: true,
+      },
+      orderBy,
+      take: 100,
+    }),
+    getInvoiceAdminStats(where),
+  ]);
+
+  const rows = payments.map((payment) => ({
+    paymentId: payment.id,
+    invoiceNumber: buildInvoiceNumber(payment.id, payment.createdAt),
+    clientName: getClientDisplayName(payment.user),
+    clientEmail: payment.user.email,
+    serviceTitle: getPaymentServiceTitle(payment),
+    amountLabel: formatProviderAmount(payment.amount, payment.currency),
+    dateLabel: formatDate(payment.createdAt),
+    status: payment.status,
+    statusLabel: paymentStatusLabels[payment.status] || payment.status,
+  }));
 
   return (
     <div>
-      <h1 className="page-header-title mb-6 sm:mb-8">
-        المدفوعات
-      </h1>
-      <Card className="mb-6">
-        <h2 className="font-heading text-xl text-heading mb-4">تصفية القائمة</h2>
-        <form method="GET" className="grid md:grid-cols-5 gap-4">
-          <AdminFormField label="بحث" htmlFor="payment-filter-q">
-            <Input
-              id="payment-filter-q"
-              name="q"
-              defaultValue={q}
-              placeholder="البريد، الخدمة أو الدورة..."
-              className="text-sm"
-            />
-          </AdminFormField>
-          <AdminFormField label="حالة الدفع">
-            <FilterSelect
-              name="status"
-              value={status}
-              options={[
-                { value: "", label: "جميع الحالات" },
-                { value: "PENDING", label: "قيد الانتظار" },
-                { value: "PAID", label: "مدفوع" },
-                { value: "REFUNDED", label: "مسترد" },
-                { value: "FAILED", label: "فاشل" },
-              ]}
-            />
-          </AdminFormField>
-          <AdminFormField label="مزود الدفع">
-            <FilterSelect
-              name="provider"
-              value={provider}
-              options={[
-                { value: "", label: "جميع المزودين" },
-                { value: "PAYZONE", label: "PayZone" },
-                { value: "STRIPE", label: "Stripe" },
-              ]}
-            />
-          </AdminFormField>
-          <AdminFormField label="ترتيب العرض">
-            <FilterSelect
-              name="sort"
-              value={sort}
-              options={[
-                { value: "created_desc", label: "الأحدث" },
-                { value: "created_asc", label: "الأقدم" },
-                { value: "amount_desc", label: "المبلغ ↓" },
-                { value: "amount_asc", label: "المبلغ ↑" },
-              ]}
-            />
-          </AdminFormField>
-          <div className="flex items-end">
-            <button
-              type="submit"
-              className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors w-full"
-            >
-              تصفية
-            </button>
-          </div>
-        </form>
-      </Card>
+      <h1 className="page-header-title mb-2">الفواتير والمدفوعات</h1>
+      <p className="mb-6 text-sm text-text/70 sm:mb-8">
+        إدارة الفواتير الصادرة، البحث برقم الفاتورة أو اسم العميلة، وتصفية
+        حسب التاريخ والحالة.
+      </p>
+
+      <InvoiceAdminStatsCards stats={stats} />
+
+      <AdminFilterCard
+        title={adminFilterLabels.payments.title}
+        formClassName="grid md:grid-cols-2 lg:grid-cols-6 gap-4"
+      >
+        <AdminFormField
+          label={adminFilterLabels.search}
+          htmlFor="payment-filter-q"
+          className="lg:col-span-2"
+        >
+          <Input
+            id="payment-filter-q"
+            name="q"
+            defaultValue={q}
+            placeholder={adminFilterLabels.payments.searchPlaceholder}
+            className="text-sm"
+          />
+        </AdminFormField>
+        <AdminFormField label="الفترة">
+          <FilterSelect
+            name="period"
+            value={period}
+            options={[
+              { value: "", label: "كل الفترات" },
+              { value: "today", label: "اليوم" },
+              { value: "month", label: "هذا الشهر" },
+              { value: "year", label: "هذه السنة" },
+            ]}
+          />
+        </AdminFormField>
+        <AdminFormField label="حالة الدفع">
+          <FilterSelect
+            name="status"
+            value={status}
+            options={[
+              { value: "", label: "جميع الحالات" },
+              { value: "PENDING", label: "قيد الانتظار" },
+              { value: "PAID", label: "مدفوع" },
+              { value: "REFUNDED", label: "مسترد" },
+              { value: "FAILED", label: "فاشل" },
+            ]}
+          />
+        </AdminFormField>
+        <AdminFormField label="مزود الدفع">
+          <FilterSelect
+            name="provider"
+            value={provider}
+            options={[
+              { value: "", label: "جميع المزودين" },
+              { value: "PAYZONE", label: "PayZone" },
+              { value: "STRIPE", label: "Stripe" },
+            ]}
+          />
+        </AdminFormField>
+        <AdminFormField label={adminFilterLabels.sort}>
+          <FilterSelect
+            name="sort"
+            value={sort}
+            options={[
+              { value: "created_desc", label: adminFilterLabels.sortNewest },
+              { value: "created_asc", label: adminFilterLabels.sortOldest },
+              { value: "amount_desc", label: "المبلغ ↓" },
+              { value: "amount_asc", label: "المبلغ ↑" },
+            ]}
+          />
+        </AdminFormField>
+      </AdminFilterCard>
+
       {payments.length === 0 ? (
-        <Card className="text-center py-12">
-          <p className="text-text/70">لا توجد مدفوعات حالياً.</p>
+        <Card className="py-12 text-center">
+          <p className="text-text/70">لا توجد فواتير أو مدفوعات مطابقة.</p>
         </Card>
       ) : (
-        <div className="space-y-3">
-          {payments.map((payment) => (
-            <Card key={payment.id}>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                  <p className="font-semibold text-heading">
-                    {payment.booking?.service.title || payment.course?.title || "دفع"}
-                  </p>
-                  <p className="text-sm text-text/70">
-                    {payment.user.email} • {payment.provider}
-                  </p>
-                  <p className="text-xs text-text/60">
-                    {formatDate(payment.createdAt)} • الحالة: {payment.status}
-                  </p>
-                </div>
-                <p className="font-heading text-lg text-primary">
-                  {formatPrice(payment.amount, payment.currency.toUpperCase())}
-                </p>
-              </div>
-            </Card>
-          ))}
-        </div>
+        <InvoiceListTable rows={rows} variant="admin" />
       )}
     </div>
   );

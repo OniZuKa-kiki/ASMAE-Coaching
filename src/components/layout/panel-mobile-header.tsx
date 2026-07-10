@@ -7,12 +7,14 @@ import { ExternalLink, Home, Menu, X } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
 import { PanelNavList } from "@/components/layout/panel-nav-list";
 import { getAdminNavLinks } from "@/lib/admin-nav";
+import { dashboardContent } from "@/lib/constants";
 import { dashboardNavLinks } from "@/lib/dashboard-nav";
 import { cn } from "@/lib/utils";
 
 type PanelMobileHeaderProps = {
   variant: "dashboard" | "admin";
   homeLabel?: string;
+  unreadNotifications?: number;
 };
 
 const easeOut = [0.22, 1, 0.36, 1] as const;
@@ -20,6 +22,7 @@ const easeOut = [0.22, 1, 0.36, 1] as const;
 export function PanelMobileHeader({
   variant,
   homeLabel,
+  unreadNotifications = 0,
 }: PanelMobileHeaderProps) {
   const [open, setOpen] = useState(false);
   const isAdmin = variant === "admin";
@@ -49,7 +52,7 @@ export function PanelMobileHeader({
         className="lg:hidden sticky top-0 z-40 grid grid-cols-[1fr_auto_1fr] items-center gap-2 border-b border-border/50 bg-card/95 backdrop-blur-md px-4 py-3"
         suppressHydrationWarning
       >
-        <div className="flex justify-start">
+        <div className="flex justify-start" suppressHydrationWarning>
           <button
             type="button"
             onClick={() => setOpen(true)}
@@ -60,14 +63,14 @@ export function PanelMobileHeader({
           </button>
         </div>
 
-        <div className="flex justify-center min-w-0 px-1">
+        <div className="flex justify-center min-w-0 px-1" suppressHydrationWarning>
           <Logo
             size="header"
             className="scale-[0.82] sm:scale-[0.85] origin-center max-w-[100px] sm:max-w-[120px] mx-auto"
           />
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end" suppressHydrationWarning>
           <Link
             href="/"
             target={isAdmin ? "_blank" : undefined}
@@ -98,7 +101,7 @@ export function PanelMobileHeader({
               type="button"
               className="absolute inset-0 bg-heading/40"
               onClick={() => setOpen(false)}
-              aria-label={isAdmin ? "Fermer le menu" : "إغلاق القائمة"}
+              aria-label="إغلاق القائمة"
             />
 
             <motion.aside
@@ -124,7 +127,7 @@ export function PanelMobileHeader({
                       isAdmin ? "text-white" : "text-heading"
                     )}
                   >
-                    {isAdmin ? "Administration" : "مساحتي"}
+                    {isAdmin ? "لوحة الإدارة" : dashboardContent.spaceTitle}
                   </p>
                   {isAdmin && (
                     <p className="text-white/50 text-xs mt-0.5">ASMAE Coaching</p>
@@ -137,7 +140,7 @@ export function PanelMobileHeader({
                     "p-2 rounded-lg transition-colors",
                     isAdmin ? "text-white hover:bg-white/10" : "text-heading hover:bg-primary/5"
                   )}
-                  aria-label={isAdmin ? "Fermer le menu" : "إغلاق القائمة"}
+                  aria-label="إغلاق القائمة"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -161,13 +164,18 @@ export function PanelMobileHeader({
                   ) : (
                     <Home className="w-5 h-5" />
                   )}
-                  {isAdmin ? "Ouvrir le site" : "العودة للموقع"}
+                  {isAdmin ? "عرض الموقع" : dashboardContent.backToSite}
                 </Link>
 
                 <PanelNavList
                   links={links}
                   variant={variant}
                   onNavigate={() => setOpen(false)}
+                  badgeByHref={
+                    !isAdmin && unreadNotifications > 0
+                      ? { "/dashboard/notifications": unreadNotifications }
+                      : undefined
+                  }
                 />
               </div>
             </motion.aside>

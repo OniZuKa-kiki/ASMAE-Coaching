@@ -1,27 +1,39 @@
 import { format } from "date-fns";
 import { Video } from "lucide-react";
+import { BookingsCalendar } from "@/components/dashboard/bookings-calendar";
+import { SessionReviewDisplay } from "@/components/dashboard/session-review-display";
+import { SessionReviewForm } from "@/components/dashboard/session-review-form";
 import { Card } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
-import { getUserBookings } from "@/lib/dashboard";
+import { dashboardContent } from "@/lib/constants";
+import { getUserBookingsPageData } from "@/lib/dashboard";
+import { isBookingReviewable } from "@/lib/session-review";
 import { dateFnsLocale } from "@/lib/locale";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardBookingsPage() {
-  const data = await getUserBookings();
+  const data = await getUserBookingsPageData();
+  const now = new Date();
 
   return (
     <div>
-      <h1 className="page-header-title mb-6 sm:mb-8">
-        استشاراتي
-      </h1>
+      <h1 className="page-header-title mb-2">{dashboardContent.bookingsTitle}</h1>
+      <p className="text-text/70 mb-6">{dashboardContent.bookingsCalendarLabel}</p>
+
+      <BookingsCalendar bookings={data?.calendarItems ?? []} />
+
       <div className="space-y-6">
         <section>
-          <h2 className="font-body font-semibold text-heading mb-4">القادمة</h2>
+          <h2 className="font-body font-semibold text-heading mb-4">
+            {dashboardContent.bookingsUpcoming}
+          </h2>
           {!data || data.upcoming.length === 0 ? (
             <Card className="text-center py-8">
-              <p className="text-text/70 mb-4">لا توجد جلسات مجدولة</p>
-              <ButtonLink href="/booking">حجز جلسة</ButtonLink>
+              <p className="text-text/70 mb-4">
+                {dashboardContent.noScheduledSessions}
+              </p>
+              <ButtonLink href="/booking">{dashboardContent.bookSession}</ButtonLink>
             </Card>
           ) : (
             <div className="space-y-3">
@@ -33,7 +45,9 @@ export default async function DashboardBookingsPage() {
                         {booking.service.title}
                       </h3>
                       <p className="text-sm text-text/70">
-                        {format(booking.date, "EEEE d MMMM yyyy", { locale: dateFnsLocale })}{" "}
+                        {format(booking.date, "EEEE d MMMM yyyy", {
+                          locale: dateFnsLocale,
+                        })}{" "}
                         في {booking.startTime}
                       </p>
                     </div>
@@ -45,7 +59,7 @@ export default async function DashboardBookingsPage() {
                         className="inline-flex items-center gap-2 text-sm font-semibold text-primary"
                       >
                         <Video className="w-4 h-4" />
-                        رابط الاجتماع المرئي
+                        {dashboardContent.sessionLink}
                       </a>
                     )}
                   </div>
@@ -56,26 +70,51 @@ export default async function DashboardBookingsPage() {
         </section>
 
         <section>
-          <h2 className="font-body font-semibold text-heading mb-4">السجل</h2>
+          <h2 className="font-body font-semibold text-heading mb-4">
+            {dashboardContent.bookingsHistory}
+          </h2>
           {!data || data.past.length === 0 ? (
             <Card>
               <p className="text-text/70 text-center py-4">
-                سيظهر سجلك هنا بعد جلساتك الأولى.
+                {dashboardContent.bookingsHistoryEmpty}
               </p>
             </Card>
           ) : (
             <div className="space-y-3">
-              {data.past.map((booking) => (
+              {data.past.map((booking) => {
+                const canReview =
+                  !booking.review && isBookingReviewable(booking, now);
+
+                return (
                 <Card key={booking.id} className="opacity-80">
                   <h3 className="font-semibold text-heading">
                     {booking.service.title}
                   </h3>
                   <p className="text-sm text-text/70">
-                    {format(booking.date, "d MMMM yyyy", { locale: dateFnsLocale })} في{" "}
-                    {booking.startTime}
+                    {format(booking.date, "d MMMM yyyy", {
+                      locale: dateFnsLocale,
+                    })}{" "}
+                    في {booking.startTime}
                   </p>
+                  {booking.review ? (
+                    <SessionReviewDisplay review={booking.review} />
+                  ) : canReview ? (
+                    <div className="mt-4 rounded-2xl border border-accent/20 bg-accent/5 p-4">
+                      <p className="mb-3 text-sm font-semibold text-heading">
+                        {dashboardContent.sessionReview.pendingTitle}
+                      </p>
+                      <SessionReviewForm
+                        bookingId={booking.id}
+                        serviceTitle={booking.service.title}
+                        sessionDate={booking.date}
+                        startTime={booking.startTime}
+                        compact
+                      />
+                    </div>
+                  ) : null}
                 </Card>
-              ))}
+              );
+              })}
             </div>
           )}
         </section>

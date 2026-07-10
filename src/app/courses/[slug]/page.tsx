@@ -3,9 +3,14 @@ import { notFound } from "next/navigation";
 import { BookOpen, Video, FileText, Award } from "lucide-react";
 import { PurchaseCourseButton } from "@/components/courses/purchase-button";
 import {
+  formatCourseIncludeLabel,
   getPublishedCourseBySlug,
   getPublishedCourses,
 } from "@/lib/content";
+import {
+  formatArabicLessonCount,
+  formatArabicModuleCount,
+} from "@/lib/arabic-count";
 import { formatPrice } from "@/lib/utils";
 
 export async function generateStaticParams() {
@@ -49,13 +54,15 @@ export default async function CourseDetailPage({
             <div className="grid grid-cols-2 gap-4 mb-8">
               <div className="p-4 rounded-xl bg-card border border-border/50">
                 <BookOpen className="w-5 h-5 text-primary mb-2" />
-                <p className="font-semibold text-heading">{course.modules}</p>
-                <p className="text-sm text-text/70">وحدات</p>
+                <p className="font-semibold text-heading">
+                  {formatArabicModuleCount(course.modules)}
+                </p>
               </div>
               <div className="p-4 rounded-xl bg-card border border-border/50">
                 <Video className="w-5 h-5 text-primary mb-2" />
-                <p className="font-semibold text-heading">{course.lessons}</p>
-                <p className="text-sm text-text/70">دروس</p>
+                <p className="font-semibold text-heading">
+                  {formatArabicLessonCount(course.lessons)}
+                </p>
               </div>
             </div>
 
@@ -66,7 +73,7 @@ export default async function CourseDetailPage({
               {course.includes.map((item) => (
                 <li key={item} className="flex items-center gap-2 text-text">
                   <FileText className="w-4 h-4 text-primary" />
-                  {item}
+                  {formatCourseIncludeLabel(item)}
                 </li>
               ))}
               <li className="flex items-center gap-2 text-text">
