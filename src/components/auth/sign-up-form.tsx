@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { SignUp, useAuth, useClerk } from "@clerk/nextjs";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { clerkAppearance } from "@/lib/clerk-appearance";
 import { SignInSkeleton } from "@/components/auth/sign-in-skeleton";
 
@@ -15,6 +16,7 @@ type SignUpFormProps = {
 export function SignUpForm({ redirectUrl }: SignUpFormProps) {
   const { isLoaded, isSignedIn } = useAuth();
   const { signOut } = useClerk();
+  const t = useTranslations("auth");
   const [needsHelp, setNeedsHelp] = useState(false);
   const triedRedirectRef = useRef(false);
 
@@ -49,23 +51,20 @@ export function SignUpForm({ redirectUrl }: SignUpFormProps) {
     if (needsHelp) {
       return (
         <div className="w-full space-y-4 rounded-[20px] border border-border bg-card p-8 text-center shadow-soft">
-          <p className="text-sm text-text/80">
-            جلسة الدخول غير متزامنة. يمكنكِ متابعة الصفحة المطلوبة أو تسجيل
-            الخروج ثم إنشاء حساب جديد.
-          </p>
+          <p className="text-sm text-text/80">{t("sessionOutOfSyncSignUp")}</p>
           <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
             <a
               href={redirectUrl}
               className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-hover"
             >
-              متابعة إلى حسابي
+              {t("continueToAccount")}
             </a>
             <button
               type="button"
               onClick={() => void signOut()}
               className="inline-flex items-center justify-center rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading transition-colors hover:border-primary hover:text-primary"
             >
-              تسجيل الخروج
+              {t("signOut")}
             </button>
           </div>
         </div>
@@ -75,7 +74,7 @@ export function SignUpForm({ redirectUrl }: SignUpFormProps) {
     return (
       <div className="flex min-h-[320px] flex-col items-center justify-center gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden />
-        <p className="text-sm text-text/70">جارٍ التحويل...</p>
+        <p className="text-sm text-text/70">{t("redirecting")}</p>
       </div>
     );
   }

@@ -2,10 +2,12 @@
 
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 function NavigationProgressBar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const t = useTranslations("common");
   const [progress, setProgress] = useState(0);
   const [visible, setVisible] = useState(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -79,7 +81,7 @@ function NavigationProgressBar() {
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={progress}
-      aria-label="جارٍ التحميل"
+      aria-label={t("loadingAria")}
     >
       <div
         className="h-full bg-primary shadow-[0_0_10px_rgba(107,124,106,0.45)] transition-[width] duration-300 ease-out motion-reduce:transition-none"

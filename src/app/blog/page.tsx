@@ -1,16 +1,29 @@
 import type { Metadata } from "next";
-import { blogPageContent } from "@/lib/constants";
+import { auth } from "@clerk/nextjs/server";
+import { getTranslations } from "next-intl/server";
+import { localeAlternates } from "@/lib/seo";
 import { getPublishedBlogPosts } from "@/lib/content";
 import { BlogCatalog } from "@/components/blog/blog-catalog";
+import { getFavoriteKeysForCurrentUser } from "@/lib/favorites";
 
-export const metadata: Metadata = {
-  title: blogPageContent.title,
-  description: blogPageContent.subtitle,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("blog");
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: localeAlternates("/blog"),
+  };
+}
 
 export default async function BlogPage() {
-  const posts = await getPublishedBlogPosts();
+  const [posts, favoriteKeys, { userId }, t] = await Promise.all([
+    getPublishedBlogPosts(),
+    getFavoriteKeysForCurrentUser(),
+    auth(),
+    getTranslations("blog"),
+  ]);
   const items = posts.map((post) => ({
+    id: post.id,
     slug: post.slug,
     title: post.title,
     excerpt: post.excerpt,
@@ -23,9 +36,9 @@ export default async function BlogPage() {
     <>
       <section className="section-padding bg-gradient-to-b from-primary/5 to-transparent">
         <div className="container-narrow text-center">
-          <h1 className="page-title mb-6">{blogPageContent.title}</h1>
+          <h1 className="page-title mb-6">{t("title")}</h1>
           <p className="mx-auto max-w-2xl text-xl text-text/80">
-            {blogPageContent.subtitle}
+            {t("subtitle")}
           </p>
         </div>
       </section>
@@ -33,11 +46,13 @@ export default async function BlogPage() {
       <section className="section-padding">
         <div className="container-narrow">
           {posts.length === 0 ? (
-            <p className="text-center text-text/70">
-              {blogPageContent.emptyMessage}
-            </p>
+            <p className="text-center text-text/70">{t("emptyMessage")}</p>
           ) : (
-            <BlogCatalog posts={items} />
+            <BlogCatalog
+              posts={items}
+              favoriteKeys={[...favoriteKeys]}
+              signedIn={!!userId}
+            />
           )}
         </div>
       </section>

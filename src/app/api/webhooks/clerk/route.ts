@@ -50,13 +50,34 @@ export async function POST(request: NextRequest) {
   try {
     const result = await handleClerkEmailCreated(event.data);
     if (!result.handled) {
-      console.warn("[clerk-webhook] email.created non géré:", result.reason);
+      console.warn(
+        "[clerk-webhook] email.created non géré:",
+        result.reason,
+        JSON.stringify({
+          slug: event.data.slug,
+          to:
+            event.data.to_email_address ?? event.data.email_address ?? null,
+        })
+      );
+    } else {
+      console.info(
+        "[clerk-webhook] email envoyé via Resend:",
+        event.data.slug,
+        event.data.to_email_address ?? event.data.email_address
+      );
     }
-    return NextResponse.json({ received: true, handled: result.handled });
+    return NextResponse.json({
+      received: true,
+      handled: result.handled,
+      reason: result.reason ?? null,
+    });
   } catch (error) {
     console.error("[clerk-webhook]", error);
     return NextResponse.json(
-      { error: "Échec envoi email Clerk" },
+      {
+        error: "Échec envoi email Clerk",
+        detail: error instanceof Error ? error.message : "unknown",
+      },
       { status: 500 }
     );
   }

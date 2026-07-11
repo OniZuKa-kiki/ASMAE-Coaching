@@ -1,5 +1,8 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
-import { adminFilterLabels, adminFilterSubmitClassName } from "@/lib/admin-filters";
+import { adminFilterSubmitClassName } from "@/lib/admin-filters";
 
 type AdminFilterCardProps = {
   title: string;
@@ -12,6 +15,8 @@ export function AdminFilterCard({
   formClassName = "grid md:grid-cols-4 gap-4",
   children,
 }: AdminFilterCardProps) {
+  const t = useTranslations("adminPages.filters");
+
   return (
     <Card className="mb-6">
       <h2 className="mb-4 font-heading text-xl text-heading">{title}</h2>
@@ -19,7 +24,7 @@ export function AdminFilterCard({
         {children}
         <div className="flex items-end" suppressHydrationWarning>
           <button type="submit" className={adminFilterSubmitClassName}>
-            {adminFilterLabels.submit}
+            {t("submit")}
           </button>
         </div>
       </form>

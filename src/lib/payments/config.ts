@@ -25,15 +25,11 @@ export function getAvailableProviders(): PaymentProviderConfig[] {
   const providers: PaymentProviderConfig[] = [
     {
       id: "payzone",
-      label: "بطاقة مغربية",
-      description: "Visa، Mastercard، بطاقات CMI",
       flag: "🇲🇦",
       available: isPayzoneConfigured(),
     },
     {
       id: "stripe",
-      label: "بطاقة دولية",
-      description: "Visa، Mastercard (خارج المغرب)",
       flag: "🌍",
       available: isStripeConfigured(),
     },

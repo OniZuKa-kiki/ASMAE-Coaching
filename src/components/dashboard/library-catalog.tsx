@@ -10,17 +10,24 @@ import {
   PlayCircle,
   Video,
 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { ContentFilterBar } from "@/components/content/content-filter-bar";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
-import { libraryPageContent } from "@/lib/constants";
+import {
+  ListScrollHint,
+  ScrollableItemList,
+} from "@/components/ui/scalable-list";
+import type { AppLocale } from "@/i18n/routing";
 import { toggleLessonCompletion } from "@/lib/lesson-completion-actions";
 import {
   lessonResourceCategories,
-  resourceCategoryLabels,
   type LessonResourceCategory,
 } from "@/lib/resource-categories";
 import { cn } from "@/lib/utils";
+import { FavoriteButton } from "@/components/favorites/favorite-button";
+import { isFavorited } from "@/lib/favorites-utils";
+import { matchesArabicSearch } from "@/lib/search-utils";
 
 export type LibraryResourceItem = {
   id: string;
@@ -39,6 +46,7 @@ type LibraryCatalogProps = {
   resources: LibraryResourceItem[];
   selectedCourseId?: string;
   selectedCourseTitle?: string | null;
+  favoriteKeys?: string[];
 };
 
 const categoryIcons: Record<LessonResourceCategory, typeof Video> = {
@@ -50,21 +58,22 @@ const categoryIcons: Record<LessonResourceCategory, typeof Video> = {
   SHEET: FileText,
 };
 
-function normalizeSearch(value: string) {
-  return value.trim().toLowerCase();
-}
-
 export function LibraryCatalog({
   resources,
   selectedCourseId,
   selectedCourseTitle,
+  favoriteKeys = [],
 }: LibraryCatalogProps) {
+  const locale = useLocale() as AppLocale;
+  const t = useTranslations("dashboard.library");
+  const tc = useTranslations("dashboard.library.categories");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [status, setStatus] = useState("all");
   const [sort, setSort] = useState("course");
 
-  const query = normalizeSearch(search);
+  const query = search.trim();
+  const collator = locale === "fr" ? "fr" : "ar";
 
   const categoryCounts = useMemo(() => {
     const counts = Object.fromEntries(
@@ -85,31 +94,31 @@ export function LibraryCatalog({
       if (status === "pending" && resource.completed) return false;
       if (!query) return true;
       const haystack =
-        `${resource.lessonTitle} ${resource.moduleTitle} ${resource.courseTitle}`.toLowerCase();
-      return haystack.includes(query);
+        `${resource.lessonTitle} ${resource.moduleTitle} ${resource.courseTitle}`;
+      return matchesArabicSearch(haystack, query);
     });
 
     items = [...items];
     switch (sort) {
       case "title":
         return items.sort((a, b) =>
-          a.lessonTitle.localeCompare(b.lessonTitle, "ar")
+          a.lessonTitle.localeCompare(b.lessonTitle, collator)
         );
       case "category":
         return items.sort((a, b) =>
-          resourceCategoryLabels[a.category].localeCompare(
-            resourceCategoryLabels[b.category],
-            "ar"
-          )
+          tc(a.category).localeCompare(tc(b.category), collator)
         );
       default:
         return items.sort((a, b) => {
-          const courseCompare = a.courseTitle.localeCompare(b.courseTitle, "ar");
+          const courseCompare = a.courseTitle.localeCompare(
+            b.courseTitle,
+            collator
+          );
           if (courseCompare !== 0) return courseCompare;
-          return a.lessonTitle.localeCompare(b.lessonTitle, "ar");
+          return a.lessonTitle.localeCompare(b.lessonTitle, collator);
         });
     }
-  }, [resources, category, status, query, sort]);
+  }, [resources, category, status, query, sort, collator, tc]);
 
   const grouped = useMemo(() => {
     return filteredResources.reduce(
@@ -136,25 +145,28 @@ export function LibraryCatalog({
 
   const completedCount = filteredResources.filter((item) => item.completed).length;
 
+  const resultsLabel =
+    filteredResources.length === 1
+      ? t("resultsOne")
+      : t("resultsMany", { count: filteredResources.length });
+
   return (
     <div>
       {selectedCourseId ? (
         <Card className="mb-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs text-text/60">
-                {libraryPageContent.selectedCourseLabel}
-              </p>
+              <p className="text-xs text-text/60">{t("selectedCourseLabel")}</p>
               <p className="font-semibold text-heading">
-                {selectedCourseTitle ?? libraryPageContent.selectedCourseFallback}
+                {selectedCourseTitle ?? t("selectedCourseFallback")}
               </p>
               <p className="mt-1 text-sm text-text/70">
                 {filteredResources.length === 0
-                  ? libraryPageContent.noCourseContent
-                  : libraryPageContent.completedCount(
-                      completedCount,
-                      filteredResources.length
-                    )}
+                  ? t("noCourseContent")
+                  : t("completedCount", {
+                      done: completedCount,
+                      total: filteredResources.length,
+                    })}
               </p>
             </div>
             <div className="flex gap-2">
@@ -162,22 +174,22 @@ export function LibraryCatalog({
                 href="/dashboard/courses"
                 className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading transition-colors hover:border-primary hover:text-primary"
               >
-                {libraryPageContent.coursesLink}
+                {t("coursesLink")}
               </Link>
               <Link
                 href="/dashboard/resources"
                 className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-hover"
               >
-                {libraryPageContent.viewAllLink}
+                {t("viewAllLink")}
               </Link>
             </div>
           </div>
         </Card>
       ) : (
-        <p className="mb-6 text-text/70">{libraryPageContent.subtitle}</p>
+        <p className="mb-6 text-text/70">{t("subtitle")}</p>
       )}
 
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {lessonResourceCategories.map((key) => {
           const Icon = categoryIcons[key];
           const active = category === key;
@@ -199,8 +211,8 @@ export function LibraryCatalog({
                   active ? "text-primary" : "text-text/60"
                 )}
               />
-              <p className="text-xs font-semibold text-heading">
-                {resourceCategoryLabels[key]}
+              <p className="text-xs font-semibold text-heading line-clamp-2">
+                {tc(key)}
               </p>
               <p className="mt-1 text-lg font-semibold text-heading tabular-nums">
                 {categoryCounts[key]}
@@ -213,70 +225,75 @@ export function LibraryCatalog({
       <ContentFilterBar
         searchValue={search}
         onSearchChange={setSearch}
-        searchPlaceholder={libraryPageContent.searchPlaceholder}
+        searchPlaceholder={t("searchPlaceholder")}
         filters={[
           {
             id: "category",
-            label: libraryPageContent.categoryLabel,
+            label: t("categoryLabel"),
             value: category,
             onChange: setCategory,
             options: [
-              { value: "all", label: libraryPageContent.allCategories },
+              { value: "all", label: t("allCategories") },
               ...lessonResourceCategories.map((key) => ({
                 value: key,
-                label: resourceCategoryLabels[key],
+                label: tc(key),
               })),
             ],
           },
           {
             id: "status",
-            label: libraryPageContent.statusLabel,
+            label: t("statusLabel"),
             value: status,
             onChange: setStatus,
             options: [
-              { value: "all", label: libraryPageContent.allStatuses },
-              { value: "completed", label: libraryPageContent.completedStatus },
-              { value: "pending", label: libraryPageContent.pendingStatus },
+              { value: "all", label: t("allStatuses") },
+              { value: "completed", label: t("completedStatus") },
+              { value: "pending", label: t("pendingStatus") },
             ],
           },
           {
             id: "sort",
-            label: libraryPageContent.sortLabel,
+            label: t("sortLabel"),
             value: sort,
             onChange: setSort,
             options: [
-              { value: "course", label: libraryPageContent.sortCourse },
-              { value: "title", label: libraryPageContent.sortTitle },
-              { value: "category", label: libraryPageContent.sortCategory },
+              { value: "course", label: t("sortCourse") },
+              { value: "title", label: t("sortTitle") },
+              { value: "category", label: t("sortCategory") },
             ],
           },
         ]}
         resultsCount={filteredResources.length}
-        resultsLabel={
-          filteredResources.length === 1
-            ? libraryPageContent.oneResult
-            : libraryPageContent.resultsCount(filteredResources.length)
-        }
+        resultsLabel={resultsLabel}
+      />
+
+      <ListScrollHint
+        count={filteredResources.length}
+        className="mb-3 text-end sm:text-start"
       />
 
       {filteredResources.length === 0 ? (
         <Card className="py-12 text-center">
-          <p className="text-text/70">{libraryPageContent.noResults}</p>
+          <p className="text-text/70">{t("noResults")}</p>
         </Card>
       ) : (
-        <div className="space-y-6">
+        <ScrollableItemList
+          count={filteredResources.length}
+          stackGapClassName="space-y-6"
+          maxHeightClassName="max-h-[32rem] sm:max-h-[36rem]"
+        >
           {Object.values(grouped).map((course) => (
             <div key={course.courseId} className="space-y-3">
               {!selectedCourseId ? (
-                <div className="flex items-center justify-between">
-                  <h2 className="font-heading text-xl font-semibold text-heading">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <h2 className="min-w-0 font-heading text-lg sm:text-xl font-semibold text-heading">
                     {course.courseTitle}
                   </h2>
                   <Link
                     href={`/dashboard/resources?course=${course.courseId}`}
-                    className="text-sm font-semibold text-primary hover:text-primary-hover"
+                    className="shrink-0 text-sm font-semibold text-primary hover:text-primary-hover"
                   >
-                    {libraryPageContent.openCourse}
+                    {t("openCourse")}
                   </Link>
                 </div>
               ) : null}
@@ -285,18 +302,19 @@ export function LibraryCatalog({
                 <Card key={`${course.courseId}-${moduleTitle}`}>
                   <div className="mb-4 flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-xs text-text/60">
-                        {libraryPageContent.moduleLabel}
-                      </p>
+                      <p className="text-xs text-text/60">{t("moduleLabel")}</p>
                       <p className="font-semibold text-heading">{moduleTitle}</p>
                     </div>
                     <p className="text-xs text-text/60">
                       {lessons.filter((lesson) => lesson.completed).length}/
-                      {lessons.length} {libraryPageContent.completedShort}
+                      {lessons.length} {t("completedShort")}
                     </p>
                   </div>
 
-                  <div className="space-y-3">
+                  <ScrollableItemList
+                    count={lessons.length}
+                    stackGapClassName="space-y-3"
+                  >
                     {lessons.map((resource) => {
                       const CategoryIcon = categoryIcons[resource.category];
                       return (
@@ -309,11 +327,11 @@ export function LibraryCatalog({
                               <div className="mb-2 flex flex-wrap items-center gap-2">
                                 <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
                                   <CategoryIcon className="h-3.5 w-3.5" />
-                                  {resourceCategoryLabels[resource.category]}
+                                  {tc(resource.category)}
                                 </span>
                                 {resource.completed ? (
                                   <span className="text-xs font-semibold text-primary">
-                                    {libraryPageContent.lessonCompleted}
+                                    {t("lessonCompleted")}
                                   </span>
                                 ) : null}
                               </div>
@@ -321,30 +339,42 @@ export function LibraryCatalog({
                                 {resource.lessonTitle}
                               </p>
                             </div>
-                            <ActionForm action={toggleLessonCompletion}>
-                              <input
-                                type="hidden"
-                                name="lessonId"
-                                value={resource.id}
+                            <div className="flex shrink-0 items-center gap-2">
+                              <FavoriteButton
+                                entityType="LESSON"
+                                entityId={resource.id}
+                                initialFavorited={isFavorited(
+                                  favoriteKeys,
+                                  "LESSON",
+                                  resource.id
+                                )}
+                                signedIn
                               />
-                              <input
-                                type="hidden"
-                                name="action"
-                                value={resource.completed ? "undo" : "complete"}
-                              />
-                              <button
-                                type="submit"
-                                className={
-                                  resource.completed
-                                    ? "rounded-full border border-red-300 px-4 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50"
-                                    : "rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-hover"
-                                }
-                              >
-                                {resource.completed
-                                  ? libraryPageContent.markIncomplete
-                                  : libraryPageContent.markComplete}
-                              </button>
-                            </ActionForm>
+                              <ActionForm action={toggleLessonCompletion}>
+                                <input
+                                  type="hidden"
+                                  name="lessonId"
+                                  value={resource.id}
+                                />
+                                <input
+                                  type="hidden"
+                                  name="action"
+                                  value={resource.completed ? "undo" : "complete"}
+                                />
+                                <button
+                                  type="submit"
+                                  className={
+                                    resource.completed
+                                      ? "rounded-full border border-red-300 px-4 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50"
+                                      : "rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-hover"
+                                  }
+                                >
+                                  {resource.completed
+                                    ? t("markIncomplete")
+                                    : t("markComplete")}
+                                </button>
+                              </ActionForm>
+                            </div>
                           </div>
 
                           <div className="mt-4 flex flex-wrap gap-3">
@@ -357,7 +387,7 @@ export function LibraryCatalog({
                                 className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary-hover"
                               >
                                 <PlayCircle className="h-4 w-4" />
-                                {libraryPageContent.watchVideo}
+                                {t("watchVideo")}
                               </a>
                             ) : null}
                             {resource.videoUrl && resource.category === "AUDIO" ? (
@@ -368,7 +398,7 @@ export function LibraryCatalog({
                                 className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary-hover"
                               >
                                 <Headphones className="h-4 w-4" />
-                                {libraryPageContent.listenAudio}
+                                {t("listenAudio")}
                               </a>
                             ) : null}
                             {resource.pdfUrl ? (
@@ -380,20 +410,20 @@ export function LibraryCatalog({
                               >
                                 <FileText className="h-4 w-4" />
                                 {resource.category === "SHEET"
-                                  ? libraryPageContent.openSheet
-                                  : libraryPageContent.openPdf}
+                                  ? t("openSheet")
+                                  : t("openPdf")}
                               </a>
                             ) : null}
                           </div>
                         </div>
                       );
                     })}
-                  </div>
+                  </ScrollableItemList>
                 </Card>
               ))}
             </div>
           ))}
-        </div>
+        </ScrollableItemList>
       )}
     </div>
   );

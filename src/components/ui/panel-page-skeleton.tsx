@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -12,8 +15,10 @@ export function PanelPageSkeleton({
   showFilters = true,
   rows = 4,
 }: PanelPageSkeletonProps) {
+  const t = useTranslations("common");
+
   return (
-    <div className="duration-300" aria-busy aria-label="جارٍ التحميل">
+    <div className="duration-300" aria-busy aria-label={t("loadingAria")}>
       <Skeleton className="mb-6 h-9 w-48 sm:mb-8 sm:h-10" />
 
       {variant === "stats" ? (

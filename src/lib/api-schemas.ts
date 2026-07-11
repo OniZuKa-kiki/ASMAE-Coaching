@@ -26,7 +26,7 @@ export const bookingCheckoutSchema = z
     (data) =>
       data.bookingReason !== "other" ||
       Boolean(data.bookingReasonDetail && data.bookingReasonDetail.length >= 3),
-    { message: "يرجى توضيح السبب عند اختيار «أخرى»." }
+    { message: "BOOKING_REASON_OTHER_DETAIL" }
   );
 
 export const courseCheckoutSchema = z.object({
@@ -37,4 +37,11 @@ export const courseCheckoutSchema = z.object({
 export const availabilityQuerySchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   service: z.string().trim().min(1).max(80),
+});
+
+export const recommendationClickSchema = z.object({
+  entityType: z.enum(["COURSE", "PODCAST"]),
+  entityId: z.string().trim().min(1).max(80),
+  source: z.enum(["DASHBOARD", "COURSES", "PODCASTS"]),
+  reasonKey: z.string().trim().max(40).optional(),
 });

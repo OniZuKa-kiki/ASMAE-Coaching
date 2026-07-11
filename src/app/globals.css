@@ -29,8 +29,14 @@
 
   body {
     @apply bg-background text-text font-body antialiased;
-    font-size: 17px;
+    font-size: 16px;
     line-height: 1.7;
+  }
+
+  @media (min-width: 640px) {
+    body {
+      font-size: 17px;
+    }
   }
 
   h1,
@@ -80,9 +86,10 @@
     cursor: pointer;
     background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2716%27%20height%3D%2716%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27%236B7C6A%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpolyline%20points%3D%279%2012%2012%2018%27/%3E%3Cpolyline%20points%3D%2712%2012%2015%209%27/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: left 0.95rem center;
+    background-position: right 0.95rem center;
     background-size: 1rem 1rem;
-    padding-left: 2.5rem !important;
+    padding-inline-start: 2.5rem !important;
+    padding-inline-end: 1rem !important;
   }
 }
 

@@ -1,6 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { siteConfig } from "@/lib/constants";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 const sizeClasses = {
@@ -15,15 +17,17 @@ export function Logo({
   className?: string;
   size?: "header" | "footer";
 }) {
+  const t = useTranslations("metadata");
+
   return (
     <Link
       href="/"
       className={cn("inline-flex items-center shrink-0", className)}
-      aria-label={`${siteConfig.name} — ${siteConfig.tagline}`}
+      aria-label={t("logoLinkAria")}
     >
       <Image
         src="/logo.png"
-        alt={`${siteConfig.name} Coaching — ${siteConfig.motto}`}
+        alt={t("logoImageAlt")}
         width={400}
         height={400}
         className={cn("h-auto object-contain", sizeClasses[size])}

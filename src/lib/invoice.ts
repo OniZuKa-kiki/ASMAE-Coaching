@@ -9,15 +9,13 @@ import {
   generateInvoiceHtml,
   type InvoicePayload,
 } from "@/lib/invoice-html";
+import {
+  getInvoiceCopy,
+  getInvoiceStatusLabel,
+  resolveInvoiceLocale,
+} from "@/lib/invoice-i18n";
 import { getPublicContact } from "@/lib/site-settings";
 import { renderInvoicePdfFromHtml } from "@/lib/invoice-pdf";
-
-const paymentStatusLabels: Record<string, string> = {
-  PAID: "مدفوع",
-  PENDING: "قيد الانتظار",
-  REFUNDED: "مسترد",
-  FAILED: "فشل",
-};
 
 type InvoiceAccessError = "unauthorized" | "forbidden" | "not_found" | "not_paid";
 
@@ -64,11 +62,12 @@ export async function getAuthorizedPaymentForInvoice(
 
 function buildPayloadFromPayment(
   payment: PaymentForInvoice,
-  sellerEmail: string
+  sellerEmail: string,
+  copy: Awaited<ReturnType<typeof getInvoiceCopy>>
 ): InvoicePayload {
   const clientName =
     [payment.user.firstName, payment.user.lastName].filter(Boolean).join(" ") ||
-    "عميلة";
+    copy.fallbackClient;
 
   return {
     invoiceNumber: buildInvoiceNumber(payment.id, payment.createdAt),
@@ -78,11 +77,12 @@ function buildPayloadFromPayment(
     description:
       payment.booking?.service.title ||
       payment.course?.title ||
-      "دفعة ASMAE Coaching",
+      copy.fallbackDescription,
     amountCents: payment.amount,
     currency: payment.currency,
     provider: payment.provider,
-    statusLabel: paymentStatusLabels[payment.status] ?? payment.status,
+    status: payment.status,
+    statusLabel: getInvoiceStatusLabel(copy, payment.status),
     sellerEmail,
   };
 }
@@ -99,9 +99,13 @@ export async function buildInvoiceHtmlForPayment(
     return { error: access.error };
   }
 
-  const contact = await getPublicContact();
-  const payload = buildPayloadFromPayment(access.payment, contact.email);
-  const html = generateInvoiceHtml(payload, {
+  const locale = await resolveInvoiceLocale(access.payment.user.preferredLocale);
+  const [contact, copy] = await Promise.all([
+    getPublicContact(),
+    getInvoiceCopy(locale),
+  ]);
+  const payload = buildPayloadFromPayment(access.payment, contact.email, copy);
+  const html = generateInvoiceHtml(payload, copy, locale, {
     downloadUrl: `/api/payments/${paymentId}/invoice?download=1`,
   });
   const filename = `invoice-${payload.invoiceNumber}.html`;
@@ -117,9 +121,16 @@ export async function buildInvoicePdfForPayment(
     return { error: access.error };
   }
 
-  const contact = await getPublicContact();
-  const payload = buildPayloadFromPayment(access.payment, contact.email);
-  const html = generateInvoiceHtml(payload, { showToolbar: false, forPdf: true });
+  const locale = await resolveInvoiceLocale(access.payment.user.preferredLocale);
+  const [contact, copy] = await Promise.all([
+    getPublicContact(),
+    getInvoiceCopy(locale),
+  ]);
+  const payload = buildPayloadFromPayment(access.payment, contact.email, copy);
+  const html = generateInvoiceHtml(payload, copy, locale, {
+    showToolbar: false,
+    forPdf: true,
+  });
   const pdfBytes = await renderInvoicePdfFromHtml(html);
   const filename = `invoice-${payload.invoiceNumber}.pdf`;
 
@@ -130,24 +141,29 @@ export async function buildSampleInvoiceHtml(): Promise<{
   html: string;
   filename: string;
 }> {
-  const contact = await getPublicContact();
+  const locale = await resolveInvoiceLocale();
+  const [contact, copy] = await Promise.all([
+    getPublicContact(),
+    getInvoiceCopy(locale),
+  ]);
 
   const payload: InvoicePayload = {
     invoiceNumber: "INV-2026-DEMO",
     issuedAt: new Date(),
-    clientName: "فاطمة الزهراء",
+    clientName: copy.sample.clientName,
     clientEmail: "cliente@example.com",
-    description: "جلسة كوتشينغ فردية — 60 دقيقة",
+    description: copy.sample.description,
     amountCents: 85000,
     currency: "mad",
     provider: "PAYZONE",
-    statusLabel: "مدفوع",
+    status: "PAID",
+    statusLabel: getInvoiceStatusLabel(copy, "PAID"),
     sellerEmail: contact.email,
     isSample: true,
   };
 
   return {
-    html: generateInvoiceHtml(payload, {
+    html: generateInvoiceHtml(payload, copy, locale, {
       downloadUrl: "/api/payments/sample/invoice?download=1",
     }),
     filename: "invoice-sample-DEMO2026.html",
@@ -158,23 +174,31 @@ export async function buildSampleInvoicePdf(): Promise<{
   pdfBytes: Uint8Array;
   filename: string;
 }> {
-  const contact = await getPublicContact();
+  const locale = await resolveInvoiceLocale();
+  const [contact, copy] = await Promise.all([
+    getPublicContact(),
+    getInvoiceCopy(locale),
+  ]);
 
   const payload: InvoicePayload = {
     invoiceNumber: "INV-2026-DEMO",
     issuedAt: new Date(),
-    clientName: "فاطمة الزهراء",
+    clientName: copy.sample.clientName,
     clientEmail: "cliente@example.com",
-    description: "جلسة كوتشينغ فردية — 60 دقيقة",
+    description: copy.sample.description,
     amountCents: 85000,
     currency: "mad",
     provider: "PAYZONE",
-    statusLabel: "مدفوع",
+    status: "PAID",
+    statusLabel: getInvoiceStatusLabel(copy, "PAID"),
     sellerEmail: contact.email,
     isSample: true,
   };
 
-  const html = generateInvoiceHtml(payload, { showToolbar: false, forPdf: true });
+  const html = generateInvoiceHtml(payload, copy, locale, {
+    showToolbar: false,
+    forPdf: true,
+  });
   const pdfBytes = await renderInvoicePdfFromHtml(html);
 
   return {

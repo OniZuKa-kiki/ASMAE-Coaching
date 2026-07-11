@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getRequestFriendlyErrors } from "@/lib/action-locale";
 import { getOrCreateUser } from "@/lib/user";
 import {
   getPodcastIdBySlug,
@@ -14,9 +15,10 @@ type RouteContext = {
 };
 
 export async function GET(_request: NextRequest, context: RouteContext) {
+  const errors = await getRequestFriendlyErrors();
   const user = await getOrCreateUser();
   if (!user) {
-    return NextResponse.json({ error: "يرجى تسجيل الدخول." }, { status: 401 });
+    return NextResponse.json({ error: errors.unauthorized }, { status: 401 });
   }
 
   const { slug } = await context.params;
@@ -34,28 +36,29 @@ export async function GET(_request: NextRequest, context: RouteContext) {
 }
 
 export async function PUT(request: NextRequest, context: RouteContext) {
+  const errors = await getRequestFriendlyErrors();
   const user = await getOrCreateUser();
   if (!user) {
-    return NextResponse.json({ error: "يرجى تسجيل الدخول." }, { status: 401 });
+    return NextResponse.json({ error: errors.unauthorized }, { status: 401 });
   }
 
   const { slug } = await context.params;
   const podcast = await getPodcastIdBySlug(slug);
   if (!podcast?.isPublished) {
-    return NextResponse.json({ error: "الحلقة غير موجودة." }, { status: 404 });
+    return NextResponse.json({ error: errors.episodeNotFound }, { status: 404 });
   }
 
   let body: { positionSeconds?: number; durationSeconds?: number };
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "بيانات غير صالحة." }, { status: 400 });
+    return NextResponse.json({ error: errors.invalidData }, { status: 400 });
   }
 
   const positionSeconds = Number(body.positionSeconds);
   const durationSeconds = Number(body.durationSeconds);
   if (!Number.isFinite(positionSeconds) || !Number.isFinite(durationSeconds)) {
-    return NextResponse.json({ error: "بيانات غير صالحة." }, { status: 400 });
+    return NextResponse.json({ error: errors.invalidData }, { status: 400 });
   }
 
   await upsertPodcastProgress({

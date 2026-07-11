@@ -1,12 +1,23 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { LegalDocument } from "@/components/legal/legal-document";
-import { cguContent } from "@/lib/legal-content";
+import { getLegalDocument, getLegalLastUpdatedLabel } from "@/lib/legal-i18n";
+import { localeAlternates } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: cguContent.title,
-  description: cguContent.description,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("legal.cgu");
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: localeAlternates("/cgu"),
+  };
+}
 
-export default function CguPage() {
-  return <LegalDocument content={cguContent} />;
+export default async function CguPage() {
+  const [content, lastUpdatedLabel] = await Promise.all([
+    getLegalDocument("cgu"),
+    getLegalLastUpdatedLabel(),
+  ]);
+
+  return <LegalDocument content={content} lastUpdatedLabel={lastUpdatedLabel} />;
 }

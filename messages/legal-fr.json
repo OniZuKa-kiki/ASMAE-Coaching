@@ -1,0 +1,279 @@
+{
+  "lastUpdatedLabel": "Dernière mise à jour",
+  "footer": {
+    "mentionsLegales": "Mentions légales",
+    "cgu": "Conditions d'utilisation",
+    "cgv": "Conditions de vente",
+    "confidentialite": "Politique de confidentialité",
+    "cookies": "Cookies"
+  },
+  "cookieBanner": {
+    "ariaLabel": "Consentement aux cookies",
+    "title": "Cookies",
+    "description": "Nous utilisons des cookies techniques nécessaires au fonctionnement du site et aux paiements. Vous pouvez tout accepter ou uniquement l'essentiel.",
+    "policyLink": "Politique cookies",
+    "essentialOnly": "Essentiels uniquement",
+    "acceptAll": "Tout accepter",
+    "close": "Fermer"
+  },
+  "mentionsLegales": {
+    "metaTitle": "Mentions légales",
+    "metaDescription": "Informations légales du site ASMAE Coaching.",
+    "title": "Mentions légales",
+    "intro": "Ce site est soumis à la législation française et européenne en vigueur. Les informations détaillées ci-dessous seront complétées avant le lancement officiel.",
+    "lastUpdated": "juillet 2026",
+    "sections": [
+      {
+        "title": "Éditeur du site",
+        "paragraphs": [
+          "ASMAE Coaching — [Forme juridique — à préciser avant le lancement]",
+          "Adresse : [Adresse complète — à préciser avant le lancement]",
+          "E-mail : contact@asmae-coaching.fr",
+          "Téléphone : [Numéro de téléphone]",
+          "Directrice de la publication : Asmae [Nom de la responsable]"
+        ]
+      },
+      {
+        "title": "Hébergeur",
+        "paragraphs": [
+          "[Nom de l'hébergeur]",
+          "[Adresse de l'hébergeur]"
+        ]
+      },
+      {
+        "title": "Propriété intellectuelle",
+        "paragraphs": [
+          "L'ensemble des contenus du site (textes, images, vidéos, logo, structure) est protégé par les lois sur la propriété intellectuelle. Toute reproduction ou diffusion sans autorisation écrite préalable est interdite."
+        ]
+      },
+      {
+        "title": "Responsabilité du contenu",
+        "paragraphs": [
+          "Les informations publiées le sont à titre informatif et ne remplacent pas un accompagnement professionnel individualisé. ASMAE Coaching ne saurait être tenue responsable des dommages résultant de l'utilisation du site ou de la confiance accordée à son contenu sans évaluation personnelle."
+        ]
+      }
+    ]
+  },
+  "confidentialite": {
+    "metaTitle": "Politique de confidentialité",
+    "metaDescription": "Comment vos données sont collectées, traitées et protégées.",
+    "title": "Politique de confidentialité",
+    "intro": "ASMAE Coaching s'engage à protéger votre vie privée conformément au Règlement général sur la protection des données (RGPD). Cette politique précise les données collectées, les finalités du traitement et vos droits.",
+    "lastUpdated": "juillet 2026",
+    "sections": [
+      {
+        "title": "Données collectées",
+        "paragraphs": [],
+        "list": [
+          "Données d'identité : nom, e-mail, numéro de téléphone (lors de l'inscription ou d'un contact).",
+          "Données de réservation : service choisi, créneau, notes du questionnaire.",
+          "Données de paiement : traitées par nos prestataires (PayZone, Stripe) — nous ne stockons pas les numéros de carte complets.",
+          "Données d'usage : cookies techniques, journaux de connexion au site.",
+          "Données de suivi : progression dans les formations, journal, objectifs (dans votre espace personnel)."
+        ]
+      },
+      {
+        "title": "Finalités du traitement",
+        "paragraphs": [],
+        "list": [
+          "Gestion de votre compte et de vos réservations.",
+          "Fourniture des services de coaching et des formations.",
+          "Traitement des paiements et émission des factures.",
+          "Envoi des e-mails de confirmation et de rappel.",
+          "Amélioration du site et sécurisation de la plateforme."
+        ]
+      },
+      {
+        "title": "Durée de conservation",
+        "paragraphs": [
+          "Les données de compte sont conservées pendant la relation contractuelle, puis pour la durée légale nécessaire à la comptabilité et à la défense des droits (généralement 5 ans pour les transactions financières).",
+          "Vous pouvez demander la suppression de votre compte dans les conditions prévues par la loi."
+        ]
+      },
+      {
+        "title": "Vos droits",
+        "paragraphs": [
+          "Pour exercer vos droits : contact@asmae-coaching.fr"
+        ],
+        "list": [
+          "Accès et rectification de vos données.",
+          "Demande de suppression ou de limitation du traitement.",
+          "Opposition à certains traitements.",
+          "Demande de portabilité des données.",
+          "Réclamation auprès de la CNIL (France)."
+        ]
+      },
+      {
+        "title": "Paiements",
+        "paragraphs": [
+          "Les paiements sont traités par des prestataires certifiés (PayZone, Stripe). Les données de paiement sont soumises à leurs politiques de confidentialité."
+        ]
+      },
+      {
+        "title": "Cookies",
+        "paragraphs": [
+          "Nous utilisons des cookies techniques nécessaires au fonctionnement du site. Consultez la politique cookies pour plus de détails."
+        ]
+      }
+    ]
+  },
+  "cgu": {
+    "metaTitle": "Conditions d'utilisation (CGU)",
+    "metaDescription": "Règles d'utilisation du site ASMAE Coaching.",
+    "title": "Conditions d'utilisation (CGU)",
+    "intro": "En utilisant ce site, vous acceptez les conditions ci-dessous. Dans le cas contraire, veuillez ne pas utiliser la plateforme.",
+    "lastUpdated": "juillet 2026",
+    "sections": [
+      {
+        "title": "Création de compte",
+        "paragraphs": [
+          "Vous devez fournir des informations exactes lors de l'inscription. Vous êtes responsable de la confidentialité de vos identifiants.",
+          "Le partage du compte avec des tiers ou son utilisation à des fins illicites est interdit."
+        ]
+      },
+      {
+        "title": "Services proposés",
+        "paragraphs": [
+          "Le site présente les services de coaching, permet de réserver des séances, d'acheter des formations et d'accéder à des contenus audio et au blog.",
+          "Le coaching n'est pas une thérapie médicale et ne remplace pas un suivi médical lorsque celui-ci est nécessaire."
+        ]
+      },
+      {
+        "title": "Comportement attendu",
+        "paragraphs": [],
+        "list": [
+          "Respect de la coach et des autres clients.",
+          "Interdiction de publier du contenu offensant ou illégal.",
+          "Interdiction de tenter d'accéder frauduleusement au site ou d'extraire des données utilisateurs."
+        ]
+      },
+      {
+        "title": "Propriété intellectuelle",
+        "paragraphs": [
+          "L'ensemble des contenus (formations, podcasts exclusifs, textes, exercices) appartient à ASMAE Coaching. Toute copie, redistribution ou partage sans autorisation est interdit."
+        ]
+      },
+      {
+        "title": "Suspension ou fermeture de compte",
+        "paragraphs": [
+          "ASMAE Coaching se réserve le droit de suspendre ou de fermer tout compte en violation de ces conditions, sans préjudice de toute action en justice."
+        ]
+      },
+      {
+        "title": "Modification des conditions",
+        "paragraphs": [
+          "Ces conditions peuvent être mises à jour. La poursuite de l'utilisation du site après modification vaut acceptation de la nouvelle version."
+        ]
+      }
+    ]
+  },
+  "cgv": {
+    "metaTitle": "Conditions de vente (CGV)",
+    "metaDescription": "Conditions d'achat des séances, formations et contenus exclusifs.",
+    "title": "Conditions de vente (CGV)",
+    "intro": "Ces conditions s'appliquent à tout achat effectué sur le site. Nous vous recommandons de les lire avant tout paiement.",
+    "lastUpdated": "juillet 2026",
+    "sections": [
+      {
+        "title": "Produits et services",
+        "paragraphs": [
+          "Les prix sont affichés en euros (€) ou en dirhams selon le prestataire de paiement, taxes applicables incluses sauf mention contraire."
+        ],
+        "list": [
+          "Séances de coaching individuelles ou en groupe (selon le service choisi).",
+          "Formations en ligne (vidéos, exercices, ressources).",
+          "Contenu podcast exclusif (pour les membres et clients après achat ou réservation)."
+        ]
+      },
+      {
+        "title": "Commande et paiement",
+        "paragraphs": [
+          "La commande est confirmée après réception du paiement via PayZone ou Stripe.",
+          "Vous recevez un e-mail de confirmation avec le détail de votre achat ou de votre séance."
+        ]
+      },
+      {
+        "title": "Annulation et remboursement — Séances",
+        "paragraphs": [
+          "Vous pouvez annuler ou reporter votre séance gratuitement jusqu'à 24 heures avant l'horaire prévu.",
+          "Toute annulation effectuée moins de 24 heures avant la séance n'est pas remboursable, sauf circonstances exceptionnelles évaluées au cas par cas.",
+          "En cas de retard de la coach de plus de 15 minutes sans notification, vous pouvez demander un nouveau créneau ou un remboursement intégral."
+        ]
+      },
+      {
+        "title": "Annulation et remboursement — Formations",
+        "paragraphs": [
+          "Après ouverture de l'accès au contenu de la formation (première leçon ou téléchargement d'une ressource), aucun remboursement n'est appliqué sauf disposition légale contraire.",
+          "Avant toute utilisation, vous pouvez demander un remboursement sous 14 jours conformément au droit européen de la consommation (services numériques non utilisés)."
+        ]
+      },
+      {
+        "title": "Accès au contenu",
+        "paragraphs": [
+          "L'accès aux formations et aux podcasts exclusifs est strictement personnel. Le partage de compte ou la redistribution du contenu est interdit.",
+          "Nous nous réservons le droit de modifier ou d'enrichir le contenu des formations pour en améliorer la qualité."
+        ]
+      },
+      {
+        "title": "Responsabilité",
+        "paragraphs": [
+          "ASMAE Coaching s'engage à fournir un service professionnel avec le plus grand soin. Aucun résultat spécifique n'est garanti — le coaching repose sur votre participation active.",
+          "ASMAE Coaching n'est pas responsable des interruptions Internet ou des problèmes techniques indépendants de sa volonté."
+        ]
+      },
+      {
+        "title": "Litiges",
+        "paragraphs": [
+          "En cas de litige, contactez-nous d'abord par e-mail pour tenter une résolution amiable.",
+          "Ces conditions sont soumises au droit français. Les consommateurs européens peuvent recourir aux voies légales applicables dans leur pays de résidence."
+        ]
+      }
+    ]
+  },
+  "cookies": {
+    "metaTitle": "Politique cookies",
+    "metaDescription": "Comment nous utilisons les cookies sur le site.",
+    "title": "Politique cookies",
+    "intro": "Les cookies sont de petits fichiers texte enregistrés sur votre appareil lors de votre visite. Nous les utilisons pour améliorer votre expérience et assurer le bon fonctionnement de la plateforme.",
+    "lastUpdated": "juillet 2026",
+    "sections": [
+      {
+        "title": "Cookies essentiels (techniques)",
+        "paragraphs": [
+          "Nécessaires au fonctionnement du site : session, connexion, panier de réservation, préférences cookies.",
+          "Ils ne peuvent pas être désactivés sans affecter le fonctionnement du site."
+        ],
+        "list": [
+          "Session utilisateur (Clerk — authentification).",
+          "Préférence de consentement aux cookies."
+        ]
+      },
+      {
+        "title": "Cookies de paiement",
+        "paragraphs": [
+          "Les prestataires de paiement (PayZone, Stripe) utilisent des cookies pendant le processus de paiement pour des raisons de sécurité et de lutte contre la fraude."
+        ]
+      },
+      {
+        "title": "Cookies d'analyse (optionnels)",
+        "paragraphs": [
+          "S'ils sont activés ultérieurement, ils nous aident à comprendre l'usage du site (nombre de visiteurs, pages consultées). Ils ne seront activés qu'avec votre consentement."
+        ]
+      },
+      {
+        "title": "Gestion de vos préférences",
+        "paragraphs": [
+          "Vous pouvez modifier vos préférences à tout moment via la bannière de consentement ou les paramètres de votre navigateur.",
+          "Pour supprimer les cookies : Paramètres du navigateur → Confidentialité → Cookies."
+        ]
+      },
+      {
+        "title": "Durée de conservation",
+        "paragraphs": [
+          "Cookies de session : supprimés à la fermeture du navigateur ou à l'expiration de la session.",
+          "Cookie de consentement : conservé 12 mois."
+        ]
+      }
+    ]
+  }
+}

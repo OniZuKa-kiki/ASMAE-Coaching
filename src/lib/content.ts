@@ -1,4 +1,9 @@
 import { prisma } from "@/lib/db";
+import { unstable_cache } from "next/cache";
+import {
+  PUBLIC_CACHE_TAGS,
+  PUBLIC_CONTENT_REVALIDATE_SECONDS,
+} from "@/lib/public-cache";
 
 type CourseWithModules = {
   modules: {
@@ -6,27 +11,30 @@ type CourseWithModules = {
   }[];
 };
 
+export type CourseIncludeKey = "videos" | "downloads" | "exercises";
+
 export type PublicCourse = {
+  id: string;
   slug: string;
   title: string;
   description: string;
   price: number;
   modules: number;
   lessons: number;
-  includes: string[];
+  includes: CourseIncludeKey[];
 };
 
-function buildCourseIncludes(course: CourseWithModules): string[] {
+function buildCourseIncludes(course: CourseWithModules): CourseIncludeKey[] {
   const lessons = course.modules.flatMap((module) => module.lessons);
-  const includes: string[] = [];
+  const includes: CourseIncludeKey[] = [];
   if (lessons.some((lesson) => lesson.videoUrl)) {
-    includes.push("فيديوهات تعليمية");
+    includes.push("videos");
   }
   if (lessons.some((lesson) => lesson.pdfUrl)) {
-    includes.push("موارد قابلة للتنزيل");
+    includes.push("downloads");
   }
-  if (includes.length === 0) includes.push("فيديوهات تعليمية");
-  includes.push("تمارين تطبيقية");
+  if (includes.length === 0) includes.push("videos");
+  includes.push("exercises");
   return includes;
 }
 
@@ -48,14 +56,9 @@ function sortCourses<T extends { slug: string }>(courses: T[]): T[] {
   });
 }
 
-export function formatCourseIncludeLabel(item: string): string {
-  if (item === "فيديوهات تعليمية") return "🎥 فيديوهات تعليمية";
-  if (item === "تمارين تطبيقية") return "📝 تمارين تطبيقية";
-  return item;
-}
-
 function mapPublicCourse(
   course: {
+    id: string;
     slug: string;
     title: string;
     description: string;
@@ -68,6 +71,7 @@ function mapPublicCourse(
   );
 
   return {
+    id: course.id,
     slug: course.slug,
     title: course.title,
     description: course.description,
@@ -90,14 +94,25 @@ const publishedCourseInclude = {
 };
 
 export async function getPublishedCourses(): Promise<PublicCourse[]> {
-  const courses = await prisma.course.findMany({
-    where: { isPublished: true },
-    orderBy: { createdAt: "desc" },
-    include: publishedCourseInclude,
-  });
-
-  return sortCourses(courses.map(mapPublicCourse));
+  return getPublishedCoursesCached();
 }
+
+const getPublishedCoursesCached = unstable_cache(
+  async (): Promise<PublicCourse[]> => {
+    const courses = await prisma.course.findMany({
+      where: { isPublished: true },
+      orderBy: { createdAt: "desc" },
+      include: publishedCourseInclude,
+    });
+
+    return sortCourses(courses.map(mapPublicCourse));
+  },
+  ["published-courses"],
+  {
+    revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS,
+    tags: [PUBLIC_CACHE_TAGS.courses],
+  }
+);
 
 export async function getPublishedCourseBySlug(
   slug: string
@@ -112,11 +127,21 @@ export async function getPublishedCourseBySlug(
 }
 
 export async function getPublishedBlogPosts() {
-  return prisma.blogPost.findMany({
-    where: { isPublished: true },
-    orderBy: { publishedAt: "desc" },
-  });
+  return getPublishedBlogPostsCached();
 }
+
+const getPublishedBlogPostsCached = unstable_cache(
+  async () =>
+    prisma.blogPost.findMany({
+      where: { isPublished: true },
+      orderBy: { publishedAt: "desc" },
+    }),
+  ["published-blog-posts"],
+  {
+    revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS,
+    tags: [PUBLIC_CACHE_TAGS.blog],
+  }
+);
 
 export async function getBlogPostBySlug(slug: string) {
   return prisma.blogPost.findFirst({
@@ -125,24 +150,35 @@ export async function getBlogPostBySlug(slug: string) {
 }
 
 export async function getPublishedPodcasts() {
-  const podcasts = await prisma.podcast.findMany({
-    where: { isPublished: true },
-    orderBy: { createdAt: "desc" },
-  });
-
-  const order = [
-    "meditation-matin",
-    "premiers-pas",
-    "affirmation-soi",
-    "relations-saines",
-  ];
-
-  return [...podcasts].sort((a, b) => {
-    const ai = order.indexOf(a.slug);
-    const bi = order.indexOf(b.slug);
-    return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
-  });
+  return getPublishedPodcastsCached();
 }
+
+const getPublishedPodcastsCached = unstable_cache(
+  async () => {
+    const podcasts = await prisma.podcast.findMany({
+      where: { isPublished: true },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const order = [
+      "meditation-matin",
+      "premiers-pas",
+      "affirmation-soi",
+      "relations-saines",
+    ];
+
+    return [...podcasts].sort((a, b) => {
+      const ai = order.indexOf(a.slug);
+      const bi = order.indexOf(b.slug);
+      return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+    });
+  },
+  ["published-podcasts"],
+  {
+    revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS,
+    tags: [PUBLIC_CACHE_TAGS.podcasts],
+  }
+);
 
 export async function getPodcastBySlug(slug: string) {
   return prisma.podcast.findFirst({
@@ -151,34 +187,30 @@ export async function getPodcastBySlug(slug: string) {
 }
 
 export async function getVisibleTestimonials() {
-  const testimonials = await prisma.testimonial.findMany({
-    where: { isVisible: true },
-    orderBy: { createdAt: "desc" },
-  });
-
-  const order = ["نادية ر.", "ليلى د.", "كريم ب.", "سارة م."];
-
-  return [...testimonials].sort((a, b) => {
-    const ai = order.indexOf(a.name);
-    const bi = order.indexOf(b.name);
-    return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
-  });
+  return getVisibleTestimonialsCached();
 }
 
-export function formatPodcastDuration(minutes: number | null | undefined): string {
-  if (!minutes) return "—";
-  return `${minutes} دقيقة`;
-}
+const getVisibleTestimonialsCached = unstable_cache(
+  async () => {
+    const testimonials = await prisma.testimonial.findMany({
+      where: { isVisible: true },
+      orderBy: { createdAt: "desc" },
+    });
 
-export function estimateReadTime(content: string): string {
-  const words = content.trim().split(/\s+/).length;
-  const minutes = Math.max(1, Math.ceil(words / 200));
+    const order = ["نادية ر.", "ليلى د.", "كريم ب.", "سارة م."];
 
-  if (minutes === 1) return "دقيقة واحدة للقراءة";
-  if (minutes === 2) return "دقيقتان للقراءة";
-  if (minutes >= 3 && minutes <= 10) return `${minutes} دقائق للقراءة`;
-  return `${minutes} دقيقة للقراءة`;
-}
+    return [...testimonials].sort((a, b) => {
+      const ai = order.indexOf(a.name);
+      const bi = order.indexOf(b.name);
+      return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+    });
+  },
+  ["visible-testimonials"],
+  {
+    revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS,
+    tags: [PUBLIC_CACHE_TAGS.testimonials],
+  }
+);
 
 export function renderBlogContent(content: string): string {
   return content

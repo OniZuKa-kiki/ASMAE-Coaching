@@ -3,14 +3,29 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import type { ReactNode } from "react";
-import { moreNavigation, primaryNavigation } from "@/lib/constants";
-import { isMoreNavActive, isNavLinkActive } from "@/lib/nav";
+import { isNavLinkActive } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 
 const MORE_NAV_KEY = "__more__";
+
+const primaryNav = [
+  { href: "/", key: "home" },
+  { href: "/services", key: "coaching" },
+  { href: "/courses", key: "courses" },
+  { href: "/contact", key: "contact" },
+] as const;
+
+const moreNav = [
+  { href: "/about", key: "about" },
+  { href: "/booking", key: "bookSession" },
+  { href: "/podcasts", key: "podcasts" },
+  { href: "/blog", key: "blog" },
+  { href: "/testimonials", key: "testimonials" },
+] as const;
 
 const underlineTransition = {
   type: "spring",
@@ -67,16 +82,17 @@ function DesktopNavItem({
 }
 
 export function DesktopNav() {
+  const t = useTranslations("nav");
   const pathname = usePathname();
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
 
-  const moreActive = isMoreNavActive(pathname, moreNavigation);
+  const moreActive = moreNav.some((item) => isNavLinkActive(pathname, item.href));
 
   const activeKey =
-    primaryNavigation.find((item) => isNavLinkActive(pathname, item.href))
-      ?.href ?? (moreActive ? MORE_NAV_KEY : null);
+    primaryNav.find((item) => isNavLinkActive(pathname, item.href))?.href ??
+    (moreActive ? MORE_NAV_KEY : null);
 
   const indicatorKey = hoveredKey ?? activeKey;
 
@@ -95,7 +111,7 @@ export function DesktopNav() {
       className="flex items-center gap-6"
       onMouseLeave={() => setHoveredKey(null)}
     >
-      {primaryNavigation.map((item) => (
+      {primaryNav.map((item) => (
         <DesktopNavItem
           key={item.href}
           navKey={item.href}
@@ -104,7 +120,7 @@ export function DesktopNav() {
           isActive={isNavLinkActive(pathname, item.href)}
           onHover={setHoveredKey}
         >
-          {item.label}
+          {t(item.key)}
         </DesktopNavItem>
       ))}
 
@@ -124,7 +140,7 @@ export function DesktopNav() {
           aria-haspopup="true"
           aria-current={moreActive ? "page" : undefined}
         >
-          المزيد
+          {t("more")}
           <ChevronDown
             className={cn("w-4 h-4 transition-transform duration-200", moreOpen && "rotate-180")}
           />
@@ -139,7 +155,7 @@ export function DesktopNav() {
 
         {moreOpen && (
           <div className="absolute top-full start-0 mt-2 w-48 rounded-[16px] bg-card border border-border/50 shadow-soft py-2 z-50">
-            {moreNavigation.map((item) => {
+            {moreNav.map((item) => {
               const active = isNavLinkActive(pathname, item.href);
               return (
                 <Link
@@ -154,7 +170,7 @@ export function DesktopNav() {
                   )}
                   onClick={() => setMoreOpen(false)}
                 >
-                  {item.label}
+                  {t(item.key)}
                 </Link>
               );
             })}

@@ -1,12 +1,40 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import {
+  localeCookieMaxAge,
+  localeCookieName,
+  routing,
+  type AppLocale,
+} from "@/i18n/routing";
+import {
+  enabledLocalesCookieName,
+  parseEnabledLocalesCookie,
+} from "@/lib/locale-cookie";
+import {
   getAdminBasePath,
   isAdminInternalPath,
   usesCustomAdminPath,
 } from "@/lib/admin-path";
-import { getClientIp, rateLimit } from "@/lib/rate-limit";
 import { getSafeRedirectUrl } from "@/lib/safe-redirect";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
+import arMessages from "../messages/ar.json";
+import frMessages from "../messages/fr.json";
+
+function localeFromRequest(req: Request): AppLocale {
+  const cookie = req.headers.get("cookie") ?? "";
+  const match = cookie.match(new RegExp(`${localeCookieName}=([^;]+)`));
+  const value = match?.[1];
+  if (value && routing.locales.includes(value as AppLocale)) {
+    return value as AppLocale;
+  }
+  return routing.defaultLocale;
+}
+
+function rateLimitMessage(locale: AppLocale): string {
+  return locale === "fr"
+    ? frMessages.errors.rateLimited
+    : arMessages.errors.rateLimited;
+}
 
 const adminBase = getAdminBasePath();
 const customAdmin = usesCustomAdminPath();
@@ -39,6 +67,27 @@ function getAdminRole(
 export default clerkMiddleware(async (auth, req) => {
   const { pathname } = req.nextUrl;
 
+  const langParam = req.nextUrl.searchParams.get("lang");
+  const enabledFromCookie = parseEnabledLocalesCookie(
+    req.cookies.get(enabledLocalesCookieName)?.value
+  ) ?? [routing.defaultLocale];
+  if (
+    langParam &&
+    routing.locales.includes(langParam as AppLocale) &&
+    enabledFromCookie.includes(langParam as AppLocale) &&
+    !pathname.startsWith("/api")
+  ) {
+    const redirectUrl = req.nextUrl.clone();
+    redirectUrl.searchParams.delete("lang");
+    const response = NextResponse.redirect(redirectUrl);
+    response.cookies.set(localeCookieName, langParam, {
+      path: "/",
+      maxAge: localeCookieMaxAge,
+      sameSite: "lax",
+    });
+    return response;
+  }
+
   if (customAdmin && isLegacyAdminRoute(req)) {
     return NextResponse.rewrite(new URL("/not-found", req.url));
   }
@@ -60,8 +109,9 @@ export default clerkMiddleware(async (auth, req) => {
     const ip = getClientIp(req);
     const limited = rateLimit(`contact:${ip}`, 10, 60_000);
     if (!limited.ok) {
+      const locale = localeFromRequest(req);
       return NextResponse.json(
-        { error: "طلبات كثيرة. حاول مجدداً بعد قليل." },
+        { error: rateLimitMessage(locale) },
         {
           status: 429,
           headers: { "Retry-After": String(limited.retryAfterSec) },

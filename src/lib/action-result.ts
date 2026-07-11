@@ -1,4 +1,10 @@
-import { adminErrors, friendlyErrors, toFriendlyActionError } from "@/lib/api-errors";
+import arMessages from "../../messages/ar.json";
+import frMessages from "../../messages/fr.json";
+import {
+  getFriendlyErrors,
+  getAdminErrorsCopy,
+  toFriendlyActionError,
+} from "@/lib/api-errors";
 import { getUserRole } from "@/lib/auth";
 
 export type ActionLocale = "ar" | "fr";
@@ -7,35 +13,19 @@ export type ActionResult =
   | { ok: true; message?: string; redirect?: string }
   | { ok: false; error: string };
 
-export const actionMessages = {
-  ar: {
-    saved: "تم الحفظ بنجاح",
-    created: "تم الإنشاء بنجاح",
-    deleted: "تم الحذف بنجاح",
-    updated: "تم التحديث بنجاح",
-    toggled: "تم التحديث بنجاح",
-    sent: "تم الإرسال بنجاح",
-    completed: "تم التحديث بنجاح",
-  },
-  fr: {
-    saved: "تم الحفظ بنجاح",
-    created: "تم الإنشاء بنجاح",
-    deleted: "تم الحذف بنجاح",
-    updated: "تم التحديث بنجاح",
-    toggled: "تم التحديث بنجاح",
-    sent: "تم إرسال الرسالة بنجاح",
-    completed: "تم التحديث بنجاح",
-  },
+const actionMessagesByLocale = {
+  ar: arMessages.actions,
+  fr: frMessages.actions,
 } as const;
 
-export type ActionMessageKey = keyof typeof actionMessages.ar;
+export type ActionMessageKey = keyof typeof arMessages.actions;
 
 export function actionSuccess(
   locale: ActionLocale,
   key: ActionMessageKey,
   redirect?: string
 ): ActionResult {
-  return { ok: true, message: actionMessages[locale][key], redirect };
+  return { ok: true, message: actionMessagesByLocale[locale][key], redirect };
 }
 
 export function actionFail(error: string): ActionResult {
@@ -43,20 +33,24 @@ export function actionFail(error: string): ActionResult {
 }
 
 export function incomplete(locale: ActionLocale): ActionResult {
-  return actionFail(
-    locale === "fr" ? adminErrors.incomplete : friendlyErrors.incomplete
-  );
+  return actionFail(getFriendlyErrors(locale).incomplete);
 }
 
-export function unauthorized(locale: ActionLocale): ActionResult {
-  return actionFail(
-    locale === "fr" ? adminErrors.unauthorized : friendlyErrors.unauthorized
-  );
+export function unauthorized(
+  locale: ActionLocale,
+  forAdmin = false
+): ActionResult {
+  if (forAdmin) return actionFail(getAdminErrorsCopy(locale).unauthorized);
+  return actionFail(getFriendlyErrors(locale).unauthorized);
 }
 
 export async function ensureAdmin(): Promise<ActionResult | null> {
   const role = await getUserRole();
-  if (role !== "admin") return unauthorized("ar");
+  if (role !== "admin") {
+    const { getActionLocale } = await import("@/lib/action-locale");
+    const locale = await getActionLocale();
+    return unauthorized(locale, true);
+  }
   return null;
 }
 

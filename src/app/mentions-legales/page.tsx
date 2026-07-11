@@ -1,12 +1,23 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { LegalDocument } from "@/components/legal/legal-document";
-import { mentionsLegalesContent } from "@/lib/legal-content";
+import { getLegalDocument, getLegalLastUpdatedLabel } from "@/lib/legal-i18n";
+import { localeAlternates } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: mentionsLegalesContent.title,
-  description: mentionsLegalesContent.description,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("legal.mentionsLegales");
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: localeAlternates("/mentions-legales"),
+  };
+}
 
-export default function MentionsLegalesPage() {
-  return <LegalDocument content={mentionsLegalesContent} />;
+export default async function MentionsLegalesPage() {
+  const [content, lastUpdatedLabel] = await Promise.all([
+    getLegalDocument("mentionsLegales"),
+    getLegalLastUpdatedLabel(),
+  ]);
+
+  return <LegalDocument content={content} lastUpdatedLabel={lastUpdatedLabel} />;
 }

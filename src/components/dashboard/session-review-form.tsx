@@ -1,11 +1,11 @@
 "use client";
 
 import { format } from "date-fns";
+import { useTranslations } from "next-intl";
 import { AdminFormField } from "@/components/admin/form-field";
 import { StarRatingPicker } from "@/components/dashboard/star-rating-picker";
 import { ActionForm } from "@/components/ui/action-form";
 import { Textarea } from "@/components/ui/input";
-import { dashboardContent } from "@/lib/constants";
 import { dateFnsLocale } from "@/lib/locale";
 import { submitSessionReview } from "@/lib/session-review-actions";
 
@@ -24,6 +24,9 @@ export function SessionReviewForm({
   startTime,
   compact = false,
 }: SessionReviewFormProps) {
+  const t = useTranslations("dashboard.sessionReview");
+  const tDashboard = useTranslations("dashboard");
+
   return (
     <ActionForm
       action={submitSessionReview}
@@ -35,21 +38,18 @@ export function SessionReviewForm({
           <p className="font-semibold text-heading">{serviceTitle}</p>
           <p className="mt-1 text-sm text-text/70">
             {format(sessionDate, "EEEE d MMMM yyyy", { locale: dateFnsLocale })}{" "}
-            في {startTime}
+            {tDashboard("bookingAtTime", { time: startTime })}
           </p>
         </div>
       ) : null}
-      <StarRatingPicker label={dashboardContent.sessionReview.ratingLabel} />
-      <AdminFormField
-        label={dashboardContent.sessionReview.commentLabel}
-        htmlFor={`review-comment-${bookingId}`}
-      >
+      <StarRatingPicker label={t("ratingLabel")} />
+      <AdminFormField label={t("commentLabel")} htmlFor={`review-comment-${bookingId}`}>
         <Textarea
           id={`review-comment-${bookingId}`}
           name="comment"
           rows={compact ? 2 : 3}
           maxLength={500}
-          placeholder={dashboardContent.sessionReview.commentPlaceholder}
+          placeholder={t("commentPlaceholder")}
           className="w-full resize-none"
         />
       </AdminFormField>
@@ -57,7 +57,7 @@ export function SessionReviewForm({
         type="submit"
         className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover"
       >
-        {dashboardContent.sessionReview.submit}
+        {t("submit")}
       </button>
     </ActionForm>
   );

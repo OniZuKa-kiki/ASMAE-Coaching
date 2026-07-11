@@ -1,8 +1,11 @@
+import { getTranslations } from "next-intl/server";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function BlogLoading() {
+export default async function BlogLoading() {
+  const t = await getTranslations("common");
+
   return (
-    <div className="section-padding" aria-busy aria-label="جارٍ التحميل">
+    <div className="section-padding" aria-busy aria-label={t("loadingAria")}>
       <div className="container-narrow space-y-8">
         <div className="space-y-4 text-center">
           <Skeleton className="mx-auto h-10 w-40" />

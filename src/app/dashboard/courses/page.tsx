@@ -1,11 +1,23 @@
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import {
   DashboardCourseCatalog,
   type DashboardCourseItem,
 } from "@/components/dashboard/dashboard-course-catalog";
 import { getUserEnrollments } from "@/lib/dashboard";
+import { dashboardPageMetadata } from "@/lib/dashboard-metadata";
 import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return dashboardPageMetadata({
+    path: "/dashboard/courses",
+    namespace: "dashboard.courses",
+    titleKey: "pageTitle",
+    descriptionKey: "subtitle",
+  });
+}
 
 function countLessons(
   modules: { lessons: { id: string }[] }[]
@@ -14,7 +26,10 @@ function countLessons(
 }
 
 export default async function DashboardCoursesPage() {
-  const enrollments = await getUserEnrollments();
+  const [enrollments, t] = await Promise.all([
+    getUserEnrollments(),
+    getTranslations("dashboard.courses"),
+  ]);
 
   const availableCourses = await prisma.course.findMany({
     where: { isPublished: true },
@@ -62,7 +77,7 @@ export default async function DashboardCoursesPage() {
 
   return (
     <div>
-      <h1 className="page-header-title mb-4 sm:mb-6">دوراتي</h1>
+      <h1 className="page-header-title mb-4 sm:mb-6">{t("pageTitle")}</h1>
       <DashboardCourseCatalog courses={courses} />
     </div>
   );

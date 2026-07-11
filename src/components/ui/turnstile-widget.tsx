@@ -23,7 +23,7 @@ export function TurnstileWidget({
   size = "normal",
   theme = "light",
   appearance = "always",
-  language = "ar",
+  language = "auto",
   action,
 }: TurnstileWidgetProps) {
   const containerRef = useRef<HTMLDivElement>(null);

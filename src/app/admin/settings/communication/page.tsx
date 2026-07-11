@@ -2,6 +2,7 @@ import { adminUrl } from "@/lib/admin-path";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { getLocale, getTranslations } from "next-intl/server";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import {
   runAction,
   type ActionResult,
 } from "@/lib/action-result";
+import { getActionLocale } from "@/lib/action-locale";
 import { getUserRole } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import {
@@ -19,6 +21,7 @@ import {
   normalizeWhatsappInput,
   SITE_SETTINGS_ID,
 } from "@/lib/site-settings";
+import type { AppLocale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
 
@@ -30,18 +33,19 @@ async function updateCommunicationSettings(
   const denied = await ensureAdmin();
   if (denied) return denied;
 
+  const locale = await getActionLocale();
   const contactEmail = String(formData.get("contactEmail") || "").trim();
   const coachEmail = String(formData.get("coachEmail") || "").trim();
   const contactPhone = String(formData.get("contactPhone") || "").trim();
   const whatsappRaw = String(formData.get("whatsapp") || "").trim();
   const instagramRaw = String(formData.get("instagram") || "").trim();
 
-  if (!contactEmail) return incomplete("ar");
+  if (!contactEmail) return incomplete(locale);
 
   const whatsappUrl = normalizeWhatsappInput(whatsappRaw);
   const instagram = normalizeInstagramInput(instagramRaw);
 
-  return runAction("ar", async () => {
+  return runAction(locale, async () => {
     await prisma.siteSettings.upsert({
       where: { id: SITE_SETTINGS_ID },
       create: {
@@ -73,37 +77,38 @@ export default async function AdminCommunicationSettingsPage() {
   const role = await getUserRole();
   if (role !== "admin") redirect("/dashboard");
 
+  const locale = (await getLocale()) as AppLocale;
+  const [t, tCommon] = await Promise.all([
+    getTranslations("adminPages.settings.communication"),
+    getTranslations("admin.common"),
+  ]);
   const settings = await getSiteSettings();
 
   return (
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-header-title">التواصل والبريد</h1>
-          <p className="text-sm text-text/70 mt-1">
-            عدّل بيانات التواصل المعروضة على الموقع (بريد، واتساب، إنستغرام…).
-          </p>
+          <h1 className="page-header-title">{t("title")}</h1>
+          <p className="mt-1 text-sm text-text/70">{t("subtitle")}</p>
         </div>
         <Link
           href={adminUrl("/settings")}
-          className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
+          className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading transition-colors hover:border-primary hover:text-primary"
         >
-          رجوع
+          {tCommon("back")}
         </Link>
       </div>
 
-      <div className="space-y-6 max-w-2xl">
+      <div className="max-w-2xl space-y-6">
         <Card>
-          <h2 className="font-heading text-xl text-heading mb-4">
-            معلومات التواصل
-          </h2>
+          <h2 className="mb-4 font-heading text-xl text-heading">{t("contactSection")}</h2>
           <ActionForm
             action={updateCommunicationSettings}
-            locale="ar"
+            locale={locale}
             className="space-y-4"
           >
             <div>
-              <Label htmlFor="contactEmail">البريد الإلكتروني العام</Label>
+              <Label htmlFor="contactEmail">{t("contactEmail")}</Label>
               <Input
                 id="contactEmail"
                 name="contactEmail"
@@ -112,13 +117,11 @@ export default async function AdminCommunicationSettingsPage() {
                 placeholder="contact@votredomaine.ma"
                 required
               />
-              <p className="text-xs text-text/60 mt-1">
-                يظهر في التذييل وصفحة التواصل وقوالب البريد.
-              </p>
+              <p className="mt-1 text-xs text-text/60">{t("contactEmailHint")}</p>
             </div>
 
             <div>
-              <Label htmlFor="coachEmail">بريد استقبال الرسائل</Label>
+              <Label htmlFor="coachEmail">{t("coachEmail")}</Label>
               <Input
                 id="coachEmail"
                 name="coachEmail"
@@ -126,14 +129,11 @@ export default async function AdminCommunicationSettingsPage() {
                 defaultValue={settings.coachEmail ?? ""}
                 placeholder="asmae@gmail.com"
               />
-              <p className="text-xs text-text/60 mt-1">
-                يستقبل رسائل نموذج التواصل. إن تُرك فارغاً، يُستخدم{" "}
-                <code>COACH_EMAIL</code> من المتغيرات أو البريد العام أعلاه.
-              </p>
+              <p className="mt-1 text-xs text-text/60">{t("coachEmailHint")}</p>
             </div>
 
             <div>
-              <Label htmlFor="contactPhone">الهاتف (اختياري)</Label>
+              <Label htmlFor="contactPhone">{t("contactPhone")}</Label>
               <Input
                 id="contactPhone"
                 name="contactPhone"
@@ -144,20 +144,18 @@ export default async function AdminCommunicationSettingsPage() {
             </div>
 
             <div>
-              <Label htmlFor="whatsapp">واتساب</Label>
+              <Label htmlFor="whatsapp">{t("whatsapp")}</Label>
               <Input
                 id="whatsapp"
                 name="whatsapp"
                 defaultValue={settings.whatsappUrl ?? ""}
-                placeholder="+212600000000 أو https://wa.me/212600000000"
+                placeholder="+212600000000 ou https://wa.me/212600000000"
               />
-              <p className="text-xs text-text/60 mt-1">
-                رقم هاتف أو رابط كامل — يُحوَّل تلقائياً إلى رابط واتساب.
-              </p>
+              <p className="mt-1 text-xs text-text/60">{t("whatsappHint")}</p>
             </div>
 
             <div>
-              <Label htmlFor="instagram">إنستغرام</Label>
+              <Label htmlFor="instagram">{t("instagram")}</Label>
               <Input
                 id="instagram"
                 name="instagram"
@@ -166,35 +164,35 @@ export default async function AdminCommunicationSettingsPage() {
                     ? `@${settings.instagramHandle.replace(/^@/, "")}`
                     : settings.instagramUrl ?? ""
                 }
-                placeholder="@asmae_coaching أو رابط كامل"
+                placeholder="@asmae_coaching ou lien complet"
               />
             </div>
 
             <button
               type="submit"
-              className="rounded-full bg-primary px-6 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
+              className="rounded-full bg-primary px-6 py-2.5 font-semibold text-white transition-colors hover:bg-primary-hover"
             >
-              حفظ التغييرات
+              {t("saveChanges")}
             </button>
           </ActionForm>
         </Card>
 
         <Card>
-          <h2 className="font-heading text-xl text-heading mb-3">معاينة</h2>
+          <h2 className="mb-3 font-heading text-xl text-heading">{t("preview")}</h2>
           <ul className="space-y-2 text-sm text-text/80">
             <li>
-              <span className="font-semibold text-heading">البريد:</span>{" "}
+              <span className="font-semibold text-heading">{t("previewEmail")}</span>{" "}
               {settings.contactEmail}
             </li>
             {settings.contactPhone && (
               <li>
-                <span className="font-semibold text-heading">الهاتف:</span>{" "}
+                <span className="font-semibold text-heading">{t("previewPhone")}</span>{" "}
                 {settings.contactPhone}
               </li>
             )}
             {settings.whatsappUrl && (
               <li>
-                <span className="font-semibold text-heading">واتساب:</span>{" "}
+                <span className="font-semibold text-heading">{t("previewWhatsapp")}</span>{" "}
                 <a
                   href={settings.whatsappUrl}
                   className="text-primary underline"
@@ -207,7 +205,7 @@ export default async function AdminCommunicationSettingsPage() {
             )}
             {settings.instagramUrl && (
               <li>
-                <span className="font-semibold text-heading">إنستغرام:</span>{" "}
+                <span className="font-semibold text-heading">{t("previewInstagram")}</span>{" "}
                 <a
                   href={settings.instagramUrl}
                   className="text-primary underline"

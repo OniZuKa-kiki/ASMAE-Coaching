@@ -1,9 +1,22 @@
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui/card";
 import { LibraryCatalog } from "@/components/dashboard/library-catalog";
-import { libraryPageContent } from "@/lib/constants";
 import { getDashboardResources } from "@/lib/dashboard";
+import { dashboardPageMetadata } from "@/lib/dashboard-metadata";
+import { getUserFavoriteKeysSet } from "@/lib/favorites";
+import { getOrCreateUser } from "@/lib/user";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return dashboardPageMetadata({
+    path: "/dashboard/resources",
+    namespace: "dashboard.library",
+    titleKey: "metaTitle",
+    descriptionKey: "metaDescription",
+  });
+}
 
 function getQueryValue(
   value: string | string[] | undefined,
@@ -20,7 +33,14 @@ export default async function DashboardResourcesPage({
 }) {
   const params = await searchParams;
   const selectedCourseId = getQueryValue(params.course).trim();
-  const resources = await getDashboardResources();
+  const [user, t] = await Promise.all([
+    getOrCreateUser(),
+    getTranslations("dashboard.library"),
+  ]);
+  const [resources, favoriteKeys] = await Promise.all([
+    getDashboardResources(),
+    user ? getUserFavoriteKeysSet(user.id) : Promise.resolve(new Set<string>()),
+  ]);
   const filteredResources =
     !resources || !selectedCourseId
       ? resources ?? []
@@ -33,16 +53,17 @@ export default async function DashboardResourcesPage({
 
   return (
     <div>
-      <h1 className="page-header-title mb-6 sm:mb-8">مكتبتي</h1>
+      <h1 className="page-header-title mb-6 sm:mb-8">{t("pageTitle")}</h1>
       {!resources || resources.length === 0 ? (
         <Card className="py-12 text-center">
-          <p className="text-text/70">{libraryPageContent.emptyLibrary}</p>
+          <p className="text-text/70">{t("emptyLibrary")}</p>
         </Card>
       ) : (
         <LibraryCatalog
           resources={filteredResources}
           selectedCourseId={selectedCourseId || undefined}
           selectedCourseTitle={selectedCourseTitle}
+          favoriteKeys={[...favoriteKeys]}
         />
       )}
     </div>

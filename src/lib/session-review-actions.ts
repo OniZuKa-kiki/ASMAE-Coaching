@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getFriendlyErrors } from "@/lib/api-errors";
+import { getActionLocale } from "@/lib/action-locale";
 import { incomplete, runAction, type ActionResult } from "@/lib/action-result";
 import { prisma } from "@/lib/db";
 import {
@@ -14,6 +16,8 @@ export async function submitSessionReview(
   formData: FormData
 ): Promise<ActionResult> {
   const user = await requireUser();
+  const locale = await getActionLocale(user.preferredLocale);
+  const errors = getFriendlyErrors(locale);
   const bookingId = String(formData.get("bookingId") || "").trim();
   const rating = Number(formData.get("rating"));
   const comment = parseSessionReviewComment(
@@ -21,25 +25,25 @@ export async function submitSessionReview(
   );
 
   if (!bookingId || !isValidSessionRating(rating)) {
-    return incomplete("ar");
+    return incomplete(locale);
   }
 
-  return runAction("ar", async () => {
+  return runAction(locale, async () => {
     const booking = await prisma.booking.findFirst({
       where: { id: bookingId, userId: user.id },
       include: { review: true },
     });
 
     if (!booking) {
-      throw new Error("الجلسة غير موجودة.");
+      throw new Error(errors.sessionNotFound);
     }
 
     if (booking.review) {
-      throw new Error("تم إرسال تقييمكِ مسبقًا لهذه الجلسة.");
+      throw new Error(errors.sessionReviewAlreadySubmitted);
     }
 
     if (!isBookingReviewable(booking)) {
-      throw new Error("لا يمكن تقييم هذه الجلسة بعد.");
+      throw new Error(errors.sessionReviewNotAllowed);
     }
 
     await prisma.bookingReview.create({

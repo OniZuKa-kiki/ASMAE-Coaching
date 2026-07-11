@@ -26,3 +26,8 @@ export function getEmailLogoAttachment() {
 export function getEmailLogoSrc(): string {
   return `cid:${EMAIL_LOGO_CID}`;
 }
+
+/** Pour l’aperçu admin dans le navigateur (cid: ne fonctionne pas en HTML inline). */
+export function getEmailLogoDataUri(): string {
+  return `data:image/png;base64,${getLogoBase64()}`;
+}

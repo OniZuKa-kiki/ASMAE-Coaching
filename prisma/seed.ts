@@ -50,6 +50,7 @@ async function main() {
         title: course.title,
         description: course.description,
         price: course.price,
+        topics: course.topics,
         isPublished: true,
       },
       create: {
@@ -57,6 +58,7 @@ async function main() {
         title: course.title,
         description: course.description,
         price: course.price,
+        topics: course.topics,
         isPublished: true,
       },
     });
@@ -136,6 +138,7 @@ async function main() {
         duration: podcast.duration,
         audioUrl: SAMPLE_AUDIO_URL,
         isPremium: podcast.isPremium,
+        topics: podcast.topics,
         isPublished: true,
       },
       create: {
@@ -145,6 +148,7 @@ async function main() {
         duration: podcast.duration,
         audioUrl: SAMPLE_AUDIO_URL,
         isPremium: podcast.isPremium,
+        topics: podcast.topics,
         isPublished: true,
       },
     });
@@ -228,7 +232,7 @@ async function main() {
     if (existingEnrollments === 0 && publishedCourses.length > 0) {
       const demoCourses = publishedCourses.slice(0, Math.min(2, publishedCourses.length));
       await prisma.courseEnrollment.createMany({
-        data: demoCourses.map((course, index) => ({
+        data: demoCourses.map((course: { id: string }, index: number) => ({
           userId: user.id,
           courseId: course.id,
           progress: index === 0 ? 35 : 10,
@@ -258,6 +262,8 @@ async function main() {
       whatsappUrl: siteConfig.contact.whatsapp,
       instagramUrl: siteConfig.contact.instagram,
       instagramHandle: "asmae_coaching",
+      localeArEnabled: true,
+      localeFrEnabled: false,
     },
     create: {
       id: SITE_SETTINGS_ID,
@@ -266,6 +272,8 @@ async function main() {
       whatsappUrl: siteConfig.contact.whatsapp,
       instagramUrl: siteConfig.contact.instagram,
       instagramHandle: "asmae_coaching",
+      localeArEnabled: true,
+      localeFrEnabled: false,
     },
   });
 

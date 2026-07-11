@@ -1,0 +1,1102 @@
+{
+  "locale": {
+    "label": "Langue",
+    "ar": "العربية",
+    "fr": "Français",
+    "arShort": "AR",
+    "frShort": "FR"
+  },
+  "metadata": {
+    "siteTitle": "ASMAE — Coaching de vie",
+    "titleTemplate": "%s | ASMAE Coaching",
+    "description": "Un accompagnement personnel pour surmonter les défis, retrouver l'équilibre et avancer vers vos objectifs avec confiance et clarté.",
+    "siteName": "ASMAE Coaching",
+    "logoLinkAria": "ASMAE — Coaching",
+    "logoImageAlt": "ASMAE Coaching — Dépasser • Équilibre • Épanouir",
+    "keywords": ["coaching de vie", "développement personnel", "coach de vie", "confiance en soi", "bien-être"]
+  },
+  "nav": {
+    "home": "Accueil",
+    "about": "À propos",
+    "coaching": "Coaching",
+    "bookSession": "Réserver une séance",
+    "podcasts": "Podcasts",
+    "courses": "Formations",
+    "blog": "Blog",
+    "testimonials": "Témoignages",
+    "contact": "Contact",
+    "search": "Rechercher",
+    "myAccount": "Mon compte",
+    "mySpace": "Mon espace",
+    "adminPanel": "Administration",
+    "signIn": "Connexion / Créer un compte",
+    "menu": "Menu",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "more": "Plus"
+  },
+  "footer": {
+    "browse": "Navigation",
+    "contact": "Contact",
+    "whatsapp": "WhatsApp",
+    "instagram": "Instagram",
+    "rights": "Tous droits réservés."
+  },
+  "hero": {
+    "eyebrow": "Coaching de vie pour retrouver l'équilibre et avancer avec confiance",
+    "title": "Retrouvez votre confiance et reprenez le contrôle de votre vie.",
+    "subtitle": "Un accompagnement personnalisé pour dépasser vos défis, retrouver votre équilibre et atteindre vos objectifs avec clarté.",
+    "ctaPrimary": "Réserver une séance",
+    "ctaSecondary": "Découvrir les programmes"
+  },
+  "common": {
+    "bookSession": "Réserver une séance",
+    "continue": "Continuer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "back": "Retour",
+    "download": "Télécharger",
+    "listen": "Écouter",
+    "buyNow": "Acheter",
+    "startNow": "Commencer",
+    "edit": "Modifier",
+    "send": "Envoyer",
+    "loading": "Chargement...",
+    "loadingAria": "Chargement",
+    "minutes": "min",
+    "delete": "Supprimer",
+    "scrollListHint": "Faites défiler pour voir tous les éléments",
+    "actionSuccess": "Action réussie"
+  },
+  "errors": {
+    "paymentUnavailable": "Le paiement en ligne est temporairement indisponible. Contactez-nous pour finaliser votre réservation.",
+    "purchaseUnavailable": "L'achat en ligne est temporairement indisponible. Contactez-nous pour accéder à cette formation.",
+    "emailUnavailable": "L'envoi du message est temporairement indisponible. Écrivez-nous directement par e-mail ou WhatsApp.",
+    "slotUnavailable": "Ce créneau n'est plus disponible. Choisissez une autre date ou heure.",
+    "unauthorized": "Connectez-vous pour continuer.",
+    "alreadyOwned": "Vous possédez déjà cette formation.",
+    "incomplete": "Veuillez remplir tous les champs obligatoires.",
+    "generic": "Une erreur s'est produite. Veuillez réessayer ou nous contacter.",
+    "contactSuccess": "Votre message a bien été envoyé. Nous vous répondrons bientôt.",
+    "bookingRedirect": "Redirection vers la page de paiement…",
+    "serviceNotFound": "Service introuvable.",
+    "courseNotFound": "Formation introuvable.",
+    "sessionNotFound": "Séance introuvable.",
+    "sessionReviewAlreadySubmitted": "Vous avez déjà évalué cette séance.",
+    "sessionReviewNotAllowed": "Cette séance ne peut pas encore être évaluée.",
+    "lessonNotFound": "Leçon introuvable.",
+    "forbidden": "Accès non autorisé.",
+    "rateLimited": "Trop de requêtes. Réessayez dans un instant.",
+    "invalidData": "Données invalides.",
+    "episodeNotFound": "Épisode introuvable.",
+    "invoiceNotPaid": "La facture n'est disponible que pour les paiements confirmés.",
+    "invoiceNotFound": "Paiement introuvable.",
+    "invoiceGenerateFailed": "Impossible de générer la facture.",
+    "invalidMood": "Veuillez choisir une humeur valide.",
+    "localeRequired": "Au moins une langue doit rester activée.",
+    "bookingReasonOtherDetail": "Précisez la raison lorsque vous choisissez « Autre ».",
+    "sampleInvoiceGenerateFailed": "Impossible de générer le modèle de facture."
+  },
+  "actions": {
+    "saved": "Enregistré avec succès",
+    "created": "Créé avec succès",
+    "deleted": "Supprimé avec succès",
+    "updated": "Mis à jour avec succès",
+    "toggled": "Mis à jour avec succès",
+    "sent": "Envoyé avec succès",
+    "completed": "Mis à jour avec succès"
+  },
+  "invoice": {
+    "documentTitle": "Facture",
+    "pageTitle": "Facture {number} — {site}",
+    "sampleBadge": "Exemple",
+    "downloadPdf": "Télécharger le PDF",
+    "tagline": "Coaching de vie — accompagnement personnel",
+    "invoiceNumberLabel": "N° de facture",
+    "billTo": "Facturer à",
+    "invoiceInfo": "Informations",
+    "name": "Nom",
+    "email": "E-mail",
+    "issuedAt": "Date d'émission",
+    "status": "Statut",
+    "paymentMethod": "Mode de paiement",
+    "serviceDetails": "Détail de la prestation",
+    "description": "Description",
+    "amount": "Montant",
+    "subtotal": "Sous-total",
+    "totalPaid": "Total payé",
+    "thanks": "Merci pour votre confiance — {site} Coaching",
+    "legal": "Cette facture est émise électroniquement et ne nécessite pas de signature. Conservez-la pour vos archives.",
+    "fallbackClient": "Client",
+    "fallbackDescription": "Paiement ASMAE Coaching",
+    "statuses": {
+      "PAID": "Payé",
+      "PENDING": "En attente",
+      "REFUNDED": "Remboursé",
+      "FAILED": "Échoué"
+    },
+    "sample": {
+      "clientName": "Fatima Zahra",
+      "description": "Séance de coaching individuelle — 60 minutes"
+    }
+  },
+  "auth": {
+    "signInMetaTitle": "Connexion",
+    "signInMetaDescription": "Accédez à votre espace personnel ASMAE Coaching.",
+    "signUpMetaTitle": "Créer un compte",
+    "signUpMetaDescription": "Créez un compte pour accéder à vos séances et formations sur ASMAE Coaching.",
+    "loading": "Chargement...",
+    "loadingAria": "Chargement",
+    "repairingSession": "Synchronisation de la session...",
+    "redirecting": "Redirection...",
+    "sessionOutOfSync": "La session n'est pas synchronisée. Vous pouvez continuer vers la page demandée ou vous déconnecter puis vous reconnecter.",
+    "sessionOutOfSyncSignUp": "La session n'est pas synchronisée. Vous pouvez continuer vers la page demandée ou vous déconnecter puis créer un nouveau compte.",
+    "continueToAccount": "Continuer vers mon compte",
+    "signOut": "Se déconnecter"
+  },
+  "services": {
+    "metaTitle": "Services de coaching",
+    "metaDescription": "Accompagnement personnalisé en coaching individuel, développement personnel, parcours professionnel et coaching de couple.",
+    "title": "Services de coaching",
+    "subtitle": "Un accompagnement sur mesure, adapté à vos besoins et à votre rythme.",
+    "bookNow": "Réserver",
+    "learnMore": "En savoir plus",
+    "eyebrow": "Services de coaching",
+    "expectedResults": "Résultats attendus",
+    "notFound": "Service introuvable",
+    "highlights": {
+      "individuel": [
+        "Clarté sur vos objectifs",
+        "Outils concrets pour avancer",
+        "Renforcement de la confiance en soi",
+        "Plan d'action personnalisé"
+      ],
+      "couple": [
+        "Communication plus efficace",
+        "Meilleure compréhension mutuelle",
+        "Gestion des conflits",
+        "Relation plus solide"
+      ],
+      "carriere": [
+        "Vision professionnelle claire",
+        "Stratégie de transition efficace",
+        "Confiance en entretien",
+        "Équilibre vie pro / vie perso"
+      ],
+      "bien-etre": [
+        "Gestion du stress",
+        "Estime de soi renforcée",
+        "Équilibre émotionnel",
+        "Habitudes positives"
+      ]
+    }
+  },
+  "home": {
+    "problems": {
+      "title": "Vous vous reconnaissez dans l'une de ces situations ?",
+      "subtitle": "Je vous accompagne pour dépasser les obstacles qui freinent votre progression.",
+      "items": {
+        "confidence": {
+          "title": "Manque de confiance en soi",
+          "description": "Vous doutez de vos capacités et hésitez à saisir les opportunités ou à prendre des initiatives."
+        },
+        "stress": {
+          "title": "Stress et pression",
+          "description": "Vous vous sentez épuisé et cherchez un équilibre sain et durable dans votre vie."
+        },
+        "relationships": {
+          "title": "Difficultés relationnelles",
+          "description": "Vous traversez des conflits, une séparation, ou répétez des schémas relationnels qui ne vous apportent pas la stabilité."
+        },
+        "career": {
+          "title": "Défis professionnels",
+          "description": "Vous vous sentez bloqué dans votre parcours et cherchez l'équilibre entre réussite professionnelle et épanouissement personnel."
+        }
+      }
+    },
+    "method": {
+      "title": "Ma méthode",
+      "subtitle": "Un accompagnement concret pour des résultats durables",
+      "steps": {
+        "listening": {
+          "title": "Écoute et évaluation",
+          "description": "Nous commençons par un échange approfondi pour comprendre votre situation, définir vos objectifs et explorer vos besoins."
+        },
+        "plan": {
+          "title": "Plan personnalisé",
+          "description": "Nous élaborons ensemble un plan adapté à vos besoins, avec des outils pratiques et des exercices applicables."
+        },
+        "support": {
+          "title": "Accompagnement et suivi",
+          "description": "Des séances régulières pour progresser, surmonter les obstacles et célébrer chaque étape vers votre objectif."
+        },
+        "independence": {
+          "title": "Autonomie",
+          "description": "Vous terminez votre parcours avec les outils et la confiance pour continuer à avancer par vous-même."
+        }
+      }
+    },
+    "testimonials": {
+      "title": "Témoignages",
+      "subtitle": "La confiance est au cœur de chaque parcours de coaching. Voici quelques expériences de personnes que j'ai accompagnées."
+    },
+    "stats": {
+      "items": [
+        { "value": "+200", "label": "clients accompagnés" },
+        { "value": "95 %", "label": "de satisfaction" },
+        { "value": "8 ans", "label": "d'expérience" },
+        { "value": "+1500", "label": "heures de coaching" }
+      ]
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "items": [
+        {
+          "question": "Comment se déroule la première séance ?",
+          "answer": "La première séance est un rendez-vous de découverte et d'évaluation. Nous faisons connaissance, discutons de votre situation actuelle et définissons clairement vos objectifs. Tout ce qui est partagé reste confidentiel, dans un cadre bienveillant et sans jugement."
+        },
+        {
+          "question": "Les séances sont-elles en présentiel ou à distance ?",
+          "answer": "Les deux options sont possibles. La plupart des séances se font en visio (Zoom ou Google Meet) pour plus de flexibilité. Des rendez-vous en présentiel peuvent être organisés sur demande."
+        },
+        {
+          "question": "Combien de séances vais-je avoir besoin ?",
+          "answer": "Cela dépend de vos objectifs. Certains clients atteignent leurs objectifs en 3 à 5 séances, d'autres préfèrent un accompagnement sur plusieurs mois. Nous adaptons le rythme ensemble."
+        },
+        {
+          "question": "Proposez-vous une séance de découverte gratuite ?",
+          "answer": "Oui, une séance de découverte de 20 minutes est offerte pour faire connaissance et voir si mon accompagnement vous convient."
+        },
+        {
+          "question": "Comment se passe le paiement ?",
+          "answer": "Le paiement s'effectue en ligne de manière sécurisée (carte marocaine ou internationale). Vous recevez une confirmation par e-mail avec le lien de la séance en visio."
+        }
+      ]
+    },
+    "finalCta": {
+      "title": "Prêt à commencer votre parcours de changement ?",
+      "subtitle": "Réservez un appel de découverte gratuit de 20 minutes pour faire connaissance, comprendre vos besoins et voir comment je peux vous accompagner.",
+      "primary": "Réserver un appel découverte",
+      "secondary": "Me contacter"
+    }
+  },
+  "contact": {
+    "metaTitle": "Contact",
+    "metaDescription": "Une question ou envie d'en savoir plus sur mes services ? Je serais ravie d'échanger avec vous.",
+    "title": "Me contacter",
+    "subtitle": "Une question ou envie d'en savoir plus sur mes services ? Je serais ravie d'échanger avec vous et de répondre à vos questions.",
+    "channelsTitle": "Restons en contact",
+    "channelsSubtitle": "Choisissez le canal qui vous convient.",
+    "email": "E-mail",
+    "phone": "Téléphone",
+    "whatsapp": "WhatsApp",
+    "whatsappHint": "Réponse rapide",
+    "instagram": "Instagram",
+    "formTitle": "Envoyer un message",
+    "nameLabel": "Nom",
+    "namePlaceholder": "Votre nom",
+    "emailLabel": "E-mail",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Écrivez votre message ici...",
+    "submit": "Envoyer",
+    "submitting": "Envoi en cours...",
+    "successTitle": "Message envoyé !",
+    "successMessage": "Je vous répondrai dans les plus brefs délais.",
+    "turnstileRequired": "Veuillez compléter la vérification de sécurité.",
+    "sendError": "Erreur lors de l'envoi"
+  },
+  "booking": {
+    "metaTitle": "Réserver une séance",
+    "metaDescription": "Choisissez votre service, sélectionnez un créneau et payez en ligne. Vous recevrez automatiquement le lien de la séance en visio.",
+    "title": "Réserver une séance",
+    "subtitle": "Choisissez votre service, sélectionnez un créneau et payez en ligne. Vous recevrez automatiquement le lien de la séance en visio.",
+    "steps": {
+      "service": "Service",
+      "schedule": "Créneau",
+      "intent": "Questionnaire",
+      "payment": "Paiement"
+    },
+    "chooseService": "Choisissez votre service",
+    "chooseSchedule": "Choisissez un créneau",
+    "intentTitle": "Pourquoi souhaitez-vous réserver cette séance ?",
+    "intentSubtitle": "Votre réponse m'aide à mieux préparer notre accompagnement avant le rendez-vous.",
+    "intentRequired": "Choisissez une raison pour continuer.",
+    "intentOtherPlaceholder": "Partagez brièvement ce qui vous amène à réserver cette séance...",
+    "intentReasons": {
+      "stress": "Stress et pression",
+      "confidence": "Confiance en soi",
+      "couple": "Relations et couple",
+      "career": "Travail et carrière",
+      "other": "Autre"
+    },
+    "paymentTitle": "Paiement sécurisé",
+    "atTime": "à {time}",
+    "next": "Suivant",
+    "back": "Retour",
+    "noServices": "Aucun service disponible pour le moment. Revenez bientôt.",
+    "noSlots": "Aucun créneau disponible ce jour-là.",
+    "signInPrompt": "Connectez-vous pour finaliser votre réservation.",
+    "signInButton": "Se connecter",
+    "paymentFootnote": "Vous recevrez automatiquement un e-mail de confirmation avec le lien de la séance en visio après le paiement.",
+    "selectPaymentMethod": "Choisir le mode de paiement",
+    "paymentProviders": {
+      "payzone": {
+        "label": "Carte marocaine",
+        "description": "Visa, Mastercard, cartes CMI"
+      },
+      "stripe": {
+        "label": "Carte internationale",
+        "description": "Visa, Mastercard (hors Maroc)"
+      }
+    },
+    "securePayVia": "Paiement sécurisé via {provider}.",
+    "paying": "Redirection...",
+    "payButton": "Payer {amount}",
+    "paymentError": "Erreur de paiement",
+    "success": {
+      "title": "Paiement réussi !",
+      "pending": "Votre réservation est en cours de confirmation.",
+      "emailHint": "Vous recevrez un e-mail avec les détails de votre séance et le lien visio dans quelques instants.",
+      "viewBookings": "Voir mes séances",
+      "backHome": "Retour à l'accueil"
+    },
+    "cancel": {
+      "title": "Paiement annulé",
+      "noCharge": "Aucun montant n'a été débité de votre compte.",
+      "retryHint": "Vous pouvez réessayer à tout moment. En cas de problème technique, contactez-nous.",
+      "backToCourse": "Retour à la formation",
+      "retryBooking": "Réserver à nouveau",
+      "contactUs": "Nous contacter",
+      "legalPrefix": "En poursuivant votre achat, vous acceptez nos",
+      "cgv": "conditions de vente",
+      "and": "et notre",
+      "privacy": "politique de confidentialité"
+    }
+  },
+  "courses": {
+    "metaTitle": "Formations en ligne",
+    "metaDescription": "Des programmes complets pour apprendre à votre rythme : vidéos, exercices pratiques et ressources téléchargeables.",
+    "title": "Formations en ligne",
+    "subtitle": "Des programmes complets pour apprendre à votre rythme : vidéos, exercices pratiques et ressources téléchargeables.",
+    "viewProgram": "Voir le programme →",
+    "ctaTitle": "Vous hésitez sur la formation la plus adaptée ?",
+    "ctaSubtitle": "Réservez un appel découverte gratuit pour parler de vos objectifs et choisir le bon programme.",
+    "ctaButton": "Réserver un appel découverte",
+    "filters": {
+      "searchLabel": "Rechercher",
+      "searchPlaceholder": "Rechercher une formation...",
+      "sortLabel": "Trier par",
+      "sortDefault": "Tri par défaut",
+      "sortPriceAsc": "Prix : croissant",
+      "sortPriceDesc": "Prix : décroissant",
+      "sortTitle": "Titre A→Z",
+      "noResults": "Aucune formation ne correspond à votre recherche.",
+      "resultsOne": "1 formation",
+      "resultsMany": "{count} formations"
+    },
+    "moduleOne": "1 module",
+    "moduleTwo": "2 modules",
+    "modulesFew": "{count} modules",
+    "modulesMany": "{count} modules",
+    "lessonOne": "1 leçon",
+    "lessonTwo": "2 leçons",
+    "lessonsFew": "{count} leçons",
+    "lessonsMany": "{count} leçons",
+    "notFound": "Formation introuvable",
+    "eyebrow": "Formation",
+    "whatYouGet": "Ce que vous obtenez",
+    "lifetimeAccess": "Accès à vie",
+    "oneTimePayment": "Paiement unique — accès immédiat",
+    "securePayment": "Paiement sécurisé via Stripe",
+    "signInToPurchase": "Connectez-vous pour acheter",
+    "paymentFootnote": "Vous recevrez automatiquement un e-mail de confirmation après le paiement.",
+    "paying": "Redirection...",
+    "buyButton": "Acheter — {amount}",
+    "paymentError": "Erreur de paiement",
+    "includes": {
+      "videos": "🎥 Vidéos pédagogiques",
+      "downloads": "📥 Ressources téléchargeables",
+      "exercises": "📝 Exercices pratiques"
+    }
+  },
+  "about": {
+    "metaTitle": "À propos",
+    "metaDescription": "Découvrez mon parcours, ma mission et les valeurs qui guident mon accompagnement.",
+    "eyebrow": "À propos",
+    "title": "Une coach avec une mission... et une histoire qui mérite d'être racontée",
+    "subtitle": "Choisir un coach ne repose pas seulement sur l'expérience, mais aussi sur la confiance et l'alignement. Voici mon parcours, ce qui m'a menée à ce métier, et les valeurs qui guident mon accompagnement.",
+    "storyTitle": "Mon histoire",
+    "story": "J'ai toujours cru en la capacité de chacun à changer et à grandir. Après avoir traversé des expériences personnelles marquées par des défis, des doutes et une redécouverte de soi, j'ai compris l'impact profond que le coaching peut avoir dans une vie.\n\nMon choix de métier n'était pas un hasard, mais la suite naturelle de mon parcours et de mon envie sincère d'accompagner les autres dans leur transformation.",
+    "videoLabel": "Vidéo de présentation",
+    "whyTitle": "Pourquoi suis-je devenue coach ?",
+    "why": "Parce que j'ai traversé des phases de confusion, de manque de clarté et de difficulté à passer à l'étape suivante.\n\nLe coaching m'a aidée à retrouver mon équilibre, à mieux me comprendre et à avancer avec confiance vers mes objectifs.\n\nAujourd'hui, j'accompagne chaque personne avec l'attention, l'empathie et le soutien que j'aurais aimé trouver à cette étape de ma vie.",
+    "missionTitle": "Ma mission",
+    "mission": "Ma mission est de vous aider à découvrir votre potentiel et à construire une vie alignée avec vos valeurs, vos aspirations et ce qui vous apporte un vrai sentiment de satisfaction et d'équilibre.",
+    "valuesTitle": "Mes valeurs",
+    "values": {
+      "empathy": {
+        "title": "Empathie",
+        "description": "Je vous offre un espace sûr, sans jugement, où vous pouvez vous exprimer librement et en toute authenticité."
+      },
+      "authenticity": {
+        "title": "Authenticité",
+        "description": "Je crois en une relation humaine fondée sur la confiance, la transparence et le respect mutuel."
+      },
+      "confidentiality": {
+        "title": "Confidentialité",
+        "description": "Tout ce que vous partagez reste confidentiel et est traité avec le plus grand respect de votre vie privée."
+      },
+      "commitment": {
+        "title": "Engagement",
+        "description": "Je vous accompagne avec sérieux et dévouement, et je m'engage à vous soutenir à chaque étape de votre parcours."
+      }
+    },
+    "ctaTitle": "Envie d'en savoir plus ?",
+    "ctaSubtitle": "Réservez un appel découverte gratuit pour parler de vos besoins et découvrir comment je peux vous accompagner.",
+    "ctaButton": "Réserver un appel découverte"
+  },
+  "podcasts": {
+    "metaTitle": "Podcasts",
+    "metaDescription": "Des épisodes audio inspirants pour développer votre potentiel, renforcer votre conscience de soi et avancer à votre rythme.",
+    "title": "Podcasts",
+    "subtitle": "Des épisodes audio inspirants pour développer votre potentiel, renforcer votre conscience de soi et avancer à votre rythme.",
+    "notFound": "Podcast introuvable",
+    "durationMinutes": "{count} min",
+    "freeSection": { "title": "Podcasts gratuits", "subtitle": "Accessibles à tous" },
+    "premiumSection": { "title": "Podcasts exclusifs", "subtitle": "Réservés aux membres et clients" },
+    "premiumBadge": "Exclusif",
+    "premiumContentLabel": "Contenu exclusif",
+    "premiumLockedTitle": "Contenu réservé aux membres",
+    "premiumLockedMessage": "Réservez une séance ou achetez une formation pour débloquer ce podcast exclusif.",
+    "audioComingSoon": "L'audio sera disponible prochainement.",
+    "loadError": "Impossible de charger le fichier audio. Vérifiez le lien ou réessayez plus tard.",
+    "playerPlay": "Lecture",
+    "playerPause": "Pause",
+    "playerProgress": "Progression de l'épisode",
+    "continueListening": {
+      "title": "Reprendre l'écoute",
+      "subtitle": "Reprenez vos épisodes là où vous vous êtes arrêté.",
+      "resumeButton": "Reprendre",
+      "resumeFrom": "Reprendre l'écoute à {time}"
+    },
+    "filters": {
+      "searchLabel": "Rechercher",
+      "searchPlaceholder": "Rechercher un épisode...",
+      "typeLabel": "Type",
+      "typeAll": "Tous les épisodes",
+      "typeFree": "Gratuit",
+      "typePremium": "Exclusif",
+      "sortLabel": "Trier par",
+      "sortDefault": "Tri par défaut",
+      "sortNewest": "Plus récents",
+      "sortOldest": "Plus anciens",
+      "sortLongest": "Plus longs",
+      "sortShortest": "Plus courts",
+      "sortTitle": "Titre A→Z",
+      "noResults": "Aucun épisode ne correspond à votre recherche.",
+      "resultsOne": "1 épisode",
+      "resultsMany": "{count} épisodes"
+    }
+  },
+  "blog": {
+    "metaTitle": "Blog",
+    "metaDescription": "Articles, conseils et idées pratiques pour développer votre potentiel et avancer avec confiance.",
+    "title": "Blog",
+    "subtitle": "Articles, conseils et idées pratiques pour développer votre potentiel et avancer avec confiance.",
+    "emptyMessage": "Aucun article disponible pour le moment.",
+    "filters": {
+      "searchLabel": "Rechercher",
+      "searchPlaceholder": "Rechercher un article...",
+      "categoryLabel": "Catégorie",
+      "categoryAll": "Toutes les catégories",
+      "sortLabel": "Trier par",
+      "sortNewest": "Plus récents",
+      "sortOldest": "Plus anciens",
+      "sortTitle": "Titre A→Z",
+      "noResults": "Aucun article ne correspond à votre recherche.",
+      "resultsOne": "1 article",
+      "resultsMany": "{count} articles"
+    },
+    "notFound": "Article introuvable",
+    "ctaTitle": "Besoin d'un accompagnement personnalisé ?",
+    "ctaSubtitle": "Réservez une séance pour approfondir ce sujet ensemble.",
+    "readTimeOne": "1 min de lecture",
+    "readTimeTwo": "2 min de lecture",
+    "readTimeFew": "{count} min de lecture",
+    "readTimeMany": "{count} min de lecture"
+  },
+  "testimonials": {
+    "metaTitle": "Témoignages",
+    "metaDescription": "La confiance est au cœur de chaque parcours de coaching. Voici quelques expériences de personnes que j'ai accompagnées.",
+    "title": "Témoignages",
+    "subtitle": "La confiance est au cœur de chaque parcours de coaching. Voici quelques expériences de personnes que j'ai accompagnées.",
+    "viewAll": "Voir tous les avis",
+    "carouselHint": "Glissez à gauche ou à droite — toute la page se déplace ensemble (3 rangées)",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "positionLabel": "Position",
+    "ctaTitle": "Serez-vous la prochaine success story ?",
+    "ctaSubtitle": "Commencez votre parcours de changement et rejoignez ceux qui ont atteint leurs objectifs et retrouvé l'équilibre.",
+    "ctaButton": "Réserver une séance"
+  },
+  "search": {
+    "metaTitle": "Rechercher",
+    "title": "Rechercher",
+    "dashboardTitle": "Rechercher dans mon espace",
+    "placeholder": "Rechercher une formation, un article, un podcast, un service...",
+    "dashboardPlaceholder": "Rechercher dans vos objectifs, journal, séances, ressources et contenu public...",
+    "buttonLabel": "Rechercher",
+    "minChars": "Saisissez au moins 2 caractères pour lancer la recherche.",
+    "noQuery": "Commencez à taper dans le champ de recherche ci-dessus.",
+    "noResults": "Aucun résultat ne correspond à votre recherche.",
+    "open": "Ouvrir",
+    "resultsOne": "1 résultat",
+    "resultsMany": "{count} résultats",
+    "dashboardLink": "Rechercher dans mon espace personnel",
+    "sections": {
+      "SERVICE": "Coaching",
+      "COURSE": "Formations",
+      "BLOG_POST": "Blog",
+      "PODCAST": "Podcasts",
+      "GOAL": "Mes objectifs",
+      "JOURNAL": "Mon journal",
+      "LESSON": "Bibliothèque de ressources",
+      "BOOKING": "Mes séances"
+    },
+    "suggestionsLabel": "Suggestions populaires",
+    "popularSuggestionsHint": "Inclut les recherches les plus fréquentes",
+    "shortcutsLabel": "Parcourir par type",
+    "liveSuggestionsLabel": "Suggestions en direct",
+    "searching": "Recherche en cours...",
+    "searchAll": "Rechercher : « {query} »",
+    "meta": {
+      "service": "Service de coaching",
+      "course": "Formation",
+      "podcast": "Podcast",
+      "podcastPremium": "Podcast exclusif",
+      "goalCompleted": "Objectif atteint",
+      "goalActive": "Objectif actif",
+      "journal": "Journal",
+      "booking": "Séance",
+      "lesson": "Ressource"
+    },
+    "staticQueries": ["gestion du stress", "confiance en soi", "équilibre", "podcast", "formation"],
+    "staticShortcuts": [
+      { "label": "Formations", "query": "formation" },
+      { "label": "Podcasts", "query": "podcast" },
+      { "label": "Blog", "query": "blog" },
+      { "label": "Coaching", "query": "coaching" }
+    ],
+    "dashboardStaticQueries": ["objectif", "journal", "séance", "ressource", "confiance"],
+    "dashboardStaticShortcuts": [
+      { "label": "Mes objectifs", "query": "objectif" },
+      { "label": "Mon journal", "query": "journal" },
+      { "label": "Mes séances", "query": "séance" },
+      { "label": "Bibliothèque", "query": "ressource" }
+    ]
+  },
+  "dashboard": {
+    "nav": {
+      "home": "Accueil",
+      "journey": "Mon parcours",
+      "notifications": "Notifications",
+      "favorites": "Favoris",
+      "search": "Rechercher",
+      "bookings": "Mes séances",
+      "courses": "Mes formations",
+      "podcasts": "Podcasts",
+      "goals": "Mes objectifs",
+      "journal": "Mon journal",
+      "resources": "Bibliothèque",
+      "payments": "Paiements",
+      "settings": "Paramètres"
+    },
+    "spaceTitle": "Mon espace",
+    "backToSite": "Retour au site",
+    "welcome": "Bienvenue",
+    "welcomeWithName": "Bienvenue, {name}",
+    "overviewSubtitle": "Séances, formations et bibliothèque — tout au même endroit.",
+    "bookingAtTime": "à {time}",
+    "stats": {
+      "upcomingSessions": "Séances à venir",
+      "activeCourses": "Formations actives",
+      "currentGoals": "Objectifs en cours",
+      "payments": "Paiements"
+    },
+    "noUpcomingSessions": "Aucune séance à venir",
+    "bookNextSession": "Réservez votre prochaine séance et lancez votre parcours de changement.",
+    "bookSession": "Réserver une séance",
+    "upcomingSessionsTitle": "Séances à venir",
+    "joinSession": "Rejoindre la séance en visio",
+    "bookingsTitle": "Mes séances",
+    "bookingsUpcoming": "À venir",
+    "bookingsHistory": "Historique",
+    "noScheduledSessions": "Aucune séance à venir",
+    "sessionLink": "Lien de la séance en visio",
+    "bookingsHistoryEmpty": "Votre historique apparaîtra ici après votre première séance.",
+    "bookingsCalendarLabel": "Calendrier des séances",
+    "bookingsNoSessionsDay": "Aucune séance ce jour-là.",
+    "sessionReview": {
+      "promptTitle": "Comment s'est passée votre séance ?",
+      "promptSubtitle": "Votre avis nous aide à améliorer l'accompagnement et à personnaliser votre expérience.",
+      "ratingLabel": "Note",
+      "commentLabel": "Commentaire (optionnel)",
+      "commentPlaceholder": "Partagez ce qui vous a plu ou ce qui pourrait être amélioré...",
+      "submit": "Envoyer l'évaluation",
+      "submittedLabel": "Votre évaluation",
+      "leaveReview": "Évaluer la séance",
+      "pendingTitle": "En attente de votre évaluation"
+    },
+    "courses": {
+      "pageTitle": "Mes formations",
+      "subtitle": "Suivez votre progression, découvrez de nouvelles formations et retrouvez facilement votre contenu.",
+      "stats": {
+        "purchased": "Mes achats",
+        "inProgress": "En cours",
+        "completed": "Terminées",
+        "available": "Disponibles à l'achat"
+      },
+      "searchPlaceholder": "Rechercher une formation...",
+      "sectionLabel": "Affichage",
+      "sectionAll": "Toutes les formations",
+      "sectionPurchased": "Mes achats",
+      "sectionAvailable": "À acheter",
+      "progressLabel": "Progression",
+      "progressAll": "Tous les statuts",
+      "progressNotStarted": "Pas encore commencée",
+      "progressInProgress": "En cours",
+      "progressCompleted": "Terminée",
+      "sortLabel": "Trier par",
+      "sortRecent": "Achats récents",
+      "sortTitle": "Titre A→Z",
+      "sortProgressDesc": "Plus avancées",
+      "sortProgressAsc": "Moins avancées",
+      "sortPriceAsc": "Prix : croissant",
+      "sortPriceDesc": "Prix : décroissant",
+      "resultsOne": "1 formation",
+      "resultsMany": "{count} formations",
+      "noResults": "Aucune formation ne correspond à votre recherche.",
+      "noPurchases": "Vous n'avez pas encore acheté de formation.",
+      "discoverCourses": "Découvrir les formations",
+      "progressLabelShort": "Progression",
+      "lessonsCompleted": "{done}/{total} leçons terminées",
+      "lastLesson": "Dernière leçon : {title}",
+      "notStartedYet": "Aucune leçon terminée pour l'instant",
+      "progressNote": "Calculé automatiquement selon les leçons marquées comme terminées dans la bibliothèque.",
+      "continue": "Continuer",
+      "viewProgram": "Voir le programme",
+      "badgePurchased": "Mes achats",
+      "badgeAvailable": "À acheter",
+      "badgeCompleted": "Terminée",
+      "badgeInProgress": "En cours",
+      "badgeNotStarted": "Pas commencée"
+    },
+    "journal": {
+      "pageTitle": "Mon journal",
+      "pageSubtitle": "Notez vos réflexions entre les séances. Visible uniquement par vous et votre coach.",
+      "pageEmpty": "Commencez par une nouvelle note pour partager ce que vous vivez entre les séances.",
+      "newEntryButton": "Nouvelle note",
+      "newEntryTitle": "Nouvelle note",
+      "close": "Fermer",
+      "contentLabel": "Que souhaitez-vous partager ?",
+      "contentPlaceholder": "Écrivez librement ce qui vous passe par la tête...",
+      "saveEntry": "Enregistrer la note",
+      "searchPlaceholder": "Rechercher dans votre journal...",
+      "moodLabel": "Humeur",
+      "moodAll": "Toutes les humeurs",
+      "moodNone": "Sans humeur",
+      "sortLabel": "Trier par",
+      "sortRecent": "Plus récentes",
+      "sortOldest": "Plus anciennes",
+      "resultsOne": "1 note",
+      "resultsMany": "{count} notes",
+      "noResults": "Aucune note ne correspond à votre recherche.",
+      "edit": "Modifier",
+      "editTitle": "Modifier la note"
+    },
+    "goals": {
+      "pageTitle": "Mes objectifs",
+      "pageSubtitle": "Définissez vos objectifs et suivez votre progression avec votre coach.",
+      "addGoal": "Ajouter un objectif",
+      "goalTitle": "Titre de l'objectif",
+      "descriptionOptional": "Description (optionnelle)",
+      "targetDateOptional": "Date cible (optionnelle)",
+      "pageEmpty": "Vos objectifs seront définis ensemble lors de votre première séance.",
+      "searchPlaceholder": "Rechercher dans vos objectifs...",
+      "statusLabel": "Statut",
+      "statusAll": "Tous les objectifs",
+      "statusActive": "En cours",
+      "statusCompleted": "Terminés",
+      "dateLabel": "Date",
+      "dateAll": "Toutes",
+      "dateWithTarget": "Avec date cible",
+      "dateWithoutTarget": "Sans date",
+      "sortLabel": "Trier par",
+      "sortRecent": "Mis à jour récemment",
+      "sortTitle": "Titre A→Z",
+      "sortProgressDesc": "Plus avancés",
+      "sortProgressAsc": "Moins avancés",
+      "sortTargetDate": "Date cible",
+      "resultsOne": "1 objectif",
+      "resultsMany": "{count} objectifs",
+      "noResults": "Aucun objectif ne correspond à votre recherche.",
+      "edit": "Modifier",
+      "progressLabel": "Progression",
+      "completedBadge": "Terminé",
+      "targetDate": "Date cible : {date}",
+      "noTargetDate": "Sans date cible",
+      "editTitle": "Modifier l'objectif",
+      "targetDateLabel": "Date cible",
+      "progressPercent": "Progression (%)",
+      "completedLabel": "Objectif terminé"
+    },
+    "notifications": {
+      "pageTitle": "Notifications",
+      "subtitle": "Rappels de séances, évaluations et formations — tout au même endroit.",
+      "searchPlaceholder": "Rechercher dans les notifications...",
+      "statusLabel": "Statut",
+      "statusAll": "Toutes",
+      "statusUnread": "Non lues",
+      "statusRead": "Lues",
+      "typeLabel": "Type",
+      "typeAll": "Tous les types",
+      "sortLabel": "Trier par",
+      "sortRecent": "Plus récentes",
+      "sortOldest": "Plus anciennes",
+      "markAllRead": "Tout marquer comme lu",
+      "markRead": "Marquer comme lu",
+      "open": "Ouvrir",
+      "empty": "Aucune notification pour le moment.",
+      "noResults": "Aucune notification ne correspond à votre recherche.",
+      "resultsOne": "1 notification",
+      "resultsMany": "{count} notifications",
+      "unreadOne": "1 notification non lue",
+      "unreadMany": "{count} notifications non lues",
+      "types": {
+        "BOOKING_CONFIRMED": "Confirmation de séance",
+        "BOOKING_REMINDER": "Rappel de séance",
+        "SESSION_REVIEW": "Évaluation de séance",
+        "COURSE_PURCHASE": "Achat de formation",
+        "GOAL_DEADLINE": "Échéance d'objectif",
+        "PODCAST_CONTINUE": "Reprendre un podcast",
+        "SYSTEM": "Système"
+      }
+    },
+    "favorites": {
+      "title": "Favoris",
+      "subtitle": "Enregistrez formations, épisodes, articles et ressources pour y revenir rapidement.",
+      "searchPlaceholder": "Rechercher dans les favoris...",
+      "typeLabel": "Type",
+      "typeAll": "Tous les types",
+      "sortLabel": "Trier par",
+      "sortRecent": "Ajouts récents",
+      "sortOldest": "Ajouts anciens",
+      "sortTitle": "Titre A→Z",
+      "open": "Ouvrir",
+      "empty": "Vous n'avez pas encore ajouté d'élément aux favoris.",
+      "noResults": "Aucun élément ne correspond à votre recherche.",
+      "resultsOne": "1 élément",
+      "resultsMany": "{count} éléments",
+      "savedOn": "Ajouté le {date}",
+      "addToFavorites": "Ajouter aux favoris",
+      "removeFromFavorites": "Retirer des favoris",
+      "signInToSave": "Connectez-vous pour enregistrer vos favoris",
+      "browseCourses": "Explorer les formations",
+      "browsePodcasts": "Écouter les podcasts",
+      "types": {
+        "COURSE": "Formation",
+        "PODCAST": "Podcast",
+        "BLOG_POST": "Article",
+        "LESSON": "Ressource"
+      }
+    },
+    "recommendations": {
+      "title": "Suggestions pour vous",
+      "titleCourses": "Formations pour vous",
+      "titlePodcasts": "Podcasts pour vous",
+      "subtitle": "Contenu choisi selon votre humeur, vos objectifs et votre parcours.",
+      "viewCourse": "Voir la formation",
+      "viewPodcast": "Écouter",
+      "viewAllCourses": "Toutes les formations",
+      "viewAllPodcasts": "Tous les podcasts",
+      "premiumBadge": "Premium",
+      "reasons": {
+        "moodToday": "Parce que votre humeur du jour invite à {topic}",
+        "moodRecent": "En lien avec votre humeur récente",
+        "goal": "En rapport avec votre objectif",
+        "intake": "Selon vos attentes partagées",
+        "service": "Complémentaire à votre séance de coaching",
+        "favorite": "Proche de ce que vous aimez déjà",
+        "journal": "Basé sur vos dernières notes du journal",
+        "similar": "Pour prolonger votre parcours",
+        "discover": "Pour continuer votre évolution"
+      },
+      "topics": {
+        "stress": "gérer le stress",
+        "confidence": "renforcer la confiance",
+        "couple": "améliorer vos relations",
+        "career": "avancer professionnellement",
+        "wellbeing": "prendre soin de vous",
+        "change": "oser le changement"
+      }
+    },
+    "journey": {
+      "title": "Mon parcours",
+      "subtitle": "Vue d'ensemble de votre parcours : séances, formations, objectifs, humeur et journal.",
+      "summaryTitle": "Résumé de votre parcours",
+      "nextSessionTitle": "Votre prochaine séance",
+      "noNextSession": "Aucune séance à venir — réservez votre prochain rendez-vous.",
+      "coursesTitle": "Progression des formations",
+      "noCourses": "Vous n'avez pas encore commencé de formation.",
+      "goalsTitle": "Objectifs en cours",
+      "noGoals": "Aucun objectif actif pour le moment.",
+      "moodTitle": "Votre humeur cette semaine",
+      "moodStreakZero": "Commencez par enregistrer votre humeur aujourd'hui",
+      "moodStreakOne": "1 jour consécutif",
+      "moodStreakMany": "{days} jours consécutifs",
+      "moodEmpty": "—",
+      "journalTitle": "Dernières notes du journal",
+      "noJournal": "Vous n'avez pas encore écrit dans votre journal.",
+      "podcastsTitle": "Reprendre l'écoute",
+      "milestonesTitle": "Étapes de votre parcours",
+      "stats": {
+        "sessions": "Séances réalisées",
+        "courses": "Formations actives",
+        "goals": "Objectifs en cours",
+        "journal": "Notes de journal"
+      },
+      "viewAll": "Tout voir",
+      "continueCourse": "Continuer",
+      "openJournal": "Ouvrir le journal",
+      "bookSession": "Réserver une séance",
+      "joinSession": "Rejoindre la séance",
+      "milestones": {
+        "intake": "Questionnaire de départ",
+        "session": "Première séance de coaching",
+        "mood": "Enregistrer son humeur du jour",
+        "journal": "Première note dans le journal",
+        "course": "Acheter une formation",
+        "goal": "Définir un objectif personnel"
+      }
+    },
+    "library": {
+      "pageTitle": "Bibliothèque de ressources",
+      "metaTitle": "Bibliothèque de ressources",
+      "metaDescription": "Vidéos, exercices, téléchargements et audio de toutes vos formations au même endroit.",
+      "subtitle": "Vidéos, exercices, téléchargements et contenus audio de toutes vos formations.",
+      "selectedCourseLabel": "Formation",
+      "selectedCourseFallback": "Formation",
+      "noCourseContent": "Aucun contenu disponible pour cette formation.",
+      "completedCount": "{done}/{total} leçons terminées",
+      "coursesLink": "Mes formations",
+      "viewAllLink": "Tout voir",
+      "searchPlaceholder": "Rechercher dans la bibliothèque...",
+      "categoryLabel": "Catégorie",
+      "allCategories": "Toutes les catégories",
+      "statusLabel": "Statut",
+      "allStatuses": "Tous",
+      "completedStatus": "Terminées",
+      "pendingStatus": "En cours",
+      "sortLabel": "Trier par",
+      "sortCourse": "Par formation",
+      "sortTitle": "Par titre",
+      "sortCategory": "Par catégorie",
+      "resultsOne": "1 ressource",
+      "resultsMany": "{count} ressources",
+      "noResults": "Aucune ressource ne correspond à votre recherche.",
+      "openCourse": "Ouvrir",
+      "moduleLabel": "Module",
+      "completedShort": "terminées",
+      "lessonCompleted": "Leçon terminée",
+      "markComplete": "Marquer comme terminée",
+      "markIncomplete": "Annuler la complétion",
+      "watchVideo": "Voir la vidéo",
+      "listenAudio": "Écouter",
+      "openPdf": "Ouvrir le PDF",
+      "openSheet": "Ouvrir la fiche",
+      "emptyLibrary": "Vos formations et leur contenu apparaîtront ici.",
+      "categories": {
+        "VIDEO": "Vidéos",
+        "PDF": "Documents PDF",
+        "AUDIO": "Audio",
+        "EXERCISE": "Exercices",
+        "DOWNLOAD": "Téléchargements",
+        "SHEET": "Fiches et tableaux"
+      }
+    },
+    "settings": {
+      "pageTitle": "Paramètres",
+      "intro": "Préparez votre accompagnement et partagez les informations utiles avant votre prochaine séance.",
+      "intakeTitle": "Questionnaire pré-première séance",
+      "intakeSubtitle": "Remplissez ces informations pour aider votre coach à personnaliser l'accompagnement.",
+      "goalsLabel": "Vos objectifs (actuels)",
+      "challengesLabel": "Vos défis / obstacles",
+      "expectationsLabel": "Vos attentes",
+      "update": "Mettre à jour",
+      "save": "Enregistrer"
+    },
+    "payments": {
+      "pageTitle": "Paiements et factures",
+      "subtitle": "Historique de vos paiements et factures — consultez-les ou téléchargez-les en PDF.",
+      "paidInvoices": "Factures payées",
+      "totalPaid": "Total payé",
+      "empty": "Votre historique de paiements apparaîtra ici.",
+      "fallbackServiceTitle": "Paiement",
+      "statuses": {
+        "PAID": "Payé",
+        "PENDING": "En attente",
+        "REFUNDED": "Remboursé",
+        "FAILED": "Échoué"
+      },
+      "table": {
+        "invoiceNumber": "N° de facture",
+        "client": "Client",
+        "date": "Date",
+        "service": "Prestation",
+        "amount": "Montant",
+        "status": "Statut",
+        "action": "Action",
+        "view": "Voir"
+      },
+      "sample": {
+        "badge": "Exemple",
+        "title": "Aperçu de la facture",
+        "description": "Voici à quoi ressemblera la facture pour les clients après chaque paiement confirmé.",
+        "viewInvoice": "Voir la facture",
+        "invoiceNumber": "N° de facture",
+        "client": "Client",
+        "descriptionLabel": "Description",
+        "amount": "Montant",
+        "provider": "Fournisseur",
+        "demoClientName": "Fatima Zahra",
+        "demoDescription": "Séance de coaching individuelle — 60 minutes"
+      },
+      "downloadFailed": "Impossible de télécharger la facture.",
+      "downloadInvoice": "Télécharger la facture"
+    },
+    "podcastsPage": {
+      "pageTitle": "Podcasts",
+      "subtitle": "Écoutez les épisodes disponibles dans votre espace personnel.",
+      "empty": "Aucun podcast disponible pour le moment.",
+      "lockedMessage": "Les podcasts exclusifs se débloquent après confirmation de votre première séance ou achat d'une formation.",
+      "openEpisode": "Ouvrir l'épisode"
+    },
+    "mood": {
+      "title": "Comment vous sentez-vous aujourd'hui ?",
+      "subtitle": "Partagez brièvement votre humeur — cela aide votre coach à mieux vous accompagner.",
+      "loggedToday": "Enregistré aujourd'hui",
+      "updateHint": "Vous pouvez mettre à jour votre choix ci-dessous à tout moment dans la journée.",
+      "shortNoteLabel": "Note courte (optionnelle)",
+      "shortNotePlaceholder": "Ajoutez une ligne si vous le souhaitez",
+      "pickerLabel": "Comment vous sentez-vous aujourd'hui ?",
+      "options": {
+        "happy": "Bien",
+        "neutral": "Neutre",
+        "low": "Fatigué·e"
+      }
+    },
+    "calendar": {
+      "prevMonth": "Mois précédent",
+      "nextMonth": "Mois suivant"
+    }
+  },
+  "admin": {
+    "sidebarTitle": "Administration",
+    "viewSite": "Voir le site",
+    "spaceTitle": "Administration",
+    "nav": {
+      "dashboard": "Tableau de bord",
+      "users": "Clients",
+      "bookings": "Réservations",
+      "services": "Séances",
+      "courses": "Formations",
+      "podcasts": "Podcasts",
+      "blog": "Blog",
+      "testimonials": "Témoignages",
+      "payments": "Factures",
+      "coupons": "Codes promo",
+      "settings": "Paramètres"
+    },
+    "common": {
+      "back": "Retour",
+      "manage": "Gérer",
+      "view": "Voir",
+      "save": "Enregistrer"
+    },
+    "twoFactor": {
+      "title": "Authentification à deux facteurs requise",
+      "body": "Pour protéger les données clients et les paiements, l'accès à l'administration nécessite l'authentification à deux facteurs (application Authenticator). Activez-la depuis votre profil Clerk, puis rechargez cette page.",
+      "backToDashboard": "Retour à l'espace client",
+      "setup": "Configurer la 2FA"
+    },
+    "settingsHub": {
+      "title": "Paramètres",
+      "subtitle": "Paramètres de la plateforme par thème — réservations, clients, communication et analyses.",
+      "groups": {
+        "bookings": {
+          "title": "Réservations et séances",
+          "description": "Tout ce qui concerne les rendez-vous clients et les séances à distance."
+        },
+        "clients": {
+          "title": "Clients",
+          "description": "Suivi de ce que les clients envoient avant et après les séances."
+        },
+        "communication": {
+          "title": "Communication",
+          "description": "Canaux de contact et e-mails automatiques."
+        },
+        "analytics": {
+          "title": "Analyses",
+          "description": "Comprendre les recherches sur le site et dans l'espace client."
+        },
+        "languages": {
+          "title": "Langues",
+          "description": "Activer ou désactiver les langues du site public et de l'administration."
+        }
+      },
+      "items": {
+        "availability": {
+          "title": "Disponibilités",
+          "description": "Définir les créneaux de séances disponibles."
+        },
+        "visio": {
+          "title": "Zoom / Google Meet",
+          "description": "Vérifier la création des liens visio pour les réservations confirmées."
+        },
+        "intakeForms": {
+          "title": "Questionnaires pré-séance",
+          "description": "Consulter les réponses clients avant chaque séance."
+        },
+        "communication": {
+          "title": "Contact et e-mail",
+          "description": "Modifier l'e-mail, WhatsApp, Instagram et la boîte de réception."
+        },
+        "emails": {
+          "title": "Modèles d'e-mail",
+          "description": "Personnaliser les confirmations et rappels envoyés aux clients."
+        },
+        "searchInsights": {
+          "title": "Analyses de recherche",
+          "description": "Voir les requêtes les plus fréquentes sur le site et l'espace client."
+        },
+        "languages": {
+          "title": "Langues",
+          "description": "Activer l'arabe et/ou le français pour les visiteurs et l'admin."
+        }
+      }
+    },
+    "languagesPage": {
+      "title": "Langues",
+      "subtitle": "Contrôlez les langues proposées aux visiteurs. Vous pouvez désactiver le français tout en conservant l'infrastructure pour le réactiver plus tard.",
+      "publicTitle": "Langues du site",
+      "publicHint": "Si une seule langue est active, le sélecteur disparaît du site public.",
+      "adminTitle": "Administration",
+      "adminHint": "L'administration utilise les mêmes langues actives. Changez la langue d'affichage via le sélecteur en haut du menu.",
+      "arLabel": "العربية",
+      "arHint": "Langue par défaut — recommandée en permanence.",
+      "frLabel": "Français",
+      "frHint": "Interface du site et de l'admin en français lorsqu'elle est activée.",
+      "save": "Enregistrer les langues"
+    }
+  }
+}

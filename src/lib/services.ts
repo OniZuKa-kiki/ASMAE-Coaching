@@ -1,4 +1,14 @@
 import { prisma } from "@/lib/db";
+import { unstable_cache } from "next/cache";
+import {
+  PUBLIC_CACHE_TAGS,
+  PUBLIC_CONTENT_REVALIDATE_SECONDS,
+} from "@/lib/public-cache";
+import type { AppLocale } from "@/i18n/routing";
+import {
+  formatServiceDurationLabel,
+  getServiceHighlights,
+} from "@/lib/service-i18n";
 
 export type BookableService = {
   slug: string;
@@ -11,33 +21,6 @@ export type BookableService = {
 export type PublicService = BookableService & {
   duration: string;
   results: string[];
-};
-
-const SERVICE_HIGHLIGHTS: Record<string, string[]> = {
-  individuel: [
-    "وضوح في الأهداف",
-    "أدوات عملية للتقدم",
-    "تعزيز الثقة بالنفس",
-    "خطة عمل مخصصة",
-  ],
-  couple: [
-    "تواصل أكثر فاعلية",
-    "تعزيز التفاهم المتبادل",
-    "إدارة الخلافات وحل النزاعات",
-    "تقوية العلاقة",
-  ],
-  carriere: [
-    "رؤية مهنية واضحة",
-    "استراتيجية فعالة للانتقال المهني",
-    "تعزيز الثقة أثناء المقابلات",
-    "تحقيق التوازن بين العمل والحياة",
-  ],
-  "bien-etre": [
-    "إدارة التوتر",
-    "تعزيز تقدير الذات",
-    "تحقيق التوازن العاطفي",
-    "بناء عادات إيجابية",
-  ],
 };
 
 const SERVICE_DISPLAY_ORDER = [
@@ -60,37 +43,62 @@ function sortServices<T extends { slug: string }>(services: T[]): T[] {
 }
 
 export async function getActiveServices(): Promise<BookableService[]> {
-  const rows = await prisma.service.findMany({
-    where: { isActive: true },
-  });
+  return getActiveServicesCached();
+}
 
-  return sortServices(
-    rows.map((service) => ({
-      slug: service.slug,
-      title: service.title,
-      description: service.description,
-      durationMinutes: service.duration,
-      price: service.price,
+const getActiveServicesCached = unstable_cache(
+  async (): Promise<BookableService[]> => {
+    const rows = await prisma.service.findMany({
+      where: { isActive: true },
+    });
+
+    return sortServices(
+      rows.map((service) => ({
+        slug: service.slug,
+        title: service.title,
+        description: service.description,
+        durationMinutes: service.duration,
+        price: service.price,
+      }))
+    );
+  },
+  ["active-services"],
+  {
+    revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS,
+    tags: [PUBLIC_CACHE_TAGS.services],
+  }
+);
+
+export async function getPublicServices(
+  locale: AppLocale = "ar"
+): Promise<PublicService[]> {
+  const [services, highlights] = await Promise.all([
+    getActiveServices(),
+    getServiceHighlights(locale),
+  ]);
+
+  return Promise.all(
+    services.map(async (service) => ({
+      ...service,
+      duration: await formatServiceDurationLabel(
+        service.durationMinutes,
+        locale
+      ),
+      results: highlights[service.slug] ?? [],
     }))
   );
 }
 
-export async function getPublicServices(): Promise<PublicService[]> {
-  const services = await getActiveServices();
-  return services.map((service) => ({
-    ...service,
-    duration: formatServiceDuration(service.durationMinutes),
-    results: SERVICE_HIGHLIGHTS[service.slug] ?? [],
-  }));
-}
-
 export async function getPublicServiceBySlug(
-  slug: string
+  slug: string,
+  locale: AppLocale = "ar"
 ): Promise<PublicService | null> {
   const service = await prisma.service.findFirst({
     where: { slug, isActive: true },
   });
   if (!service) return null;
+
+  const highlights = await getServiceHighlights(locale);
 
   return {
     slug: service.slug,
@@ -98,11 +106,7 @@ export async function getPublicServiceBySlug(
     description: service.description,
     durationMinutes: service.duration,
     price: service.price,
-    duration: formatServiceDuration(service.duration),
-    results: SERVICE_HIGHLIGHTS[service.slug] ?? [],
+    duration: await formatServiceDurationLabel(service.duration, locale),
+    results: highlights[service.slug] ?? [],
   };
-}
-
-export function formatServiceDuration(minutes: number): string {
-  return `${minutes} دقيقة`;
 }

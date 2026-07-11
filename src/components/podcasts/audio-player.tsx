@@ -8,7 +8,7 @@ import {
   getLocalPodcastProgress,
   setLocalPodcastProgress,
 } from "@/lib/podcast-progress-client";
-import { podcastsPageContent } from "@/lib/constants";
+import { useTranslations } from "next-intl";
 
 type AudioPlayerProps = {
   src: string;
@@ -25,6 +25,8 @@ export function AudioPlayer({
   initialPosition = 0,
   persistProgress = false,
 }: AudioPlayerProps) {
+  const t = useTranslations("podcasts");
+  const tCommon = useTranslations("common");
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const lastSavedAt = React.useRef(0);
   const resumeApplied = React.useRef(false);
@@ -87,9 +89,9 @@ export function AudioPlayer({
           audio.currentTime = resumeAt;
           setCurrent(resumeAt);
           setResumeLabel(
-            podcastsPageContent.continueListening.resumeFrom(
-              formatListenTime(resumeAt)
-            )
+            t("continueListening.resumeFrom", {
+              time: formatListenTime(resumeAt),
+            })
           );
         }
         resumeApplied.current = true;
@@ -102,7 +104,7 @@ export function AudioPlayer({
 
     const onError = () => {
       setReady(false);
-      setLoadError("تعذّر تحميل الملف الصوتي. تحققي من الرابط أو أعيدي المحاولة لاحقًا.");
+      setLoadError(t("loadError"));
     };
 
     const onTime = () => {
@@ -154,7 +156,7 @@ export function AudioPlayer({
       audio.removeEventListener("pause", onPause);
       audio.removeEventListener("ended", onEnded);
     };
-  }, [src, podcastSlug, initialPosition, persistProgress, saveProgress]);
+  }, [src, podcastSlug, initialPosition, persistProgress, saveProgress, t]);
 
   React.useEffect(() => {
     return () => {
@@ -198,7 +200,7 @@ export function AudioPlayer({
       {resumeLabel ? (
         <p className="mb-3 text-xs font-medium text-primary">{resumeLabel}</p>
       ) : (
-        <p className="mb-4 text-xs text-text/60">استماع</p>
+        <p className="mb-4 text-xs text-text/60">{tCommon("listen")}</p>
       )}
 
       {loadError ? (
@@ -213,7 +215,7 @@ export function AudioPlayer({
           onClick={toggle}
           disabled={!ready}
           className="h-11 w-11 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-hover transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-          aria-label={playing ? "إيقاف مؤقت" : "تشغيل"}
+          aria-label={playing ? t("playerPause") : t("playerPlay")}
         >
           {playing ? (
             <Pause className="w-5 h-5" />
@@ -232,7 +234,7 @@ export function AudioPlayer({
             onChange={(e) => onSeek(Number(e.target.value))}
             disabled={!ready}
             className="w-full accent-[color:var(--color-primary)]"
-            aria-label="التقدم في الحلقة"
+            aria-label={t("playerProgress")}
             aria-valuenow={progressPercent}
           />
           <div className="mt-2 flex items-center justify-between text-xs text-text/70 tabular-nums">

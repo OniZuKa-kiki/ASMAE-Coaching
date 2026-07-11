@@ -1,17 +1,21 @@
+"use client";
+
 import Link from "next/link";
 import { Headphones, PlayCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
-import { podcastsPageContent } from "@/lib/constants";
 import {
   formatListenTime,
   type PodcastProgressSnapshot,
-} from "@/lib/podcast-progress";
+} from "@/lib/podcast-progress-utils";
 
 type ContinueListeningProps = {
   items: PodcastProgressSnapshot[];
 };
 
 export function ContinueListening({ items }: ContinueListeningProps) {
+  const t = useTranslations("podcasts.continueListening");
+
   if (items.length === 0) return null;
 
   return (
@@ -22,11 +26,9 @@ export function ContinueListening({ items }: ContinueListeningProps) {
         </div>
         <div>
           <h2 className="font-heading text-lg font-semibold text-heading">
-            {podcastsPageContent.continueListening.title}
+            {t("title")}
           </h2>
-          <p className="text-sm text-text/70">
-            {podcastsPageContent.continueListening.subtitle}
-          </p>
+          <p className="text-sm text-text/70">{t("subtitle")}</p>
         </div>
       </div>
 
@@ -58,7 +60,7 @@ export function ContinueListening({ items }: ContinueListeningProps) {
                   className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-hover"
                 >
                   <PlayCircle className="h-4 w-4" />
-                  {podcastsPageContent.continueListening.resumeButton}
+                  {t("resumeButton")}
                 </Link>
               </div>
               <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">

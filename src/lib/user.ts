@@ -1,6 +1,8 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { getRequestLocale } from "@/lib/request-locale";
+import { isAppLocale } from "@/lib/user-locale";
 import type { User } from "@prisma/client";
 
 function resolveDbRole(sessionClaims: Record<string, unknown> | null | undefined) {
@@ -28,13 +30,24 @@ export async function getOrCreateUser(): Promise<User | null> {
     role: dbRole,
   };
 
+  const cookieLocale = await getRequestLocale();
+
   return prisma.$transaction(async (tx) => {
     const byClerk = await tx.user.findUnique({ where: { clerkId: userId } });
     if (byClerk) {
-      if (byClerk.email !== email || byClerk.role !== dbRole) {
+      const needsUpdate =
+        byClerk.email !== email ||
+        byClerk.role !== dbRole ||
+        (isAppLocale(cookieLocale) && byClerk.preferredLocale !== cookieLocale);
+
+      if (needsUpdate) {
         return tx.user.update({
           where: { id: byClerk.id },
-          data: { email, ...profile },
+          data: {
+            email,
+            ...profile,
+            ...(isAppLocale(cookieLocale) ? { preferredLocale: cookieLocale } : {}),
+          },
         });
       }
       return byClerk;
@@ -49,13 +62,22 @@ export async function getOrCreateUser(): Promise<User | null> {
       }
       return tx.user.update({
         where: { id: byEmail.id },
-        data: { clerkId: userId, ...profile },
+        data: {
+          clerkId: userId,
+          ...profile,
+          ...(isAppLocale(cookieLocale) ? { preferredLocale: cookieLocale } : {}),
+        },
       });
     }
 
     try {
       return await tx.user.create({
-        data: { clerkId: userId, email, ...profile },
+        data: {
+          clerkId: userId,
+          email,
+          ...profile,
+          preferredLocale: isAppLocale(cookieLocale) ? cookieLocale : "ar",
+        },
       });
     } catch (error) {
       if (

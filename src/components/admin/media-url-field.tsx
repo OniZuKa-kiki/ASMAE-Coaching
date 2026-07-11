@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
+import { useTranslations } from "next-intl";
 import { AdminFormField } from "@/components/admin/form-field";
 import { Input } from "@/components/ui/input";
 import {
@@ -31,6 +32,7 @@ export function MediaUrlField({
   placeholder = "https://...",
   required = false,
 }: MediaUrlFieldProps) {
+  const t = useTranslations("adminPages.mediaUrl");
   const inputId = useId();
   const [url, setUrl] = useState(defaultUrl);
   const [duration, setDuration] = useState<number | null>(defaultDuration);
@@ -70,11 +72,11 @@ export function MediaUrlField({
 
   const durationHint =
     status === "loading"
-      ? "جاري كشف المدة تلقائياً..."
+      ? t("detecting")
       : status === "ready" && duration
-        ? `المدة المكتشفة: ${duration} دقيقة`
+        ? t("detected", { count: duration })
         : status === "error" && url.trim()
-          ? "تعذّر كشف المدة. استخدم رابط ملف مباشر (.mp3, .m4a, .mp4)."
+          ? t("detectError")
           : hint;
 
   return (

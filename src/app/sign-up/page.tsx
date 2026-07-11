@@ -1,11 +1,23 @@
+import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { SignUp } from "@clerk/nextjs";
 import { ClerkSessionRepair } from "@/components/auth/clerk-session-repair";
 import { clerkAppearance } from "@/lib/clerk-appearance";
 import { getSafeRedirectUrl } from "@/lib/safe-redirect";
+import { localeAlternates } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("auth");
+  return {
+    title: t("signUpMetaTitle"),
+    description: t("signUpMetaDescription"),
+    alternates: localeAlternates("/sign-up"),
+  };
+}
 
 type SignUpPageProps = {
   searchParams: Promise<{ redirect_url?: string }>;

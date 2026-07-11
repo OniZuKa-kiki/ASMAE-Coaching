@@ -1,5 +1,7 @@
 import { revalidatePath } from "next/cache";
+import { PUBLIC_INVALIDATIONS } from "@/lib/revalidate-public-content";
 import Link from "next/link";
+import { getLocale, getTranslations } from "next-intl/server";
 import { AdminFormField } from "@/components/admin/form-field";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
@@ -12,11 +14,17 @@ import {
   type ActionResult,
 } from "@/lib/action-result";
 import { adminUrl } from "@/lib/admin-path";
-import { adminErrors } from "@/lib/api-errors";
+import { getActionLocale } from "@/lib/action-locale";
+import {
+  getAdminFilters,
+} from "@/lib/admin-i18n";
+import { adminListLimits } from "@/lib/admin-filters";
 import { prisma } from "@/lib/db";
 import { formatDate } from "@/lib/utils";
 import { AdminFilterCard } from "@/components/admin/filter-card";
-import { adminFilterLabels } from "@/lib/admin-filters";
+import { AdminListLimitNotice } from "@/components/admin/list-limit-notice";
+import { filterByArabicSearch } from "@/lib/search-utils";
+import type { AppLocale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
 
@@ -37,14 +45,15 @@ async function createBlogPost(formData: FormData): Promise<ActionResult> {
   const denied = await ensureAdmin();
   if (denied) return denied;
 
+  const locale = await getActionLocale();
   const title = String(formData.get("title") || "").trim();
   const category = String(formData.get("category") || "").trim() || "Coaching";
   const excerpt = String(formData.get("excerpt") || "").trim();
   const content = String(formData.get("content") || "").trim();
 
-  if (!title || !excerpt || !content) return incomplete("ar");
+  if (!title || !excerpt || !content) return incomplete(locale);
 
-  return runAction("ar", async () => {
+  return runAction(locale, async () => {
     const baseSlug = slugify(title);
     const existing = await prisma.blogPost.findUnique({ where: { slug: baseSlug } });
     const slug = existing ? `${baseSlug}-${Date.now().toString().slice(-4)}` : baseSlug;
@@ -61,7 +70,7 @@ async function createBlogPost(formData: FormData): Promise<ActionResult> {
     });
 
     revalidatePath("/admin/blog");
-    revalidatePath("/blog");
+    PUBLIC_INVALIDATIONS.blog(slug);
   }, "created");
 }
 
@@ -71,12 +80,13 @@ async function togglePublish(formData: FormData): Promise<ActionResult> {
   const denied = await ensureAdmin();
   if (denied) return denied;
 
+  const locale = await getActionLocale();
   const id = String(formData.get("id") || "");
-  if (!id) return incomplete("ar");
+  if (!id) return incomplete(locale);
 
-  return runAction("ar", async () => {
+  return runAction(locale, async () => {
     const post = await prisma.blogPost.findUnique({ where: { id } });
-    if (!post) throw new Error(adminErrors.notFound);
+    if (!post) throw new Error("NOT_FOUND");
 
     const nextPublished = !post.isPublished;
     await prisma.blogPost.update({
@@ -88,7 +98,7 @@ async function togglePublish(formData: FormData): Promise<ActionResult> {
     });
 
     revalidatePath("/admin/blog");
-    revalidatePath("/blog");
+    PUBLIC_INVALIDATIONS.blog(post.slug);
   }, "toggled");
 }
 
@@ -105,7 +115,19 @@ export default async function AdminBlogPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const params = await searchParams;
+  const locale = (await getLocale()) as AppLocale;
+  const [params, t, tFilters, tFields, tActions, tEmpty, tMisc] =
+    await Promise.all([
+      searchParams,
+      getTranslations("adminPages.blog"),
+      getTranslations("adminPages.filters"),
+      getTranslations("adminPages.fields"),
+      getTranslations("adminPages.actions"),
+      getTranslations("adminPages.empty"),
+      getTranslations("adminPages.misc"),
+    ]);
+  const filters = getAdminFilters(locale);
+
   const q = getQueryValue(params.q).trim();
   const status = getQueryValue(params.status).trim();
   const sort = getQueryValue(params.sort, "created_desc");
@@ -116,15 +138,6 @@ export default async function AdminBlogPage({
       : status === "draft"
       ? { isPublished: false }
       : {}),
-    ...(q
-      ? {
-          OR: [
-            { title: { contains: q, mode: "insensitive" as const } },
-            { category: { contains: q, mode: "insensitive" as const } },
-            { slug: { contains: q, mode: "insensitive" as const } },
-          ],
-        }
-      : {}),
   };
 
   const orderBy =
@@ -134,41 +147,51 @@ export default async function AdminBlogPage({
       ? ({ publishedAt: "desc" } as const)
       : ({ createdAt: "desc" } as const);
 
-  const posts = await prisma.blogPost.findMany({
+  const postsRaw = await prisma.blogPost.findMany({
     where,
     orderBy,
-    take: 50,
   });
+
+  const posts = (
+    q
+      ? filterByArabicSearch(postsRaw, q, [
+          (post) => post.title,
+          (post) => post.category,
+          (post) => post.slug,
+          (post) => post.excerpt,
+        ])
+      : postsRaw
+  ).slice(0, adminListLimits.blog);
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="page-header-title">Blog</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="page-header-title">{t("title")}</h1>
       </div>
 
       <Card className="mb-6">
-        <h2 className="font-heading text-xl text-heading mb-4">مقال جديد</h2>
-        <ActionForm action={createBlogPost} locale="ar" className="space-y-4">
-          <AdminFormField label="عنوان المقال" htmlFor="new-post-title">
+        <h2 className="mb-4 font-heading text-xl text-heading">{t("newPost")}</h2>
+        <ActionForm action={createBlogPost} locale={locale} className="space-y-4">
+          <AdminFormField label={tFields("title")} htmlFor="new-post-title">
             <Input id="new-post-title" name="title" className="w-full" required />
           </AdminFormField>
 
-          <div className="grid sm:grid-cols-2 gap-4">
-            <AdminFormField label="الفئة" htmlFor="new-post-category">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <AdminFormField label={tFields("category")} htmlFor="new-post-category">
               <Input
                 id="new-post-category"
                 name="category"
-                placeholder="مثال: الرفاهية"
+                placeholder={tFields("categoryPlaceholder")}
                 className="w-full"
               />
             </AdminFormField>
 
-            <AdminFormField label="ملخص قصير" htmlFor="new-post-excerpt">
+            <AdminFormField label={tFields("excerpt")} htmlFor="new-post-excerpt">
               <Input id="new-post-excerpt" name="excerpt" className="w-full" required />
             </AdminFormField>
           </div>
 
-          <AdminFormField label="محتوى المقال" htmlFor="new-post-content">
+          <AdminFormField label={tFields("content")} htmlFor="new-post-content">
             <Textarea
               id="new-post-content"
               name="content"
@@ -179,86 +202,92 @@ export default async function AdminBlogPage({
           </AdminFormField>
           <button
             type="submit"
-            className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
+            className="rounded-full bg-primary px-5 py-2.5 font-semibold text-white transition-colors hover:bg-primary-hover"
           >
-            إنشاء مسودة
+            {tActions("createDraft")}
           </button>
         </ActionForm>
       </Card>
-      <AdminFilterCard title={adminFilterLabels.blog.title}>
-        <AdminFormField label={adminFilterLabels.search} htmlFor="blog-filter-q">
+      <AdminFilterCard title={filters.blog.title}>
+        <AdminFormField label={filters.search} htmlFor="blog-filter-q">
           <Input
             id="blog-filter-q"
             name="q"
             defaultValue={q}
-            placeholder={adminFilterLabels.blog.searchPlaceholder}
+            placeholder={filters.blog.searchPlaceholder}
             className="text-sm"
           />
         </AdminFormField>
-        <AdminFormField label="حالة النشر">
+        <AdminFormField label={tFields("publishStatus")}>
           <FilterSelect
             name="status"
             value={status}
             options={[
-              { value: "", label: "جميع الحالات" },
-              { value: "published", label: "منشور" },
-              { value: "draft", label: "مسودات" },
+              { value: "", label: tFilters("allStatuses") },
+              { value: "published", label: tFilters("publishedYes") },
+              { value: "draft", label: tFilters("publishedNo") },
             ]}
           />
         </AdminFormField>
-        <AdminFormField label={adminFilterLabels.sort}>
+        <AdminFormField label={filters.sort}>
           <FilterSelect
             name="sort"
             value={sort}
             options={[
-              { value: "created_desc", label: adminFilterLabels.sortNewest },
-              { value: "published_desc", label: "نُشر مؤخرًا" },
-              { value: "title_asc", label: adminFilterLabels.sortTitleAsc },
+              { value: "created_desc", label: filters.sortNewest },
+              { value: "published_desc", label: filters.sortPublishedDesc },
+              { value: "title_asc", label: filters.sortTitleAsc },
             ]}
           />
         </AdminFormField>
       </AdminFilterCard>
 
       {posts.length === 0 ? (
-        <Card className="text-center py-12">
-          <p className="text-text/70">لا توجد مقالات حالياً.</p>
+        <Card className="py-12 text-center">
+          <p className="text-text/70">{tEmpty("noBlog")}</p>
         </Card>
       ) : (
         <div className="space-y-3">
           {posts.map((post) => (
             <Card key={post.id}>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="font-semibold text-heading">{post.title}</p>
-                  <p className="text-sm text-text/70">
-                    {post.category} — {post.slug}
-                  </p>
+                  <p className="text-sm text-text/70">{post.category}</p>
                   <p className="text-xs text-text/60">
                     {post.isPublished && post.publishedAt
-                      ? `نُشر في ${formatDate(post.publishedAt)}`
-                      : "مسودة"}
+                      ? tMisc("publishedAt", {
+                          date: formatDate(post.publishedAt, locale),
+                        })
+                      : tMisc("draft")}
                   </p>
                 </div>
                 <div className="flex gap-2">
                   <Link
                     href={adminUrl(`/blog/${post.id}/edit`)}
-                    className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
+                    className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading transition-colors hover:border-primary hover:text-primary"
                   >
-                    تعديل
+                    {tActions("edit")}
                   </Link>
-                  <ActionForm action={togglePublish} locale="ar">
+                  <ActionForm action={togglePublish} locale={locale}>
                     <input type="hidden" name="id" value={post.id} />
                     <button
                       type="submit"
-                      className="rounded-full border border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-primary hover:text-white transition-colors"
+                      className="rounded-full border border-primary px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
                     >
-                      {post.isPublished ? "إلغاء النشر" : "نشر"}
+                      {post.isPublished
+                        ? tActions("unpublish")
+                        : tActions("publish")}
                     </button>
                   </ActionForm>
                 </div>
               </div>
             </Card>
           ))}
+          <AdminListLimitNotice
+            shown={posts.length}
+            limit={adminListLimits.blog}
+          />
         </div>
       )}
     </div>

@@ -1,19 +1,30 @@
+import arMessages from "../../messages/ar.json";
+import frMessages from "../../messages/fr.json";
+import adminPagesAr from "../../messages/admin-pages-ar.json";
+import adminPagesFr from "../../messages/admin-pages-fr.json";
+
+function getAdminErrorsCopy(locale: ErrorLocale) {
+  return locale === "fr" ? adminPagesFr.errors : adminPagesAr.errors;
+}
+
+export { getAdminErrorsCopy };
+
 /** Messages affichés aux utilisateurs — jamais de détails techniques */
-export const friendlyErrors = {
-  paymentUnavailable:
-    "الدفع عبر الإنترنت غير متاح مؤقتاً. تواصل معنا لإتمام حجزك.",
-  purchaseUnavailable:
-    "الشراء عبر الإنترنت غير متاح مؤقتاً. تواصل معنا للوصول إلى هذه الدورة.",
-  emailUnavailable:
-    "إرسال الرسالة غير متاح مؤقتاً. راسلنا مباشرة عبر البريد أو واتساب.",
-  slotUnavailable: "هذا الموعد لم يعد متاحاً. اختر تاريخاً أو وقتاً آخر.",
-  unauthorized: "سجّل الدخول للمتابعة.",
-  alreadyOwned: "أنت تمتلك هذه الدورة بالفعل.",
-  incomplete: "يرجى ملء جميع الحقول المطلوبة.",
-  generic: "حدث خطأ. يرجى المحاولة مجدداً أو التواصل معنا.",
-  contactSuccess: "تم إرسال رسالتك بنجاح. سنتواصل معك قريباً.",
-  bookingRedirect: "جاري توجيهك إلى صفحة الدفع…",
-} as const;
+export type ErrorLocale = "ar" | "fr";
+
+export type FriendlyErrorsCopy = typeof arMessages.errors;
+
+const errorsByLocale: Record<ErrorLocale, FriendlyErrorsCopy> = {
+  ar: arMessages.errors,
+  fr: frMessages.errors,
+};
+
+/** @deprecated Préférez `getFriendlyErrors(locale)` */
+export const friendlyErrors = errorsByLocale.ar;
+
+export function getFriendlyErrors(locale: ErrorLocale = "ar"): FriendlyErrorsCopy {
+  return errorsByLocale[locale];
+}
 
 /** Messages admin (arabe) */
 export const adminErrors = {
@@ -27,48 +38,40 @@ export const adminErrors = {
 
 export function toFriendlyActionError(
   message: string,
-  locale: "ar" | "fr" = "ar"
+  locale: ErrorLocale = "ar"
 ): string {
-  if (locale === "fr") {
-    if (
-      message.includes("Non authentifié") ||
-      message.includes("admin") ||
-      message.includes("autorisé")
-    ) {
-      return adminErrors.unauthorized;
-    }
-    if (
-      message.includes("requis") ||
-      message.includes("incomplet") ||
-      message.includes("Veuillez")
-    ) {
-      return adminErrors.incomplete;
-    }
-    if (message.includes("Resend") || message.includes("RESEND")) {
-      return adminErrors.emailUnavailable;
-    }
-    if (
-      message.includes("Stripe") ||
-      message.includes("PayZone") ||
-      message.includes(".env") ||
-      message.includes("API_KEY")
-    ) {
-      return adminErrors.generic;
-    }
-    if (!message.includes("env.") && message.length < 120) {
-      return message;
-    }
-    return adminErrors.generic;
-  }
-  return toFriendlyError(message);
+  return toFriendlyError(message, undefined, locale);
 }
 
 export function toFriendlyError(
   message: string,
-  status?: number
+  status?: number,
+  locale: ErrorLocale = "ar"
 ): string {
+  const errors = getFriendlyErrors(locale);
+
   if (status === 401 || message === "Non authentifié") {
-    return friendlyErrors.unauthorized;
+    return errors.unauthorized;
+  }
+  if (message === "INVALID_MOOD") {
+    return errors.invalidMood;
+  }
+  if (message === "SLUG_TAKEN") {
+    return getAdminErrorsCopy(locale).slugTaken;
+  }
+  if (message === "NOT_FOUND") {
+    return getAdminErrorsCopy(locale).notFound;
+  }
+  if (message === "ADMIN_EMAIL_UNAVAILABLE") {
+    return getAdminErrorsCopy(locale).emailUnavailable;
+  }
+  if (
+    message === "PAYMENT_UNAVAILABLE" ||
+    message === "PURCHASE_UNAVAILABLE"
+  ) {
+    return message === "PURCHASE_UNAVAILABLE"
+      ? errors.purchaseUnavailable
+      : errors.paymentUnavailable;
   }
   if (
     message.includes("créneau") ||
@@ -77,21 +80,21 @@ export function toFriendlyError(
     message.includes("متاح") ||
     message === "SLOT_UNAVAILABLE"
   ) {
-    return friendlyErrors.slotUnavailable;
+    return errors.slotUnavailable;
   }
   if (
     message.includes("déjà") ||
     message.includes("possédez") ||
     message.includes("بالفعل")
   ) {
-    return friendlyErrors.alreadyOwned;
+    return errors.alreadyOwned;
   }
   if (
     message.includes("incomplet") ||
     message.includes("requis") ||
     message.includes("مطلوب")
   ) {
-    return friendlyErrors.incomplete;
+    return errors.incomplete;
   }
   if (
     message.includes("Stripe") ||
@@ -100,16 +103,16 @@ export function toFriendlyError(
     message.includes("PAYZONE") ||
     message.includes(".env")
   ) {
-    return friendlyErrors.paymentUnavailable;
+    return errors.paymentUnavailable;
   }
   if (message.includes("Resend") || message.includes("RESEND")) {
-    return friendlyErrors.emailUnavailable;
+    return errors.emailUnavailable;
   }
   if (status && status >= 500) {
-    return friendlyErrors.generic;
+    return errors.generic;
   }
   if (!message.includes("env.") && !message.includes("API_KEY")) {
     return message;
   }
-  return friendlyErrors.generic;
+  return errors.generic;
 }

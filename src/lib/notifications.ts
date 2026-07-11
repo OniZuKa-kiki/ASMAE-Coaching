@@ -3,6 +3,17 @@ import type { NotificationType } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { formatBookingDate } from "@/lib/booking";
 import { getPendingSessionReview } from "@/lib/session-review";
+import {
+  bookingConfirmedNotification,
+  coursePurchaseNotification,
+  getUserNotificationLang,
+  goalDeadlineNotification,
+  notificationLocale,
+  podcastContinueNotification,
+  sessionReviewNotification,
+  sessionReviewPromptNotification,
+  upcomingBookingNotification,
+} from "@/lib/notification-copy";
 import { formatDate } from "@/lib/utils";
 
 export type NotificationItem = {
@@ -99,6 +110,8 @@ export async function syncUserNotifications(userId: string): Promise<void> {
   const now = new Date();
   const reminderUntil = addHours(now, 48);
   const goalUntil = addDays(now, 7);
+  const lang = await getUserNotificationLang(userId);
+  const locale = notificationLocale(lang);
 
   const [upcomingBookings, pendingReview, upcomingGoals, podcastProgress] =
     await Promise.all([
@@ -129,12 +142,17 @@ export async function syncUserNotifications(userId: string): Promise<void> {
   for (const booking of upcomingBookings) {
     const dedupeKey = `booking-reminder:${booking.id}`;
     activeDedupeKeys.add(dedupeKey);
+    const copy = upcomingBookingNotification(lang, {
+      service: booking.service.title,
+      date: formatBookingDate(booking.date, locale),
+      time: booking.startTime,
+    });
     await upsertNotification({
       userId,
       type: "BOOKING_REMINDER",
       dedupeKey,
-      title: "جلسة قادمة قريباً",
-      body: `${booking.service.title} — ${formatBookingDate(booking.date)} في ${booking.startTime}`,
+      title: copy.title,
+      body: copy.body,
       href: "/dashboard/bookings",
     });
   }
@@ -142,12 +160,13 @@ export async function syncUserNotifications(userId: string): Promise<void> {
   if (pendingReview) {
     const dedupeKey = `session-review:${pendingReview.id}`;
     activeDedupeKeys.add(dedupeKey);
+    const copy = sessionReviewNotification(lang, pendingReview.service.title);
     await upsertNotification({
       userId,
       type: "SESSION_REVIEW",
       dedupeKey,
-      title: "قيّمي جلستكِ الأخيرة",
-      body: pendingReview.service.title,
+      title: copy.title,
+      body: copy.body,
       href: "/dashboard/bookings",
     });
   }
@@ -155,12 +174,16 @@ export async function syncUserNotifications(userId: string): Promise<void> {
   for (const goal of upcomingGoals) {
     const dedupeKey = `goal-deadline:${goal.id}`;
     activeDedupeKeys.add(dedupeKey);
+    const copy = goalDeadlineNotification(lang, {
+      title: goal.title,
+      date: goal.targetDate ? formatDate(goal.targetDate, locale) : "",
+    });
     await upsertNotification({
       userId,
       type: "GOAL_DEADLINE",
       dedupeKey,
-      title: "موعد هدف يقترب",
-      body: `${goal.title} — ${goal.targetDate ? formatDate(goal.targetDate) : ""}`,
+      title: copy.title,
+      body: copy.body,
       href: "/dashboard/goals",
     });
   }
@@ -173,12 +196,13 @@ export async function syncUserNotifications(userId: string): Promise<void> {
 
     const dedupeKey = `podcast-continue:${progress.podcastId}`;
     activeDedupeKeys.add(dedupeKey);
+    const copy = podcastContinueNotification(lang, progress.podcast.title);
     await upsertNotification({
       userId,
       type: "PODCAST_CONTINUE",
       dedupeKey,
-      title: "تابعي الاستماع",
-      body: progress.podcast.title,
+      title: copy.title,
+      body: copy.body,
       href: `/podcasts/${progress.podcast.slug}`,
     });
   }
@@ -227,12 +251,19 @@ export async function notifyBookingConfirmed(params: {
   date: Date;
   time: string;
 }) {
+  const lang = await getUserNotificationLang(params.userId);
+  const locale = notificationLocale(lang);
+  const copy = bookingConfirmedNotification(lang, {
+    service: params.serviceTitle,
+    date: formatBookingDate(params.date, locale),
+    time: params.time,
+  });
   await upsertNotification({
     userId: params.userId,
     type: "BOOKING_CONFIRMED",
     dedupeKey: `booking-confirmed:${params.bookingId}`,
-    title: "تم تأكيد جلستكِ",
-    body: `${params.serviceTitle} — ${formatBookingDate(params.date)} في ${params.time}`,
+    title: copy.title,
+    body: copy.body,
     href: "/dashboard/bookings",
   });
 }
@@ -243,12 +274,14 @@ export async function notifyCoursePurchase(params: {
   courseId: string;
   courseTitle: string;
 }) {
+  const lang = await getUserNotificationLang(params.userId);
+  const copy = coursePurchaseNotification(lang, params.courseTitle);
   await upsertNotification({
     userId: params.userId,
     type: "COURSE_PURCHASE",
     dedupeKey: `course-purchase:${params.paymentId}`,
-    title: "دورتكِ جاهزة",
-    body: params.courseTitle,
+    title: copy.title,
+    body: copy.body,
     href: `/dashboard/resources?course=${params.courseId}`,
   });
 }
@@ -258,12 +291,14 @@ export async function notifySessionReview(params: {
   bookingId: string;
   serviceTitle: string;
 }) {
+  const lang = await getUserNotificationLang(params.userId);
+  const copy = sessionReviewPromptNotification(lang, params.serviceTitle);
   await upsertNotification({
     userId: params.userId,
     type: "SESSION_REVIEW",
     dedupeKey: `session-review:${params.bookingId}`,
-    title: "قيّمي جلستكِ",
-    body: params.serviceTitle,
+    title: copy.title,
+    body: copy.body,
     href: "/dashboard/bookings",
   });
 }

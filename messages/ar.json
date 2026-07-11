@@ -1,0 +1,1102 @@
+{
+  "locale": {
+    "label": "اللغة",
+    "ar": "العربية",
+    "fr": "Français",
+    "arShort": "AR",
+    "frShort": "FR"
+  },
+  "metadata": {
+    "siteTitle": "ASMAE — كوتشينغ الحياة",
+    "titleTemplate": "%s | ASMAE Coaching",
+    "description": "مرافقة شخصية تساعدك على تجاوز التحديات، واستعادة توازنك، وتحقيق أهدافك بثقة ووضوح.",
+    "siteName": "ASMAE Coaching",
+    "logoLinkAria": "ASMAE — كوتشينغ",
+    "logoImageAlt": "ASMAE Coaching — تجاوز • توازن • ازدهار",
+    "keywords": ["كوتشينغ الحياة", "التطوير الشخصي", "كوتش حياة", "الثقة بالنفس", "الرفاهية"]
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "about": "من أنا",
+    "coaching": "الكوتشينغ",
+    "bookSession": "حجز جلسة",
+    "podcasts": "البودكاست",
+    "courses": "الدورات",
+    "blog": "المدونة",
+    "testimonials": "آراء العملاء",
+    "contact": "تواصل",
+    "search": "بحث",
+    "myAccount": "حسابي",
+    "mySpace": "مساحتي",
+    "adminPanel": "لوحة الإدارة",
+    "signIn": "تسجيل الدخول / إنشاء حساب",
+    "menu": "القائمة",
+    "openMenu": "فتح القائمة",
+    "closeMenu": "إغلاق القائمة",
+    "more": "المزيد"
+  },
+  "footer": {
+    "browse": "التصفح",
+    "contact": "تواصل",
+    "whatsapp": "واتساب",
+    "instagram": "إنستغرام",
+    "rights": "جميع الحقوق محفوظة."
+  },
+  "hero": {
+    "eyebrow": "كوتشينغ حياة يساعدك على استعادة التوازن والانطلاق بثقة",
+    "title": "استعد ثقتك بنفسك واستعد زمام حياتك.",
+    "subtitle": "مرافقة شخصية تساعدك على تجاوز التحديات، واستعادة توازنك، وتحقيق أهدافك بثقة ووضوح.",
+    "ctaPrimary": "حجز جلسة",
+    "ctaSecondary": "اكتشف البرامج"
+  },
+  "common": {
+    "bookSession": "حجز جلسة",
+    "continue": "متابعة",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "back": "رجوع",
+    "download": "تحميل",
+    "listen": "استماع",
+    "buyNow": "شراء الآن",
+    "startNow": "ابدأ الآن",
+    "edit": "تعديل",
+    "send": "إرسال",
+    "loading": "جارٍ التحميل...",
+    "loadingAria": "جارٍ التحميل",
+    "minutes": "دقيقة",
+    "delete": "حذف",
+    "scrollListHint": "مرّر للأسفل لعرض كل العناصر",
+    "actionSuccess": "تم بنجاح"
+  },
+  "errors": {
+    "paymentUnavailable": "الدفع عبر الإنترنت غير متاح مؤقتاً. تواصل معنا لإتمام حجزك.",
+    "purchaseUnavailable": "الشراء عبر الإنترنت غير متاح مؤقتاً. تواصل معنا للوصول إلى هذه الدورة.",
+    "emailUnavailable": "إرسال الرسالة غير متاح مؤقتاً. راسلنا مباشرة عبر البريد أو واتساب.",
+    "slotUnavailable": "هذا الموعد لم يعد متاحاً. اختر تاريخاً أو وقتاً آخر.",
+    "unauthorized": "سجّل الدخول للمتابعة.",
+    "alreadyOwned": "أنت تمتلك هذه الدورة بالفعل.",
+    "incomplete": "يرجى ملء جميع الحقول المطلوبة.",
+    "generic": "حدث خطأ. يرجى المحاولة مجدداً أو التواصل معنا.",
+    "contactSuccess": "تم إرسال رسالتك بنجاح. سنتواصل معك قريباً.",
+    "bookingRedirect": "جاري توجيهك إلى صفحة الدفع…",
+    "serviceNotFound": "الخدمة غير موجودة.",
+    "courseNotFound": "الدورة غير موجودة.",
+    "sessionNotFound": "الجلسة غير موجودة.",
+    "sessionReviewAlreadySubmitted": "تم إرسال تقييمك مسبقًا لهذه الجلسة.",
+    "sessionReviewNotAllowed": "لا يمكن تقييم هذه الجلسة بعد.",
+    "lessonNotFound": "الدرس غير موجود.",
+    "forbidden": "غير مصرح.",
+    "rateLimited": "طلبات كثيرة. حاول مجدداً بعد قليل.",
+    "invalidData": "بيانات غير صالحة.",
+    "episodeNotFound": "الحلقة غير موجودة.",
+    "invoiceNotPaid": "الفاتورة متاحة للمدفوعات المؤكدة فقط.",
+    "invoiceNotFound": "الدفعة غير موجودة.",
+    "invoiceGenerateFailed": "تعذّر إنشاء الفاتورة.",
+    "invalidMood": "يرجى اختيار مزاج صالح.",
+    "localeRequired": "يجب تفعيل لغة واحدة على الأقل.",
+    "bookingReasonOtherDetail": "يرجى توضيح السبب عند اختيار «أخرى».",
+    "sampleInvoiceGenerateFailed": "تعذّر إنشاء نموذج الفاتورة."
+  },
+  "actions": {
+    "saved": "تم الحفظ بنجاح",
+    "created": "تم الإنشاء بنجاح",
+    "deleted": "تم الحذف بنجاح",
+    "updated": "تم التحديث بنجاح",
+    "toggled": "تم التحديث بنجاح",
+    "sent": "تم الإرسال بنجاح",
+    "completed": "تم التحديث بنجاح"
+  },
+  "invoice": {
+    "documentTitle": "فاتورة",
+    "pageTitle": "فاتورة {number} — {site}",
+    "sampleBadge": "نموذج تجريبي",
+    "downloadPdf": "تحميل PDF",
+    "tagline": "كوتشينغ الحياة — مرافقة شخصية",
+    "invoiceNumberLabel": "رقم الفاتورة",
+    "billTo": "فاتورة إلى",
+    "invoiceInfo": "معلومات الفاتورة",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "issuedAt": "تاريخ الإصدار",
+    "status": "الحالة",
+    "paymentMethod": "طريقة الدفع",
+    "serviceDetails": "تفاصيل الخدمة",
+    "description": "الوصف",
+    "amount": "المبلغ",
+    "subtotal": "المجموع الفرعي",
+    "totalPaid": "الإجمالي المدفوع",
+    "thanks": "شكرًا لثقتك — {site} Coaching",
+    "legal": "هذه الفاتورة صادرة إلكترونيًا ولا تحتاج إلى توقيع. يُرجى الاحتفاظ بها لسجلاتك.",
+    "fallbackClient": "عميل",
+    "fallbackDescription": "دفعة ASMAE Coaching",
+    "statuses": {
+      "PAID": "مدفوع",
+      "PENDING": "قيد الانتظار",
+      "REFUNDED": "مسترد",
+      "FAILED": "فشل"
+    },
+    "sample": {
+      "clientName": "فاطمة الزهراء",
+      "description": "جلسة كوتشينغ فردية — 60 دقيقة"
+    }
+  },
+  "auth": {
+    "signInMetaTitle": "تسجيل الدخول",
+    "signInMetaDescription": "الدخول إلى مساحتك الشخصية على ASMAE Coaching.",
+    "signUpMetaTitle": "إنشاء حساب",
+    "signUpMetaDescription": "إنشاء حساب للوصول إلى جلساتك ودوراتك على ASMAE Coaching.",
+    "loading": "جارٍ التحميل...",
+    "loadingAria": "جارٍ التحميل",
+    "repairingSession": "جارٍ مزامنة جلسة الدخول...",
+    "redirecting": "جارٍ التحويل...",
+    "sessionOutOfSync": "جلسة الدخول غير متزامنة. يمكنك متابعة الصفحة المطلوبة أو تسجيل الخروج ثم الدخول مجددًا.",
+    "sessionOutOfSyncSignUp": "جلسة الدخول غير متزامنة. يمكنك متابعة الصفحة المطلوبة أو تسجيل الخروج ثم إنشاء حساب جديد.",
+    "continueToAccount": "متابعة إلى حسابي",
+    "signOut": "تسجيل الخروج"
+  },
+  "services": {
+    "metaTitle": "خدمات الكوتشينغ",
+    "metaDescription": "مرافقة شخصية في الكوتشينغ الفردي، التطوير الشخصي، المسار المهني، وكوتشينغ الأزواج — مصممة لك.",
+    "title": "خدمات الكوتشينغ",
+    "subtitle": "مرافقة شخصية مصممة لتلبية احتياجاتك ومواكبة أهدافك وفق إيقاعك الخاص.",
+    "bookNow": "حجز الآن",
+    "learnMore": "اعرف المزيد",
+    "eyebrow": "خدمات الكوتشينغ",
+    "expectedResults": "النتائج المتوقعة",
+    "notFound": "الخدمة غير موجودة",
+    "highlights": {
+      "individuel": [
+        "وضوح في الأهداف",
+        "أدوات عملية للتقدم",
+        "تعزيز الثقة بالنفس",
+        "خطة عمل مخصصة"
+      ],
+      "couple": [
+        "تواصل أكثر فاعلية",
+        "تعزيز التفاهم المتبادل",
+        "إدارة الخلافات وحل النزاعات",
+        "تقوية العلاقة"
+      ],
+      "carriere": [
+        "رؤية مهنية واضحة",
+        "استراتيجية فعالة للانتقال المهني",
+        "تعزيز الثقة أثناء المقابلات",
+        "تحقيق التوازن بين العمل والحياة"
+      ],
+      "bien-etre": [
+        "إدارة التوتر",
+        "تعزيز تقدير الذات",
+        "تحقيق التوازن العاطفي",
+        "بناء عادات إيجابية"
+      ]
+    }
+  },
+  "home": {
+    "problems": {
+      "title": "هل تجد نفسك في إحدى هذه الحالات؟",
+      "subtitle": "أرافقك لتجاوز أكثر التحديات التي قد تعيق تقدمك.",
+      "items": {
+        "confidence": {
+          "title": "ضعف الثقة بالنفس",
+          "description": "تشك في قدراتك، وتتردد في اغتنام الفرص أو اتخاذ المبادرة."
+        },
+        "stress": {
+          "title": "التوتر والضغط النفسي",
+          "description": "تشعر بالإرهاق والاستنزاف، وتبحث عن توازن صحي ومستدام في حياتك."
+        },
+        "relationships": {
+          "title": "صعوبات في العلاقات",
+          "description": "تواجه خلافات، أو انفصالًا، أو تجد نفسك تكرر أنماطًا من العلاقات لا تحقق لك الاستقرار."
+        },
+        "career": {
+          "title": "تحديات مهنية",
+          "description": "تشعر بأنك عالق في مسيرتك المهنية، وتسعى إلى تحقيق التوازن بين النجاح المهني والرضا الشخصي."
+        }
+      }
+    },
+    "method": {
+      "title": "منهجيتي",
+      "subtitle": "مرافقة عملية لتحقيق نتائج مستدامة",
+      "steps": {
+        "listening": {
+          "title": "الاستماع والتقييم",
+          "description": "نبدأ بلقاء معمق لفهم وضعك الحالي، وتحديد أهدافك، واستكشاف احتياجاتك وتطلعاتك."
+        },
+        "plan": {
+          "title": "خطة مخصصة",
+          "description": "نضع معًا خطة تناسب احتياجاتك، تعتمد على أدوات عملية وتمارين قابلة للتطبيق."
+        },
+        "support": {
+          "title": "المرافقة والمتابعة",
+          "description": "جلسات منتظمة تساعدك على التقدم، وتجاوز العقبات، والاحتفاء بكل خطوة نحو هدفك."
+        },
+        "independence": {
+          "title": "الاستقلالية",
+          "description": "تنهي رحلتك وأنت تمتلك الأدوات والثقة التي تمكّنك من مواصلة التقدم بنفسك."
+        }
+      }
+    },
+    "testimonials": {
+      "title": "آراء العملاء",
+      "subtitle": "الثقة أساس كل رحلة كوتشينغ، وهذه بعض تجارب من رافقتهم في رحلتهم نحو التغيير."
+    },
+    "stats": {
+      "items": [
+        { "value": "+200", "label": "عميل تمت مرافقته" },
+        { "value": "95٪", "label": "نسبة رضا العملاء" },
+        { "value": "8 سنوات", "label": "من الخبرة" },
+        { "value": "+1500", "label": "ساعة كوتشينغ" }
+      ]
+    },
+    "faq": {
+      "title": "الأسئلة الشائعة",
+      "items": [
+        {
+          "question": "كيف تسير الجلسة الأولى؟",
+          "answer": "الجلسة الأولى هي لقاء تعارف وتقييم. نتعرف إلى بعضنا، ونناقش وضعك الحالي، ونحدد أهدافك بوضوح. كل ما يُطرح خلالها يبقى سريًا وفي بيئة آمنة وخالية من الأحكام."
+        },
+        {
+          "question": "هل تُعقد الجلسات حضوريًا أم عن بُعد؟",
+          "answer": "الخياران متاحان. أغلب الجلسات تتم عبر الفيديو (Zoom أو Google Meet) لمرونة أكبر، ويمكن ترتيب لقاءات حضورية عند الطلب."
+        },
+        {
+          "question": "كم عدد الجلسات التي سأحتاج إليها؟",
+          "answer": "يعتمد على أهدافك. بعض العملاء يحققون أهدافهم في 3 إلى 5 جلسات، وآخرون يفضلون مرافقة على عدة أشهر. نضبط الإيقاع معًا."
+        },
+        {
+          "question": "هل تقدمين جلسة تعارف مجانية؟",
+          "answer": "نعم، جلسة تعارف مدتها 20 دقيقة مجانية للتعارف ومعرفة إن كانت مرافقتي مناسبة لك."
+        },
+        {
+          "question": "كيف يتم الدفع؟",
+          "answer": "الدفع يتم عبر الإنترنت بشكل آمن (بطاقة مغربية أو دولية). تتلقى تأكيدًا بالبريد مع رابط الفيديو."
+        }
+      ]
+    },
+    "finalCta": {
+      "title": "هل أنت مستعد لبدء رحلة التغيير؟",
+      "subtitle": "حجز مكالمة تعارف مجانية لمدة 20 دقيقة للتعارف وفهم احتياجاتك وكيف يمكنني مساعدتك.",
+      "primary": "حجز مكالمة تعارف",
+      "secondary": "تواصل معي"
+    }
+  },
+  "contact": {
+    "metaTitle": "تواصل معي",
+    "metaDescription": "هل لديك استفسار أو ترغب في معرفة المزيد عن خدماتي؟ يسعدني التواصل معك والإجابة عن جميع أسئلتك.",
+    "title": "تواصل معي",
+    "subtitle": "هل لديك استفسار أو ترغب في معرفة المزيد عن خدماتي؟ يسعدني التواصل معك والإجابة عن جميع أسئلتك.",
+    "channelsTitle": "لنبقَ على تواصل",
+    "channelsSubtitle": "اختر وسيلة التواصل التي تناسبك.",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "whatsapp": "واتساب",
+    "whatsappHint": "رد سريع",
+    "instagram": "إنستغرام",
+    "formTitle": "إرسال رسالة",
+    "nameLabel": "الاسم",
+    "namePlaceholder": "اسمك",
+    "emailLabel": "البريد الإلكتروني",
+    "messageLabel": "الرسالة",
+    "messagePlaceholder": "اكتب رسالتك هنا...",
+    "submit": "إرسال",
+    "submitting": "جارٍ الإرسال...",
+    "successTitle": "تم إرسال الرسالة!",
+    "successMessage": "سأرد عليك في أقرب وقت ممكن.",
+    "turnstileRequired": "يرجى إكمال التحقق الأمني.",
+    "sendError": "خطأ في الإرسال"
+  },
+  "booking": {
+    "metaTitle": "حجز جلسة",
+    "metaDescription": "اختر الخدمة المناسبة، وحدد الموعد، وأكمل عملية الدفع عبر الإنترنت، لتتلقى تلقائيًا رابط الجلسة عبر الفيديو.",
+    "title": "حجز جلسة",
+    "subtitle": "اختر الخدمة المناسبة، وحدد الموعد، وأكمل عملية الدفع عبر الإنترنت، لتتلقى تلقائيًا رابط الجلسة عبر الفيديو.",
+    "steps": {
+      "service": "الخدمة",
+      "schedule": "الموعد",
+      "intent": "استبيان قصير",
+      "payment": "الدفع"
+    },
+    "chooseService": "اختر الخدمة المناسبة",
+    "chooseSchedule": "حدد الموعد المناسب",
+    "intentTitle": "لماذا تود حجز هذه الجلسة؟",
+    "intentSubtitle": "اختيارك يساعدني على الاستعداد لمرافقتك بشكل أفضل قبل موعدنا.",
+    "intentRequired": "اختر سبباً واحداً للمتابعة.",
+    "intentOtherPlaceholder": "شارك باختصار ما يدفعك لحجز هذه الجلسة...",
+    "intentReasons": {
+      "stress": "التوتر والضغط",
+      "confidence": "الثقة بالنفس",
+      "couple": "العلاقات والزوجية",
+      "career": "العمل والمهنة",
+      "other": "أخرى"
+    },
+    "paymentTitle": "دفع آمن",
+    "atTime": "الساعة {time}",
+    "next": "التالي",
+    "back": "رجوع",
+    "noServices": "لا توجد خدمات متاحة حالياً. عد قريبًا.",
+    "noSlots": "لا توجد مواعيد متاحة في هذا اليوم.",
+    "signInPrompt": "سجّل الدخول لإتمام حجزك.",
+    "signInButton": "تسجيل الدخول",
+    "paymentFootnote": "ستتلقى تلقائيًا بريد تأكيد مع رابط الجلسة عبر الفيديو بعد الدفع.",
+    "selectPaymentMethod": "اختر وسيلة الدفع",
+    "paymentProviders": {
+      "payzone": {
+        "label": "بطاقة مغربية",
+        "description": "Visa، Mastercard، بطاقات CMI"
+      },
+      "stripe": {
+        "label": "بطاقة دولية",
+        "description": "Visa، Mastercard (خارج المغرب)"
+      }
+    },
+    "securePayVia": "دفع آمن عبر {provider}.",
+    "paying": "جاري التحويل...",
+    "payButton": "ادفع {amount}",
+    "paymentError": "خطأ في الدفع",
+    "success": {
+      "title": "تم الدفع بنجاح!",
+      "pending": "حجزك قيد التأكيد.",
+      "emailHint": "ستتلقى بريدًا إلكترونيًا يتضمن تفاصيل جلستك ورابط الجلسة عبر الفيديو خلال لحظات.",
+      "viewBookings": "عرض جلساتي",
+      "backHome": "العودة إلى الصفحة الرئيسية"
+    },
+    "cancel": {
+      "title": "تم إلغاء الدفع",
+      "noCharge": "لم تُخصَم أي مبالغ من حسابك.",
+      "retryHint": "يمكنك إعادة المحاولة في أي وقت. إذا واجهت مشكلة تقنية، تواصل معنا.",
+      "backToCourse": "العودة إلى الدورة",
+      "retryBooking": "إعادة الحجز",
+      "contactUs": "تواصل معنا",
+      "legalPrefix": "بمتابعة الشراء، فإنك توافق على",
+      "cgv": "شروط البيع",
+      "and": "و",
+      "privacy": "سياسة الخصوصية"
+    }
+  },
+  "courses": {
+    "metaTitle": "دورات تدريبية عبر الإنترنت",
+    "metaDescription": "برامج تدريبية متكاملة تتيح لك التعلم بالوتيرة التي تناسبك، وتضم فيديوهات تعليمية، وتمارين تطبيقية، وموارد قابلة للتنزيل.",
+    "title": "دورات تدريبية عبر الإنترنت",
+    "subtitle": "برامج تدريبية متكاملة تتيح لك التعلم بالوتيرة التي تناسبك، وتضم فيديوهات تعليمية، وتمارين تطبيقية، وموارد قابلة للتنزيل.",
+    "viewProgram": "عرض البرنامج ←",
+    "ctaTitle": "لست متأكدًا من الدورة الأنسب لك؟",
+    "ctaSubtitle": "حجز مكالمة تعارف مجانية للحديث عن أهدافك واختيار البرنامج المناسب.",
+    "ctaButton": "حجز مكالمة تعارف",
+    "filters": {
+      "searchLabel": "بحث",
+      "searchPlaceholder": "ابحث في الدورات...",
+      "sortLabel": "ترتيب العرض",
+      "sortDefault": "الترتيب الافتراضي",
+      "sortPriceAsc": "السعر: من الأقل إلى الأعلى",
+      "sortPriceDesc": "السعر: من الأعلى إلى الأقل",
+      "sortTitle": "العنوان أ→ي",
+      "noResults": "لا توجد دورات تطابق البحث.",
+      "resultsOne": "دورة واحدة",
+      "resultsMany": "{count} دورات"
+    },
+    "moduleOne": "وحدة واحدة",
+    "moduleTwo": "وحدتان",
+    "modulesFew": "{count} وحدات",
+    "modulesMany": "{count} وحدة",
+    "lessonOne": "درس واحد",
+    "lessonTwo": "درسان",
+    "lessonsFew": "{count} دروس",
+    "lessonsMany": "{count} درس",
+    "notFound": "الدورة غير موجودة",
+    "eyebrow": "دورة تدريبية",
+    "whatYouGet": "ما الذي ستحصل عليه",
+    "lifetimeAccess": "وصول مدى الحياة",
+    "oneTimePayment": "دفعة واحدة — وصول فوري",
+    "securePayment": "دفع آمن عبر Stripe",
+    "signInToPurchase": "سجّل الدخول للشراء",
+    "paymentFootnote": "ستتلقى تلقائيًا بريد تأكيد بعد الدفع.",
+    "paying": "جاري التحويل...",
+    "buyButton": "شراء — {amount}",
+    "paymentError": "خطأ في الدفع",
+    "includes": {
+      "videos": "🎥 فيديوهات تعليمية",
+      "downloads": "📥 موارد قابلة للتنزيل",
+      "exercises": "📝 تمارين تطبيقية"
+    }
+  },
+  "about": {
+    "metaTitle": "من أنا",
+    "metaDescription": "تعرّف على قصتي، ورسالتي، والقيم التي ألتزم بها في مرافقتك.",
+    "eyebrow": "من أنا",
+    "title": "مدربة تحمل رسالة... وقصة تستحق أن تُروى",
+    "subtitle": "اختيار الكوتش لا يعتمد فقط على الخبرة، بل أيضًا على الثقة والانسجام. لذلك أشارك قصتي، وما دفعني لاختيار هذا المسار، والقيم التي ألتزم بها في مرافقة كل شخص.",
+    "storyTitle": "قصتي",
+    "story": "لطالما آمنت بقدرة الإنسان على التغيير والنمو. وبعد أن خضتُ تجارب شخصية مليئة بالتحديات، ولحظات من الشك وإعادة اكتشاف الذات، أدركت الأثر العميق الذي يمكن أن يحدثه الكوتشينغ في حياة الإنسان.\n\nلم يكن اختياري لهذه المهنة مجرد صدفة، بل كان امتدادًا طبيعيًا لتجربتي الشخصية ورغبتي الصادقة في مرافقة الآخرين خلال رحلتهم نحو التغيير.",
+    "videoLabel": "فيديو تعريفي",
+    "whyTitle": "لماذا اخترت أن أصبح كوتش؟",
+    "why": "لأنني مررت بمراحل شعرت فيها بالحيرة، وعدم الوضوح، وصعوبة اتخاذ الخطوة التالية.\n\nلقد ساعدني الكوتشينغ على استعادة توازني، وفهم نفسي بشكل أعمق، والانطلاق بثقة نحو أهدافي.\n\nواليوم، أرافق كل شخص بنفس الاهتمام والتعاطف والدعم الذي كنت أتمنى أن أجده في تلك المرحلة من حياتي.",
+    "missionTitle": "رسالتي",
+    "mission": "رسالتي هي مساعدتك على اكتشاف إمكاناتك، وبناء حياة تنسجم مع قيمك، وتطلعاتك، وما يمنحك شعورًا حقيقيًا بالرضا والاتزان.",
+    "valuesTitle": "قيمي",
+    "values": {
+      "empathy": {
+        "title": "التعاطف",
+        "description": "أوفر لك مساحة آمنة، خالية من الأحكام، حيث يمكنك التعبير عن نفسك بكل راحة وصدق."
+      },
+      "authenticity": {
+        "title": "الأصالة",
+        "description": "أؤمن بعلاقة إنسانية قائمة على الثقة، والشفافية، والاحترام المتبادل."
+      },
+      "confidentiality": {
+        "title": "السرية",
+        "description": "كل ما تشاركه يبقى سريًا، ويُعامل بأقصى درجات الخصوصية والاحترام."
+      },
+      "commitment": {
+        "title": "الالتزام",
+        "description": "أرافقك بكل جدية واهتمام، وأسعى إلى دعمك في كل خطوة من رحلتك نحو التغيير."
+      }
+    },
+    "ctaTitle": "هل ترغب في التعرف إليّ أكثر؟",
+    "ctaSubtitle": "حجز مكالمة تعارف مجانية للحديث عن احتياجاتك واكتشاف كيف يمكنني مساعدتك.",
+    "ctaButton": "حجز مكالمة تعارف"
+  },
+  "podcasts": {
+    "metaTitle": "البودكاست",
+    "metaDescription": "حلقات صوتية ملهمة تساعدك على تطوير ذاتك، وتعزيز وعيك، والمضي قدمًا في رحلتك نحو التغيير بالوتيرة التي تناسبك.",
+    "title": "البودكاست",
+    "subtitle": "حلقات صوتية ملهمة تساعدك على تطوير ذاتك، وتعزيز وعيك، والمضي قدمًا في رحلتك نحو التغيير بالوتيرة التي تناسبك.",
+    "notFound": "البودكاست غير موجود",
+    "durationMinutes": "{count} دقيقة",
+    "freeSection": { "title": "بودكاست مجاني", "subtitle": "متاح للجميع" },
+    "premiumSection": { "title": "بودكاست حصري", "subtitle": "متاح للأعضاء والعملاء" },
+    "premiumBadge": "حصري",
+    "premiumContentLabel": "محتوى حصري",
+    "premiumLockedTitle": "محتوى مخصص للأعضاء",
+    "premiumLockedMessage": "حجز جلسة أو اشتري دورة تدريبية لفتح هذا البودكاست الحصري.",
+    "audioComingSoon": "الصوت متاح قريبًا.",
+    "loadError": "تعذّر تحميل الملف الصوتي. تحقق من الرابط أو أعد المحاولة لاحقًا.",
+    "playerPlay": "تشغيل",
+    "playerPause": "إيقاف مؤقت",
+    "playerProgress": "التقدم في الحلقة",
+    "continueListening": {
+      "title": "متابعة الاستماع",
+      "subtitle": "استأنف حلقاتك من حيث توقفت.",
+      "resumeButton": "متابعة",
+      "resumeFrom": "متابعة الاستماع من {time}"
+    },
+    "filters": {
+      "searchLabel": "بحث",
+      "searchPlaceholder": "ابحث في الحلقات...",
+      "typeLabel": "النوع",
+      "typeAll": "جميع الحلقات",
+      "typeFree": "مجاني",
+      "typePremium": "حصري",
+      "sortLabel": "ترتيب العرض",
+      "sortDefault": "الترتيب الافتراضي",
+      "sortNewest": "الأحدث أولًا",
+      "sortOldest": "الأقدم أولًا",
+      "sortLongest": "الأطول مدة",
+      "sortShortest": "الأقصر مدة",
+      "sortTitle": "العنوان أ→ي",
+      "noResults": "لا توجد حلقات تطابق البحث.",
+      "resultsOne": "حلقة واحدة",
+      "resultsMany": "{count} حلقات"
+    }
+  },
+  "blog": {
+    "metaTitle": "المدونة",
+    "metaDescription": "مقالات ونصائح وأفكار عملية تساعدك على تطوير ذاتك، وتعزيز وعيك، والمضي بثقة في رحلة التغيير.",
+    "title": "المدونة",
+    "subtitle": "مقالات ونصائح وأفكار عملية تساعدك على تطوير ذاتك، وتعزيز وعيك، والمضي بثقة في رحلة التغيير.",
+    "emptyMessage": "لا توجد مقالات متاحة حالياً.",
+    "filters": {
+      "searchLabel": "بحث",
+      "searchPlaceholder": "ابحث في المقالات...",
+      "categoryLabel": "التصنيف",
+      "categoryAll": "جميع التصنيفات",
+      "sortLabel": "ترتيب العرض",
+      "sortNewest": "الأحدث أولًا",
+      "sortOldest": "الأقدم أولًا",
+      "sortTitle": "العنوان أ→ي",
+      "noResults": "لا توجد مقالات تطابق البحث.",
+      "resultsOne": "مقالة واحدة",
+      "resultsMany": "{count} مقالات"
+    },
+    "notFound": "المقال غير موجود",
+    "ctaTitle": "هل تحتاج إلى مرافقة شخصية؟",
+    "ctaSubtitle": "احجز جلسة لتعميق هذا الموضوع معًا.",
+    "readTimeOne": "دقيقة واحدة للقراءة",
+    "readTimeTwo": "دقيقتان للقراءة",
+    "readTimeFew": "{count} دقائق للقراءة",
+    "readTimeMany": "{count} دقيقة للقراءة"
+  },
+  "testimonials": {
+    "metaTitle": "آراء العملاء",
+    "metaDescription": "الثقة أساس كل رحلة كوتشينغ، وهذه بعض تجارب من رافقتهم في رحلتهم نحو التغيير.",
+    "title": "آراء العملاء",
+    "subtitle": "الثقة أساس كل رحلة كوتشينغ، وهذه بعض تجارب من رافقتهم في رحلتهم نحو التغيير.",
+    "viewAll": "عرض كل الآراء",
+    "carouselHint": "اسحب يمينًا أو يسارًا — كل الصفحة تتحرك معًا (٣ صفوف)",
+    "previous": "السابق",
+    "next": "التالي",
+    "positionLabel": "موضع",
+    "ctaTitle": "هل ستكون صاحب قصة النجاح التالية؟",
+    "ctaSubtitle": "ابدأ رحلتك نحو التغيير، وانضم إلى من استطاعوا تحقيق أهدافهم واستعادة التوازن في حياتهم.",
+    "ctaButton": "حجز جلسة"
+  },
+  "search": {
+    "metaTitle": "بحث",
+    "title": "بحث",
+    "dashboardTitle": "بحث في مساحتي",
+    "placeholder": "ابحث عن دورة، مقال، بودكاست، خدمة...",
+    "dashboardPlaceholder": "ابحث في أهدافك، يومياتك، جلساتك، مواردك والمحتوى العام...",
+    "buttonLabel": "بحث",
+    "minChars": "اكتب حرفين على الأقل للبحث.",
+    "noQuery": "ابدأ بالكتابة في خانة البحث أعلاه.",
+    "noResults": "لا توجد نتائج تطابق بحثك.",
+    "open": "فتح",
+    "resultsOne": "نتيجة واحدة",
+    "resultsMany": "{count} نتائج",
+    "dashboardLink": "بحث في مساحتي الشخصية",
+    "sections": {
+      "SERVICE": "الكوتشينغ",
+      "COURSE": "الدورات",
+      "BLOG_POST": "المدونة",
+      "PODCAST": "البودكاست",
+      "GOAL": "أهدافي",
+      "JOURNAL": "يومياتي",
+      "LESSON": "مكتبة الموارد",
+      "BOOKING": "جلساتي"
+    },
+    "suggestionsLabel": "اقتراحات شائعة",
+    "popularSuggestionsHint": "يشمل بحوث العملاء الأكثر تكراراً",
+    "shortcutsLabel": "تصفح حسب النوع",
+    "liveSuggestionsLabel": "اقتراحات أثناء الكتابة",
+    "searching": "جارٍ البحث...",
+    "searchAll": "بحث: « {query} »",
+    "meta": {
+      "service": "خدمة كوتشينغ",
+      "course": "دورة تدريبية",
+      "podcast": "بودكاست",
+      "podcastPremium": "بودكاست حصري",
+      "goalCompleted": "هدف مكتمل",
+      "goalActive": "هدف نشط",
+      "journal": "يومية",
+      "booking": "جلسة",
+      "lesson": "مورد"
+    },
+    "staticQueries": ["إدارة التوتر", "الثقة بالنفس", "التوازن", "بودكاست", "دورة"],
+    "staticShortcuts": [
+      { "label": "دورات", "query": "دورة" },
+      { "label": "بودكاست", "query": "بودكاست" },
+      { "label": "مدونة", "query": "مدونة" },
+      { "label": "كوتشينغ", "query": "كوتشينغ" }
+    ],
+    "dashboardStaticQueries": ["هدف", "يومية", "جلسة", "مورد", "ثقة"],
+    "dashboardStaticShortcuts": [
+      { "label": "أهدافي", "query": "هدف" },
+      { "label": "يومياتي", "query": "يومية" },
+      { "label": "جلساتي", "query": "جلسة" },
+      { "label": "مكتبة الموارد", "query": "مورد" }
+    ]
+  },
+  "dashboard": {
+    "nav": {
+      "home": "الرئيسية",
+      "journey": "مساري",
+      "notifications": "الإشعارات",
+      "favorites": "المفضلة",
+      "search": "بحث",
+      "bookings": "جلساتي",
+      "courses": "دوراتي",
+      "podcasts": "البودكاست",
+      "goals": "أهدافي",
+      "journal": "يومياتي",
+      "resources": "مكتبة الموارد",
+      "payments": "المدفوعات",
+      "settings": "الإعدادات"
+    },
+    "spaceTitle": "مساحتي",
+    "backToSite": "العودة إلى الموقع",
+    "welcome": "مرحبًا",
+    "welcomeWithName": "مرحبًا، {name}",
+    "overviewSubtitle": "كل ما تحتاجه من جلسات، ودورات، ومكتبة في مكان واحد.",
+    "bookingAtTime": "في {time}",
+    "stats": {
+      "upcomingSessions": "الجلسات القادمة",
+      "activeCourses": "الدورات النشطة",
+      "currentGoals": "الأهداف الحالية",
+      "payments": "المدفوعات"
+    },
+    "noUpcomingSessions": "لا توجد جلسات قادمة",
+    "bookNextSession": "احجز جلستك القادمة وابدأ رحلتك نحو التغيير.",
+    "bookSession": "حجز جلسة",
+    "upcomingSessionsTitle": "الجلسات القادمة",
+    "joinSession": "الانضمام إلى الجلسة عبر الفيديو",
+    "bookingsTitle": "جلساتي",
+    "bookingsUpcoming": "القادمة",
+    "bookingsHistory": "السجل",
+    "noScheduledSessions": "لا توجد جلسات قادمة",
+    "sessionLink": "رابط الجلسة عبر الفيديو",
+    "bookingsHistoryEmpty": "سيظهر سجلك هنا بعد جلستك الأولى.",
+    "bookingsCalendarLabel": "تقويم الجلسات",
+    "bookingsNoSessionsDay": "لا توجد جلسات في هذا اليوم.",
+    "sessionReview": {
+      "promptTitle": "كيف كانت جلستك؟",
+      "promptSubtitle": "تقييمك يساعدنا على تحسين المرافقة وتخصيص تجربتك.",
+      "ratingLabel": "التقييم",
+      "commentLabel": "تعليق (اختياري)",
+      "commentPlaceholder": "شارك ما أعجبك أو ما يمكن تحسينه...",
+      "submit": "إرسال التقييم",
+      "submittedLabel": "تقييمك",
+      "leaveReview": "قيّم الجلسة",
+      "pendingTitle": "بانتظار تقييمك"
+    },
+    "courses": {
+      "pageTitle": "دوراتي",
+      "subtitle": "تابع تقدمك، واكتشف الدورات الجديدة، وارجع بسهولة إلى محتواك.",
+      "stats": {
+        "purchased": "مشترياتي",
+        "inProgress": "قيد التقدم",
+        "completed": "مكتملة",
+        "available": "متاحة للشراء"
+      },
+      "searchPlaceholder": "ابحث في الدورات...",
+      "sectionLabel": "العرض",
+      "sectionAll": "جميع الدورات",
+      "sectionPurchased": "مشترياتي",
+      "sectionAvailable": "للشراء",
+      "progressLabel": "التقدم",
+      "progressAll": "كل الحالات",
+      "progressNotStarted": "لم تبدأ بعد",
+      "progressInProgress": "قيد المتابعة",
+      "progressCompleted": "مكتملة",
+      "sortLabel": "ترتيب العرض",
+      "sortRecent": "الأحدث شراءً",
+      "sortTitle": "العنوان أ→ي",
+      "sortProgressDesc": "الأكثر تقدماً",
+      "sortProgressAsc": "الأقل تقدماً",
+      "sortPriceAsc": "السعر: من الأقل",
+      "sortPriceDesc": "السعر: من الأعلى",
+      "resultsOne": "دورة واحدة",
+      "resultsMany": "{count} دورات",
+      "noResults": "لا توجد دورات تطابق البحث.",
+      "noPurchases": "لم تشتري أي دورة تدريبية بعد.",
+      "discoverCourses": "اكتشف الدورات التدريبية",
+      "progressLabelShort": "التقدم",
+      "lessonsCompleted": "{done}/{total} دروس مكتملة",
+      "lastLesson": "آخر درس: {title}",
+      "notStartedYet": "لم تكمل أي درس بعد",
+      "progressNote": "يُحسب تلقائيًا وفق الدروس المعلّمة كمكتملة في مكتبة الموارد.",
+      "continue": "متابعة",
+      "viewProgram": "عرض البرنامج",
+      "badgePurchased": "مشترياتي",
+      "badgeAvailable": "للشراء",
+      "badgeCompleted": "مكتملة",
+      "badgeInProgress": "قيد التقدم",
+      "badgeNotStarted": "لم تبدأ"
+    },
+    "journal": {
+      "pageTitle": "يومياتي",
+      "pageSubtitle": "دوّن تأملاتك بين الجلسات. مرئية لك ولمدربتك فقط.",
+      "pageEmpty": "ابدأ بملاحظة جديدة لمشاركة ما يمر بك بين الجلسات.",
+      "newEntryButton": "ملاحظة جديدة",
+      "newEntryTitle": "ملاحظة جديدة",
+      "close": "إغلاق",
+      "contentLabel": "ماذا تود مشاركته؟",
+      "contentPlaceholder": "اكتب بحرية ما يدور في ذهنك...",
+      "saveEntry": "حفظ الملاحظة",
+      "searchPlaceholder": "ابحث في يومياتك...",
+      "moodLabel": "المزاج",
+      "moodAll": "جميع المزاجات",
+      "moodNone": "بدون مزاج",
+      "sortLabel": "ترتيب العرض",
+      "sortRecent": "الأحدث",
+      "sortOldest": "الأقدم",
+      "resultsOne": "ملاحظة واحدة",
+      "resultsMany": "{count} ملاحظات",
+      "noResults": "لا توجد ملاحظات تطابق البحث.",
+      "edit": "تعديل",
+      "editTitle": "تعديل الملاحظة"
+    },
+    "goals": {
+      "pageTitle": "أهدافي",
+      "pageSubtitle": "حدّد أهدافك وتابع تقدمك مع مدربتك.",
+      "addGoal": "إضافة هدف",
+      "goalTitle": "عنوان الهدف",
+      "descriptionOptional": "الوصف (اختياري)",
+      "targetDateOptional": "التاريخ المستهدف (اختياري)",
+      "pageEmpty": "ستُحدَّد أهدافك معًا خلال جلستك الأولى.",
+      "searchPlaceholder": "ابحث في أهدافك...",
+      "statusLabel": "الحالة",
+      "statusAll": "جميع الأهداف",
+      "statusActive": "قيد المتابعة",
+      "statusCompleted": "مكتملة",
+      "dateLabel": "التاريخ",
+      "dateAll": "الكل",
+      "dateWithTarget": "بتاريخ مستهدف",
+      "dateWithoutTarget": "بدون تاريخ",
+      "sortLabel": "ترتيب العرض",
+      "sortRecent": "الأحدث تحديثاً",
+      "sortTitle": "العنوان أ→ي",
+      "sortProgressDesc": "الأكثر تقدماً",
+      "sortProgressAsc": "الأقل تقدماً",
+      "sortTargetDate": "التاريخ المستهدف",
+      "resultsOne": "هدف واحد",
+      "resultsMany": "{count} أهداف",
+      "noResults": "لا توجد أهداف تطابق البحث.",
+      "edit": "تعديل",
+      "progressLabel": "التقدم",
+      "completedBadge": "مكتمل",
+      "targetDate": "التاريخ المستهدف: {date}",
+      "noTargetDate": "بدون تاريخ مستهدف",
+      "editTitle": "تعديل الهدف",
+      "targetDateLabel": "التاريخ المستهدف",
+      "progressPercent": "نسبة التقدم (%)",
+      "completedLabel": "الهدف مكتمل"
+    },
+    "notifications": {
+      "pageTitle": "الإشعارات",
+      "subtitle": "تابع تذكيرات الجلسات، تقييماتك، ودوراتك في مكان واحد.",
+      "searchPlaceholder": "ابحث في الإشعارات...",
+      "statusLabel": "الحالة",
+      "statusAll": "الكل",
+      "statusUnread": "غير مقروءة",
+      "statusRead": "مقروءة",
+      "typeLabel": "النوع",
+      "typeAll": "جميع الأنواع",
+      "sortLabel": "ترتيب العرض",
+      "sortRecent": "الأحدث",
+      "sortOldest": "الأقدم",
+      "markAllRead": "تحديد الكل كمقروء",
+      "markRead": "تحديد كمقروء",
+      "open": "فتح",
+      "empty": "لا توجد إشعارات حالياً.",
+      "noResults": "لا توجد إشعارات تطابق البحث.",
+      "resultsOne": "إشعار واحد",
+      "resultsMany": "{count} إشعارات",
+      "unreadOne": "إشعار غير مقروء",
+      "unreadMany": "{count} إشعارات غير مقروءة",
+      "types": {
+        "BOOKING_CONFIRMED": "تأكيد جلسة",
+        "BOOKING_REMINDER": "تذكير جلسة",
+        "SESSION_REVIEW": "تقييم جلسة",
+        "COURSE_PURCHASE": "شراء دورة",
+        "GOAL_DEADLINE": "موعد هدف",
+        "PODCAST_CONTINUE": "متابعة بودكاست",
+        "SYSTEM": "نظام"
+      }
+    },
+    "favorites": {
+      "title": "المفضلة",
+      "subtitle": "احفظ الدورات، الحلقات، المقالات والموارد التي تهمك للعودة إليها بسرعة.",
+      "searchPlaceholder": "ابحث في المفضلة...",
+      "typeLabel": "النوع",
+      "typeAll": "جميع الأنواع",
+      "sortLabel": "ترتيب العرض",
+      "sortRecent": "الأحدث إضافة",
+      "sortOldest": "الأقدم إضافة",
+      "sortTitle": "العنوان أ→ي",
+      "open": "فتح",
+      "empty": "لم تُضف أي عنصر إلى المفضلة بعد.",
+      "noResults": "لا توجد عناصر تطابق البحث.",
+      "resultsOne": "عنصر واحد",
+      "resultsMany": "{count} عناصر",
+      "savedOn": "أُضيف في {date}",
+      "addToFavorites": "إضافة إلى المفضلة",
+      "removeFromFavorites": "إزالة من المفضلة",
+      "signInToSave": "سجّل الدخول لحفظ المفضلة",
+      "browseCourses": "استكشف الدورات",
+      "browsePodcasts": "استمع للبودكاست",
+      "types": {
+        "COURSE": "دورة",
+        "PODCAST": "بودكاست",
+        "BLOG_POST": "مقال",
+        "LESSON": "مورد"
+      }
+    },
+    "recommendations": {
+      "title": "اقتراحات لك",
+      "titleCourses": "دورات مقترحة لك",
+      "titlePodcasts": "بودكاست مقترح لك",
+      "subtitle": "محتوى مختار حسب مزاجك وأهدافك ومسارك.",
+      "viewCourse": "عرض الدورة",
+      "viewPodcast": "استماع",
+      "viewAllCourses": "كل الدورات",
+      "viewAllPodcasts": "كل البودكاست",
+      "premiumBadge": "مميز",
+      "reasons": {
+        "moodToday": "لأن مزاجك اليوم يدعو إلى {topic}",
+        "moodRecent": "مرتبط بمزاجك الأخير",
+        "goal": "مرتبط بهدفك الحالي",
+        "intake": "حسب توقعاتك التي شاركتها",
+        "service": "مكمّل لجلسة الكوتشينغ",
+        "favorite": "قريب مما تحب بالفعل",
+        "journal": "بناءً على آخر ملاحظات يومياتك",
+        "similar": "لمواصلة مسارك",
+        "discover": "لمواصلة تطورك"
+      },
+      "topics": {
+        "stress": "إدارة التوتر",
+        "confidence": "تعزيز الثقة",
+        "couple": "تحسين العلاقات",
+        "career": "التقدم المهني",
+        "wellbeing": "العناية بنفسك",
+        "change": "خوض التغيير"
+      }
+    },
+    "journey": {
+      "title": "مساري",
+      "subtitle": "نظرة شاملة على رحلتك: الجلسات، الدورات، الأهداف، المزاج واليوميات في مكان واحد.",
+      "summaryTitle": "ملخص رحلتك",
+      "nextSessionTitle": "جلستك القادمة",
+      "noNextSession": "لا توجد جلسة قادمة — احجز موعدك التالي.",
+      "coursesTitle": "تقدم الدورات",
+      "noCourses": "لم تبدأ أي دورة بعد.",
+      "goalsTitle": "أهداف قيد المتابعة",
+      "noGoals": "لا توجد أهداف نشطة حاليًا.",
+      "moodTitle": "مزاجك هذا الأسبوع",
+      "moodStreakZero": "ابدأ بتسجيل مزاجك اليوم",
+      "moodStreakOne": "يوم واحد متتالٍ",
+      "moodStreakMany": "{days} أيام متتالية",
+      "moodEmpty": "—",
+      "journalTitle": "آخر اليوميات",
+      "noJournal": "لم تكتب في يومياتك بعد.",
+      "podcastsTitle": "تابع الاستماع",
+      "milestonesTitle": "محطات رحلتك",
+      "stats": {
+        "sessions": "جلسات منجزة",
+        "courses": "دورات نشطة",
+        "goals": "أهداف جارية",
+        "journal": "ملاحظات يومية"
+      },
+      "viewAll": "عرض الكل",
+      "continueCourse": "متابعة",
+      "openJournal": "فتح اليوميات",
+      "bookSession": "حجز جلسة",
+      "joinSession": "انضم للجلسة",
+      "milestones": {
+        "intake": "استبيان البداية",
+        "session": "أول جلسة كوتشينغ",
+        "mood": "تسجيل المزاج اليومي",
+        "journal": "أول ملاحظة في اليوميات",
+        "course": "شراء دورة تدريبية",
+        "goal": "تحديد هدف شخصي"
+      }
+    },
+    "library": {
+      "pageTitle": "مكتبة الموارد",
+      "metaTitle": "مكتبة الموارد",
+      "metaDescription": "فيديوهات، تمارين، تنزيلات وصوتيات جميع دوراتك في مكان واحد.",
+      "subtitle": "هنا تجد فيديوهات، تمارين، تنزيلات وصوتيات جميع دوراتك.",
+      "selectedCourseLabel": "دورة تدريبية",
+      "selectedCourseFallback": "دورة تدريبية",
+      "noCourseContent": "لا يوجد محتوى لهذه الدورة بعد.",
+      "completedCount": "{done}/{total} دروس مكتملة",
+      "coursesLink": "دوراتي",
+      "viewAllLink": "عرض الكل",
+      "searchPlaceholder": "ابحث في مكتبة الموارد...",
+      "categoryLabel": "الفئة",
+      "allCategories": "جميع الفئات",
+      "statusLabel": "الحالة",
+      "allStatuses": "الكل",
+      "completedStatus": "مكتملة",
+      "pendingStatus": "قيد المتابعة",
+      "sortLabel": "ترتيب العرض",
+      "sortCourse": "حسب الدورة",
+      "sortTitle": "حسب العنوان",
+      "sortCategory": "حسب الفئة",
+      "resultsOne": "مورد واحد",
+      "resultsMany": "{count} موارد",
+      "noResults": "لا توجد موارد تطابق البحث.",
+      "openCourse": "فتح",
+      "moduleLabel": "وحدة",
+      "completedShort": "مكتملة",
+      "lessonCompleted": "درس مكتمل",
+      "markComplete": "تحديد كمكتمل",
+      "markIncomplete": "إلغاء الإكمال",
+      "watchVideo": "مشاهدة الفيديو",
+      "listenAudio": "الاستماع",
+      "openPdf": "فتح ملف PDF",
+      "openSheet": "فتح البطاقة",
+      "emptyLibrary": "ستظهر دوراتك ومحتواها هنا.",
+      "categories": {
+        "VIDEO": "فيديوهات",
+        "PDF": "مستندات PDF",
+        "AUDIO": "صوتيات",
+        "EXERCISE": "تمارين",
+        "DOWNLOAD": "تنزيلات",
+        "SHEET": "بطاقات وجداول"
+      }
+    },
+    "settings": {
+      "pageTitle": "الإعدادات",
+      "intro": "يتيح لك هذا القسم الاستعداد لمرافقتك ومشاركة المعلومات المفيدة قبل جلستك القادمة.",
+      "intakeTitle": "استبيان ما قبل الجلسة الأولى",
+      "intakeSubtitle": "املأ هذه المعلومات لمساعدة مدربتك على إعداد مرافقة شخصية.",
+      "goalsLabel": "أهدافك (حاليًا)",
+      "challengesLabel": "تحدياتك / العوائق",
+      "expectationsLabel": "توقعاتك",
+      "update": "تحديث",
+      "save": "حفظ"
+    },
+    "payments": {
+      "pageTitle": "المدفوعات والفواتير",
+      "subtitle": "سجلّ مدفوعاتك وفواتيرك — يمكنك عرضها أو تحميلها بصيغة PDF.",
+      "paidInvoices": "فواتير مدفوعة",
+      "totalPaid": "إجمالي المدفوع",
+      "empty": "سيظهر سجل مدفوعاتك هنا.",
+      "fallbackServiceTitle": "دفعة",
+      "statuses": {
+        "PAID": "مدفوع",
+        "PENDING": "قيد الانتظار",
+        "REFUNDED": "مسترد",
+        "FAILED": "فشل"
+      },
+      "table": {
+        "invoiceNumber": "رقم الفاتورة",
+        "client": "العميل",
+        "date": "التاريخ",
+        "service": "الخدمة",
+        "amount": "المبلغ",
+        "status": "الحالة",
+        "action": "إجراء",
+        "view": "عرض"
+      },
+      "sample": {
+        "badge": "نموذج تجريبي",
+        "title": "معاينة الفاتورة",
+        "description": "هكذا ستظهر الفاتورة للعملاء بعد كل دفعة مؤكدة.",
+        "viewInvoice": "عرض الفاتورة",
+        "invoiceNumber": "رقم الفاتورة",
+        "client": "العميل",
+        "descriptionLabel": "الوصف",
+        "amount": "المبلغ",
+        "provider": "المزود",
+        "demoClientName": "فاطمة الزهراء",
+        "demoDescription": "جلسة كوتشينغ فردية — 60 دقيقة"
+      },
+      "downloadFailed": "تعذّر تحميل الفاتورة.",
+      "downloadInvoice": "تحميل الفاتورة"
+    },
+    "podcastsPage": {
+      "pageTitle": "البودكاست",
+      "subtitle": "استمع إلى الحلقات المتاحة لك في مساحتك الشخصية.",
+      "empty": "لا يوجد بودكاست متاح حالياً.",
+      "lockedMessage": "يُفتح البودكاست الحصري بعد تأكيد جلستك الأولى أو شراء دورة تدريبية.",
+      "openEpisode": "فتح الحلقة"
+    },
+    "mood": {
+      "title": "كيف تشعر اليوم؟",
+      "subtitle": "شارك مزاجك باختصار — يساعد مدربك على مرافقتك بشكل أفضل.",
+      "loggedToday": "مسجّل اليوم",
+      "updateHint": "يمكنك تحديث اختيارك أدناه في أي وقت اليوم.",
+      "shortNoteLabel": "ملاحظة قصيرة (اختياري)",
+      "shortNotePlaceholder": "أضف سطرًا إن أردت",
+      "pickerLabel": "كيف تشعر اليوم؟",
+      "options": {
+        "happy": "بخير",
+        "neutral": "محايدة",
+        "low": "متعبة"
+      }
+    },
+    "calendar": {
+      "prevMonth": "الشهر السابق",
+      "nextMonth": "الشهر التالي"
+    }
+  },
+  "admin": {
+    "sidebarTitle": "لوحة الإدارة",
+    "viewSite": "عرض الموقع",
+    "spaceTitle": "لوحة الإدارة",
+    "nav": {
+      "dashboard": "لوحة التحكم",
+      "users": "العملاء",
+      "bookings": "الحجوزات",
+      "services": "الجلسات",
+      "courses": "الدورات",
+      "podcasts": "البودكاست",
+      "blog": "المدونة",
+      "testimonials": "آراء العملاء",
+      "payments": "الفواتير",
+      "coupons": "القسائم",
+      "settings": "الإعدادات"
+    },
+    "common": {
+      "back": "رجوع",
+      "manage": "إدارة",
+      "view": "عرض",
+      "save": "حفظ"
+    },
+    "twoFactor": {
+      "title": "المصادقة الثنائية مطلوبة",
+      "body": "لحماية بيانات العملاء والمدفوعات، يتطلب الوصول إلى لوحة الإدارة تفعيل المصادقة الثنائية (تطبيق Authenticator). فعّلها من ملفك الشخصي في Clerk، ثم أعد تحميل هذه الصفحة.",
+      "backToDashboard": "العودة إلى لوحة العميل",
+      "setup": "إعداد المصادقة الثنائية"
+    },
+    "settingsHub": {
+      "title": "الإعدادات",
+      "subtitle": "إعدادات المنصة مرتبة حسب الموضوع — الحجوزات، العملاء، التواصل والتحليلات.",
+      "groups": {
+        "bookings": {
+          "title": "الحجوزات والجلسات",
+          "description": "كل ما يخص مواعيد العملاء وإجراء الجلسات عن بُعد."
+        },
+        "clients": {
+          "title": "العملاء",
+          "description": "متابعة ما يرسله العملاء قبل وبعد الجلسات."
+        },
+        "communication": {
+          "title": "التواصل",
+          "description": "قنوات التواصل ورسائل البريد التلقائية."
+        },
+        "analytics": {
+          "title": "التحليلات",
+          "description": "فهم سلوك البحث على الموقع وفي مساحة العملاء."
+        },
+        "languages": {
+          "title": "اللغات",
+          "description": "تفعيل أو إيقاف اللغات المتاحة على الموقع العام ولوحة الإدارة."
+        }
+      },
+      "items": {
+        "availability": {
+          "title": "التوفر",
+          "description": "اضبطي فترات الجلسات المتاحة في التقويم."
+        },
+        "visio": {
+          "title": "Zoom / Google Meet",
+          "description": "تحققي من إنشاء روابط مكالمات الفيديو للحجوزات المؤكدة."
+        },
+        "intakeForms": {
+          "title": "استبيانات ما قبل الجلسة",
+          "description": "اطلعي على إجابات العملاء قبل كل جلسة."
+        },
+        "communication": {
+          "title": "التواصل والبريد",
+          "description": "عدّلي البريد الإلكتروني، واتساب، إنستغرام وبريد استقبال الرسائل."
+        },
+        "emails": {
+          "title": "قوالب البريد",
+          "description": "خصّصي رسائل التأكيد والتذكير المرسلة للعملاء."
+        },
+        "searchInsights": {
+          "title": "تحليلات البحث",
+          "description": "اطلعي على أكثر الكلمات بحثًا على الموقع وفي لوحة العملاء."
+        },
+        "languages": {
+          "title": "اللغات",
+          "description": "فعّلي العربية و/أو الفرنسية للزوار والإدارة."
+        }
+      }
+    },
+    "languagesPage": {
+      "title": "اللغات",
+      "subtitle": "تحكم في اللغات المعروضة للزوار. يمكنك إيقاف الفرنسية مؤقتًا مع الاحتفاظ بالبنية لإعادة تفعيلها لاحقًا.",
+      "publicTitle": "لغات الموقع",
+      "publicHint": "عند تفعيل لغة واحدة فقط، يختفي مبدّل اللغة من الموقع العام.",
+      "adminTitle": "لوحة الإدارة",
+      "adminHint": "تستخدم لوحة الإدارة نفس اللغات المفعّلة. غيّر لغة العرض من المبدّل أعلى القائمة.",
+      "arLabel": "العربية",
+      "arHint": "اللغة الافتراضية — موصى بها دائمًا.",
+      "frLabel": "Français",
+      "frHint": "واجهة الموقع والإدارة بالفرنسية عند تفعيلها.",
+      "save": "حفظ إعدادات اللغات"
+    }
+  }
+}

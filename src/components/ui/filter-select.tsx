@@ -52,6 +52,7 @@ export function FilterSelect({
   return (
     <div
       ref={rootRef}
+      dir="rtl"
       className={className ?? "relative"}
       suppressHydrationWarning
     >
@@ -70,7 +71,7 @@ export function FilterSelect({
           }
           if (e.key === "Escape") setOpen(false);
         }}
-        className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-left flex items-center justify-between gap-3 transition-colors hover:border-primary/30"
+        className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-start flex items-center justify-between gap-3 transition-colors hover:border-primary/30"
       >
         <span className="text-text">{selectedLabel}</span>
         <motion.span
@@ -107,7 +108,7 @@ export function FilterSelect({
                     setOpen(false);
                   }}
                   className={[
-                    "w-full px-4 py-2.5 text-sm text-left transition-colors",
+                    "w-full px-4 py-2.5 text-sm text-start transition-colors",
                     isActive
                       ? "bg-primary/10 text-primary"
                       : "text-text hover:bg-primary/5",

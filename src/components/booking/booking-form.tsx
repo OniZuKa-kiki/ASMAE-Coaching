@@ -6,21 +6,17 @@ import { useAuth, SignInButton } from "@clerk/nextjs";
 import { AnimatePresence, motion } from "framer-motion";
 import { format } from "date-fns";
 import { Calendar, Clock, ClipboardList, CreditCard, Loader2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/input";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-import { dateFnsLocale } from "@/lib/locale";
-import { bookingPageContent } from "@/lib/constants";
-import {
-  BOOKING_REASON_IDS,
-  type BookingReasonId,
-  getBookingReasonLabel,
-} from "@/lib/booking-reasons";
+import { dateFnsLocaleFor, intlLocale } from "@/lib/locale";
+import { BOOKING_REASON_IDS, type BookingReasonId } from "@/lib/booking-reasons";
 import { PaymentMethodSelector } from "@/components/payments/payment-method-selector";
 import { getBookableDates } from "@/lib/booking-dates";
-import { toFriendlyError, friendlyErrors } from "@/lib/api-errors";
+import { getFriendlyErrors, toFriendlyError } from "@/lib/api-errors";
 import { notifyError, notifySuccess } from "@/lib/notify";
 import {
   convertCatalogAmountToProvider,
@@ -30,15 +26,18 @@ import type {
   PaymentProviderConfig,
   PaymentProviderId,
 } from "@/lib/payments/types";
-import {
-  formatServiceDuration,
-  type BookableService,
-} from "@/lib/services";
+import type { BookableService } from "@/lib/services";
+import type { AppLocale } from "@/i18n/routing";
 
 export function BookingForm({ services }: { services: BookableService[] }) {
+  const locale = useLocale() as AppLocale;
+  const t = useTranslations("booking");
+  const tCommon = useTranslations("common");
   const searchParams = useSearchParams();
   const { isSignedIn } = useAuth();
   const preselectedService = searchParams.get("service");
+  const dateLocale = dateFnsLocaleFor(locale);
+  const priceLocale = intlLocale(locale);
 
   const defaultSlug =
     preselectedService && services.some((s) => s.slug === preselectedService)
@@ -62,12 +61,15 @@ export function BookingForm({ services }: { services: BookableService[] }) {
     useState<PaymentProviderId>("payzone");
 
   const service = services.find((s) => s.slug === selectedService);
-
   const availableDates = getBookableDates(14);
 
   const canProceedStep3 =
     selectedReason !== null &&
     (selectedReason !== "other" || reasonDetail.trim().length >= 3);
+
+  function reasonLabel(reasonId: BookingReasonId): string {
+    return t(`intentReasons.${reasonId}`);
+  }
 
   useEffect(() => {
     fetch("/api/payments/providers")
@@ -101,9 +103,9 @@ export function BookingForm({ services }: { services: BookableService[] }) {
     if (!selectedDate || !selectedTime || !service || !selectedReason) return;
 
     if (!isSignedIn) {
-      const message = friendlyErrors.unauthorized;
+      const message = getFriendlyErrors(locale).unauthorized;
       setError(message);
-      notifyError(message);
+      notifyError(message, undefined, locale);
       return;
     }
 
@@ -126,16 +128,16 @@ export function BookingForm({ services }: { services: BookableService[] }) {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "خطأ في الدفع");
+      if (!res.ok) throw new Error(data.error || t("paymentError"));
 
       if (data.url) {
-        notifySuccess(friendlyErrors.bookingRedirect);
+        notifySuccess(getFriendlyErrors(locale).bookingRedirect);
         window.location.href = data.url;
       }
     } catch (err) {
-      const raw = err instanceof Error ? err.message : "خطأ في الدفع";
-      setError(toFriendlyError(raw));
-      notifyError(raw);
+      const raw = err instanceof Error ? err.message : t("paymentError");
+      setError(toFriendlyError(raw, undefined, locale));
+      notifyError(raw, t("paymentError"), locale);
       setPaying(false);
     }
   }
@@ -143,7 +145,7 @@ export function BookingForm({ services }: { services: BookableService[] }) {
   if (services.length === 0) {
     return (
       <Card className="text-center py-12">
-        <p className="text-text/70">{bookingPageContent.noServices}</p>
+        <p className="text-text/70">{t("noServices")}</p>
       </Card>
     );
   }
@@ -160,17 +162,20 @@ export function BookingForm({ services }: { services: BookableService[] }) {
   );
 
   const steps = [
-    { num: 1, label: bookingPageContent.steps.service, icon: Calendar },
-    { num: 2, label: bookingPageContent.steps.schedule, icon: Clock },
-    { num: 3, label: bookingPageContent.steps.intent, icon: ClipboardList },
-    { num: 4, label: bookingPageContent.steps.payment, icon: CreditCard },
+    { num: 1, label: t("steps.service"), icon: Calendar },
+    { num: 2, label: t("steps.schedule"), icon: Clock },
+    { num: 3, label: t("steps.intent"), icon: ClipboardList },
+    { num: 4, label: t("steps.payment"), icon: CreditCard },
   ];
 
   return (
     <div className="container-narrow max-w-3xl">
       <div className="flex justify-between mb-8 sm:mb-12 gap-2">
         {steps.map((s) => (
-          <div key={s.num} className="flex flex-col items-center gap-1.5 flex-1 min-w-0">
+          <div
+            key={s.num}
+            className="flex flex-col items-center gap-1.5 flex-1 min-w-0"
+          >
             <div
               className={cn(
                 "w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors duration-200",
@@ -200,7 +205,7 @@ export function BookingForm({ services }: { services: BookableService[] }) {
             className="space-y-4"
           >
             <h2 className="font-heading text-2xl font-semibold text-heading mb-6">
-              {bookingPageContent.chooseServiceTitle}
+              {t("chooseService")}
             </h2>
             {services.map((s) => (
               <Card
@@ -215,13 +220,13 @@ export function BookingForm({ services }: { services: BookableService[] }) {
                   {s.title}
                 </h3>
                 <p className="text-sm text-text/70">
-                  {formatServiceDuration(s.durationMinutes)} —{" "}
-                  {formatPrice(s.price)}
+                  {s.durationMinutes} {tCommon("minutes")} —{" "}
+                  {formatPrice(s.price, "EUR", priceLocale)}
                 </p>
               </Card>
             ))}
             <Button onClick={() => setStep(2)} className="w-full mt-6">
-              {bookingPageContent.nextLabel}
+              {t("next")}
             </Button>
           </motion.div>
         )}
@@ -235,7 +240,7 @@ export function BookingForm({ services }: { services: BookableService[] }) {
             transition={{ duration: 0.2 }}
           >
             <h2 className="font-heading text-2xl font-semibold text-heading mb-6">
-              {bookingPageContent.chooseScheduleTitle}
+              {t("chooseSchedule")}
             </h2>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-8">
               {availableDates.map((date) => {
@@ -253,7 +258,7 @@ export function BookingForm({ services }: { services: BookableService[] }) {
                   >
                     <div className="font-semibold">{date.getDate()}</div>
                     <div className="text-xs text-text/70">
-                      {format(date, "MMM", { locale: dateFnsLocale })}
+                      {format(date, "MMM", { locale: dateLocale })}
                     </div>
                   </button>
                 );
@@ -268,7 +273,7 @@ export function BookingForm({ services }: { services: BookableService[] }) {
                   </div>
                 ) : slots.length === 0 ? (
                   <p className="text-text/70 text-center py-4 mb-6">
-                    {bookingPageContent.noSlots}
+                    {t("noSlots")}
                   </p>
                 ) : (
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-8">
@@ -291,16 +296,16 @@ export function BookingForm({ services }: { services: BookableService[] }) {
               </>
             )}
 
-            <div className="flex gap-4">
+            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:gap-4">
               <Button variant="secondary" onClick={() => setStep(1)}>
-                {bookingPageContent.backLabel}
+                {t("back")}
               </Button>
               <Button
                 onClick={() => setStep(3)}
                 disabled={!selectedDate || !selectedTime}
                 className="flex-1"
               >
-                {bookingPageContent.nextLabel}
+                {t("next")}
               </Button>
             </div>
           </motion.div>
@@ -317,19 +322,16 @@ export function BookingForm({ services }: { services: BookableService[] }) {
           >
             <div>
               <h2 className="font-heading text-2xl font-semibold text-heading">
-                {bookingPageContent.intentTitle}
+                {t("intentTitle")}
               </h2>
               <p className="mt-2 text-sm text-text/70">
-                {bookingPageContent.intentSubtitle}
+                {t("intentSubtitle")}
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               {BOOKING_REASON_IDS.map((reasonId) => {
                 const isSelected = selectedReason === reasonId;
-                const label =
-                  bookingPageContent.intentReasons[reasonId] ??
-                  getBookingReasonLabel(reasonId);
 
                 return (
                   <button
@@ -348,7 +350,9 @@ export function BookingForm({ services }: { services: BookableService[] }) {
                         : "border-border bg-card hover:border-primary/30"
                     )}
                   >
-                    <p className="font-medium text-heading">{label}</p>
+                    <p className="font-medium text-heading">
+                      {reasonLabel(reasonId)}
+                    </p>
                   </button>
                 );
               })}
@@ -358,22 +362,22 @@ export function BookingForm({ services }: { services: BookableService[] }) {
               <Textarea
                 value={reasonDetail}
                 onChange={(e) => setReasonDetail(e.target.value)}
-                placeholder={bookingPageContent.intentOtherPlaceholder}
+                placeholder={t("intentOtherPlaceholder")}
                 rows={4}
                 className="resize-none"
               />
             )}
 
-            <div className="flex gap-4">
+            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:gap-4">
               <Button variant="secondary" onClick={() => setStep(2)}>
-                {bookingPageContent.backLabel}
+                {t("back")}
               </Button>
               <Button
                 onClick={() => setStep(4)}
                 disabled={!canProceedStep3}
                 className="flex-1"
               >
-                {bookingPageContent.nextLabel}
+                {t("next")}
               </Button>
             </div>
           </motion.div>
@@ -388,30 +392,29 @@ export function BookingForm({ services }: { services: BookableService[] }) {
             transition={{ duration: 0.2 }}
           >
             <h2 className="font-heading text-2xl font-semibold text-heading mb-6">
-              {bookingPageContent.paymentTitle}
+              {t("paymentTitle")}
             </h2>
             <Card className="mb-6">
-              <div className="flex justify-between mb-2">
-                <span className="text-text">{service.title}</span>
-                <span className="font-semibold text-heading">
-                  {formatPrice(service.price)}
+              <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-3 mb-2">
+                <span className="min-w-0 text-text">{service.title}</span>
+                <span className="shrink-0 font-semibold text-heading">
+                  {formatPrice(service.price, "EUR", priceLocale)}
                 </span>
               </div>
               <div className="text-sm text-text/70">
                 {selectedDate &&
                   format(new Date(selectedDate), "EEEE d MMMM yyyy", {
-                    locale: dateFnsLocale,
+                    locale: dateLocale,
                   })}{" "}
-                الساعة {selectedTime}
+                {selectedTime ? t("atTime", { time: selectedTime }) : null}
               </div>
               {selectedReason && (
                 <div className="mt-3 pt-3 border-t border-border text-sm text-text/70">
                   <span className="text-text/60">
-                    {bookingPageContent.steps.intent}:{" "}
+                    {t("steps.intent")}:{" "}
                   </span>
                   <span className="text-heading">
-                    {bookingPageContent.intentReasons[selectedReason] ??
-                      getBookingReasonLabel(selectedReason)}
+                    {reasonLabel(selectedReason)}
                     {selectedReason === "other" && reasonDetail.trim()
                       ? ` — ${reasonDetail.trim()}`
                       : ""}
@@ -422,11 +425,9 @@ export function BookingForm({ services }: { services: BookableService[] }) {
 
             {!isSignedIn ? (
               <Card className="mb-6 text-center py-6">
-                <p className="text-text mb-4">
-                  {bookingPageContent.signInPrompt}
-                </p>
+                <p className="text-text mb-4">{t("signInPrompt")}</p>
                 <SignInButton mode="modal">
-                  <Button>{bookingPageContent.signInButton}</Button>
+                  <Button>{t("signInButton")}</Button>
                 </SignInButton>
               </Card>
             ) : (
@@ -434,15 +435,15 @@ export function BookingForm({ services }: { services: BookableService[] }) {
                 providers={providers}
                 selected={selectedProvider}
                 onSelect={(id) => setSelectedProvider(id as PaymentProviderId)}
-                footnote={bookingPageContent.paymentFootnote}
+                footnote={t("paymentFootnote")}
               />
             )}
 
             {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
 
-            <div className="flex gap-4">
+            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:gap-4">
               <Button variant="secondary" onClick={() => setStep(3)}>
-                {bookingPageContent.backLabel}
+                {t("back")}
               </Button>
               <Button
                 onClick={handlePayment}
@@ -452,10 +453,10 @@ export function BookingForm({ services }: { services: BookableService[] }) {
                 {paying ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin me-2" />
-                    {bookingPageContent.payingLabel}
+                    {t("paying")}
                   </>
                 ) : (
-                  bookingPageContent.payButton(payLabel)
+                  t("payButton", { amount: payLabel })
                 )}
               </Button>
             </div>

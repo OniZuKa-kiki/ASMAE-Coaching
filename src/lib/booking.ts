@@ -1,5 +1,6 @@
 import { format, parse } from "date-fns";
-import { dateFnsLocale } from "@/lib/locale";
+import type { AppLocale } from "@/i18n/routing";
+import { dateFnsLocale, dateFnsLocaleFor } from "@/lib/locale";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 
@@ -114,8 +115,9 @@ export async function getAvailableSlots(
   return slots.sort();
 }
 
-export function formatBookingDate(date: Date): string {
-  return format(date, "EEEE d MMMM yyyy", { locale: dateFnsLocale });
+export function formatBookingDate(date: Date, locale?: AppLocale): string {
+  const loc = locale ? dateFnsLocaleFor(locale) : dateFnsLocale;
+  return format(date, "EEEE d MMMM yyyy", { locale: loc });
 }
 
 export async function isSlotAvailable(

@@ -17,11 +17,14 @@ export function buildInvoiceNumber(
   return `INV-${year}-${suffix}`;
 }
 
-export function getPaymentServiceTitle(payment: {
-  booking?: { service: { title: string } } | null;
-  course?: { title: string } | null;
-}): string {
-  return payment.booking?.service.title || payment.course?.title || "دفعة";
+export function getPaymentServiceTitle(
+  payment: {
+    booking?: { service: { title: string } } | null;
+    course?: { title: string } | null;
+  },
+  fallback: string
+): string {
+  return payment.booking?.service.title || payment.course?.title || fallback;
 }
 
 export function getClientDisplayName(user: {

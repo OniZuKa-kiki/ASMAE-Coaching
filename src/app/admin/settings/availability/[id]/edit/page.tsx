@@ -2,6 +2,7 @@ import { adminUrl } from "@/lib/admin-path";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { getLocale, getTranslations } from "next-intl/server";
 import { AdminFormField } from "@/components/admin/form-field";
 import {
   AdminDangerButton,
@@ -17,20 +18,16 @@ import {
   runAction,
   type ActionResult,
 } from "@/lib/action-result";
+import { getActionLocale } from "@/lib/action-locale";
+import {
+  getAdminDayLabel,
+  getAdminDayOptions,
+} from "@/lib/admin-i18n";
 import { prisma } from "@/lib/db";
 import { getUserRole } from "@/lib/auth";
+import type { AppLocale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
-
-const dayOptions = [
-  { value: 0, label: "الأحد" },
-  { value: 1, label: "الإثنين" },
-  { value: 2, label: "الثلاثاء" },
-  { value: 3, label: "الأربعاء" },
-  { value: 4, label: "الخميس" },
-  { value: 5, label: "الجمعة" },
-  { value: 6, label: "السبت" },
-];
 
 async function updateAvailability(formData: FormData): Promise<ActionResult> {
   "use server";
@@ -38,6 +35,7 @@ async function updateAvailability(formData: FormData): Promise<ActionResult> {
   const denied = await ensureAdmin();
   if (denied) return denied;
 
+  const locale = await getActionLocale();
   const id = String(formData.get("id") || "");
   const dayOfWeekRaw = String(formData.get("dayOfWeek") || "").trim();
   const startTime = String(formData.get("startTime") || "").trim();
@@ -45,13 +43,13 @@ async function updateAvailability(formData: FormData): Promise<ActionResult> {
   const isActive = String(formData.get("isActive") || "") === "on";
 
   const dayOfWeek = Number(dayOfWeekRaw);
-  if (!id || !startTime || !endTime) return incomplete("ar");
+  if (!id || !startTime || !endTime) return incomplete(locale);
   if (!Number.isFinite(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
-    return incomplete("ar");
+    return incomplete(locale);
   }
 
   return runAction(
-    "ar",
+    locale,
     async () => {
       await prisma.availability.update({
         where: { id },
@@ -76,11 +74,12 @@ async function deleteAvailability(formData: FormData): Promise<ActionResult> {
   const denied = await ensureAdmin();
   if (denied) return denied;
 
+  const locale = await getActionLocale();
   const id = String(formData.get("id") || "");
-  if (!id) return incomplete("ar");
+  if (!id) return incomplete(locale);
 
   return runAction(
-    "ar",
+    locale,
     async () => {
       await prisma.availability.delete({ where: { id } });
       revalidatePath("/admin/settings/availability");
@@ -98,6 +97,15 @@ export default async function AdminAvailabilityEditPage({
   const role = await getUserRole();
   if (role !== "admin") redirect("/dashboard");
 
+  const locale = (await getLocale()) as AppLocale;
+  const [t, tFields, tActions, tCommon] = await Promise.all([
+    getTranslations("adminPages.settings.availability"),
+    getTranslations("adminPages.fields"),
+    getTranslations("adminPages.actions"),
+    getTranslations("admin.common"),
+  ]);
+  const dayOptions = getAdminDayOptions(locale);
+
   const { id } = await params;
   const row = await prisma.availability.findUnique({ where: { id } });
   if (!row) notFound();
@@ -106,24 +114,29 @@ export default async function AdminAvailabilityEditPage({
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-header-title">تعديل فترة</h1>
-          <p className="text-sm text-text/70 mt-1">
-            {dayOptions.find((d) => d.value === row.dayOfWeek)?.label ?? row.dayOfWeek}
+          <h1 className="page-header-title">{t("editTitle")}</h1>
+          <p className="mt-1 text-sm text-text/70">
+            {getAdminDayLabel(locale, row.dayOfWeek)}
           </p>
         </div>
         <Link
           href={adminUrl("/settings/availability")}
-          className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
+          className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading transition-colors hover:border-primary hover:text-primary"
         >
-          رجوع
+          {tCommon("back")}
         </Link>
       </div>
 
       <Card className="p-5">
-        <ActionForm action={updateAvailability} locale="ar" className="grid md:grid-cols-2 gap-4" id={`availability-update-${row.id}`}>
+        <ActionForm
+          action={updateAvailability}
+          locale={locale}
+          className="grid gap-4 md:grid-cols-2"
+          id={`availability-update-${row.id}`}
+        >
           <input type="hidden" name="id" value={row.id} />
 
-          <AdminFormField label="اليوم" htmlFor="edit-avail-day">
+          <AdminFormField label={t("day")} htmlFor="edit-avail-day">
             <select
               id="edit-avail-day"
               name="dayOfWeek"
@@ -138,14 +151,14 @@ export default async function AdminAvailabilityEditPage({
             </select>
           </AdminFormField>
 
-          <AdminFormField label="الحالة">
-            <label className="inline-flex items-center gap-2 text-sm text-text h-[46px]">
+          <AdminFormField label={tFields("status")}>
+            <label className="inline-flex h-[46px] items-center gap-2 text-sm text-text">
               <input type="checkbox" name="isActive" defaultChecked={row.isActive} />
-              فترة نشطة
+              {t("activeSlot")}
             </label>
           </AdminFormField>
 
-          <AdminFormField label="وقت البداية" htmlFor="edit-avail-start">
+          <AdminFormField label={t("startTime")} htmlFor="edit-avail-start">
             <Input
               id="edit-avail-start"
               name="startTime"
@@ -156,7 +169,7 @@ export default async function AdminAvailabilityEditPage({
             />
           </AdminFormField>
 
-          <AdminFormField label="وقت النهاية" htmlFor="edit-avail-end">
+          <AdminFormField label={t("endTime")} htmlFor="edit-avail-end">
             <Input
               id="edit-avail-end"
               name="endTime"
@@ -166,16 +179,15 @@ export default async function AdminAvailabilityEditPage({
               required
             />
           </AdminFormField>
-
         </ActionForm>
 
-        <AdminFormActions align="end" className="mt-4 pt-4 border-t border-border/50">
+        <AdminFormActions align="end" className="mt-4 border-t border-border/50 pt-4">
           <AdminPrimaryButton form={`availability-update-${row.id}`}>
-            حفظ التعديلات
+            {tActions("save")}
           </AdminPrimaryButton>
-          <ActionForm action={deleteAvailability} locale="ar" className="inline-flex">
+          <ActionForm action={deleteAvailability} locale={locale} className="inline-flex">
             <input type="hidden" name="id" value={row.id} />
-            <AdminDangerButton>حذف الفترة</AdminDangerButton>
+            <AdminDangerButton>{t("deleteSlot")}</AdminDangerButton>
           </ActionForm>
         </AdminFormActions>
       </Card>

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getRequestFriendlyErrors } from "@/lib/action-locale";
 import { buildInvoiceHtmlForPayment, buildInvoicePdfForPayment } from "@/lib/invoice";
 
 export const runtime = "nodejs";
@@ -8,7 +9,8 @@ type RouteContext = {
   params: Promise<{ id: string }>;
 };
 
-function invoiceErrorResponse(error: string) {
+async function invoiceErrorResponse(error: string) {
+  const errors = await getRequestFriendlyErrors();
   const status =
     error === "unauthorized"
       ? 401
@@ -19,14 +21,14 @@ function invoiceErrorResponse(error: string) {
       : 404;
 
   const messages: Record<string, string> = {
-    unauthorized: "يرجى تسجيل الدخول.",
-    forbidden: "غير مصرح.",
-    not_paid: "الفاتورة متاحة للمدفوعات المؤكدة فقط.",
-    not_found: "الدفعة غير موجودة.",
+    unauthorized: errors.unauthorized,
+    forbidden: errors.forbidden,
+    not_paid: errors.invoiceNotPaid,
+    not_found: errors.invoiceNotFound,
   };
 
   return NextResponse.json(
-    { error: messages[error] ?? "خطأ" },
+    { error: messages[error] ?? errors.generic },
     { status }
   );
 }
@@ -65,8 +67,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
       },
     });
   } catch {
+    const errors = await getRequestFriendlyErrors();
     return NextResponse.json(
-      { error: "تعذّر إنشاء الفاتورة." },
+      { error: errors.invoiceGenerateFailed },
       { status: 500 }
     );
   }

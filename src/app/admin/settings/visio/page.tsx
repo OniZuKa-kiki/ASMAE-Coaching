@@ -1,12 +1,16 @@
 import { adminUrl } from "@/lib/admin-path";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui/card";
+import { getAdminPagesCopy } from "@/lib/admin-i18n";
 import { getUserRole } from "@/lib/auth";
+import type { AppLocale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
 
-function getMeetingMode() {
+function getMeetingMode(locale: AppLocale) {
+  const modes = getAdminPagesCopy(locale).settings.visio.modes;
   const staticZoomUrl = process.env.ZOOM_STATIC_MEETING_URL?.trim();
   const staticMeetUrl = process.env.GOOGLE_MEET_STATIC_URL?.trim();
   const zoomAccountId = process.env.ZOOM_ACCOUNT_ID?.trim();
@@ -15,40 +19,36 @@ function getMeetingMode() {
 
   if (staticZoomUrl) {
     return {
-      title: "تم إعداد رابط Zoom ثابت",
-      description:
-        "سيستلم كل حجز مؤكد نفس رابط Zoom. هذه أبسط طريقة للبدء.",
-      status: "نشط",
-      provider: "Zoom (رابط ثابت)",
+      title: modes.zoomStaticTitle,
+      description: modes.zoomStaticDesc,
+      status: modes.active,
+      provider: modes.zoomStaticProvider,
     };
   }
 
   if (staticMeetUrl) {
     return {
-      title: "تم إعداد رابط Google Meet ثابت",
-      description:
-        "سيستلم كل حجز مؤكد نفس رابط Google Meet.",
-      status: "نشط",
-      provider: "Google Meet (رابط ثابت)",
+      title: modes.meetStaticTitle,
+      description: modes.meetStaticDesc,
+      status: modes.active,
+      provider: modes.meetStaticProvider,
     };
   }
 
   if (zoomAccountId && zoomClientId && zoomClientSecret) {
     return {
-      title: "يمكن تفعيل إنشاء Zoom تلقائياً",
-      description:
-        "المشروع يحتوي على المتغيرات اللازمة لإنشاء رابط Zoom فريد لكل جلسة عبر Zoom API.",
-      status: "مُعدّ",
-      provider: "Zoom API",
+      title: modes.zoomAutoTitle,
+      description: modes.zoomAutoDesc,
+      status: modes.ready,
+      provider: modes.zoomAutoProvider,
     };
   }
 
   return {
-    title: "لم يتم إعداد مكالمات الفيديو",
-    description:
-      "لم يتم إعداد أي رابط Zoom/Meet. سيستخدم النظام رابطاً احتياطياً إلى لوحة التحكم حتى يتم تحديد إعدادات مكالمات الفيديو.",
-    status: "يحتاج إكمال",
-    provider: "لا يوجد",
+    title: modes.noneTitle,
+    description: modes.noneDesc,
+    status: modes.needsSetup,
+    provider: modes.noneProvider,
   };
 }
 
@@ -56,36 +56,38 @@ export default async function AdminVisioSettingsPage() {
   const role = await getUserRole();
   if (role !== "admin") redirect("/dashboard");
 
-  const mode = getMeetingMode();
+  const locale = (await getLocale()) as AppLocale;
+  const [t, tCommon] = await Promise.all([
+    getTranslations("adminPages.settings.visio"),
+    getTranslations("admin.common"),
+  ]);
+  const mode = getMeetingMode(locale);
 
   return (
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-header-title">
-            مكالمات الفيديو
-          </h1>
-          <p className="text-sm text-text/70 mt-1">
-            إدارة الروابط المُرسلة بعد تأكيد الحجز.
-          </p>
+          <h1 className="page-header-title">{t("title")}</h1>
+          <p className="mt-1 text-sm text-text/70">{t("subtitle")}</p>
         </div>
         <Link
           href={adminUrl("/settings")}
-          className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
+          className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading transition-colors hover:border-primary hover:text-primary"
         >
-          رجوع
+          {tCommon("back")}
         </Link>
       </div>
 
       <div className="space-y-6">
         <Card>
-          <h2 className="font-heading text-xl text-heading mb-3">{mode.title}</h2>
+          <h2 className="mb-3 font-heading text-xl text-heading">{mode.title}</h2>
           <div className="space-y-2 text-sm text-text/80">
             <p>
-              <span className="font-semibold text-heading">الحالة:</span> {mode.status}
+              <span className="font-semibold text-heading">{t("statusLabel")}</span>{" "}
+              {mode.status}
             </p>
             <p>
-              <span className="font-semibold text-heading">الوضع الحالي:</span>{" "}
+              <span className="font-semibold text-heading">{t("modeLabel")}</span>{" "}
               {mode.provider}
             </p>
             <p>{mode.description}</p>
@@ -93,21 +95,18 @@ export default async function AdminVisioSettingsPage() {
         </Card>
 
         <Card>
-          <h2 className="font-heading text-xl text-heading mb-3">كيف يعمل</h2>
-          <ul className="space-y-2 text-sm text-text/80 list-disc pl-5">
-            <li>عند تأكيد دفع الحجز، ينتقل الحجز إلى حالة مؤكد.</li>
-            <li>في هذه اللحظة، يُنشئ النظام أو يسترجع رابط مكالمة الفيديو.</li>
-            <li>يُحفظ الرابط في الحجز ويُرسل في بريد العميل الإلكتروني.</li>
-            <li>يجد العميل الرابط أيضاً في لوحته، قسم الاستشارات.</li>
+          <h2 className="mb-3 font-heading text-xl text-heading">{t("howItWorks")}</h2>
+          <ul className="list-disc space-y-2 pl-5 text-sm text-text/80">
+            <li>{t("howItWorks1")}</li>
+            <li>{t("howItWorks2")}</li>
+            <li>{t("howItWorks3")}</li>
+            <li>{t("howItWorks4")}</li>
           </ul>
         </Card>
 
         <Card>
-          <h2 className="font-heading text-xl text-heading mb-3">نصيحة</h2>
-          <p className="text-sm text-text/80">
-            للبدء بسرعة، يكفي الرابط الثابت. لاحقاً، يمكنك الانتقال
-            إلى رابط Zoom فريد لكل جلسة إذا فعّلت Zoom API بالكامل.
-          </p>
+          <h2 className="mb-3 font-heading text-xl text-heading">{t("tipTitle")}</h2>
+          <p className="text-sm text-text/80">{t("tipBody")}</p>
         </Card>
       </div>
     </div>

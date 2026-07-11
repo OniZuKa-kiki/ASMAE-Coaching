@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { paymentService } from "@/lib/payments/payment-service";
-import { fulfillVerifiedPayment } from "@/lib/payments/fulfillment";
+import { enqueuePaymentFulfillment } from "@/lib/payments/fulfillment-queue";
 
 export async function POST(request: NextRequest) {
   const paymentId = request.nextUrl.searchParams.get("paymentId");
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
   );
 
   if (verified?.status === "paid") {
-    await fulfillVerifiedPayment(verified);
+    await enqueuePaymentFulfillment(verified);
     return NextResponse.redirect(new URL("/booking/success", request.url));
   }
 

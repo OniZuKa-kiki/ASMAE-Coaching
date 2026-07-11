@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/user";
-import { friendlyErrors } from "@/lib/api-errors";
 import { convertCatalogAmountToProvider } from "@/lib/payments/currency";
 import {
   paymentService,
@@ -87,6 +86,6 @@ export function assertPaymentProviderAvailable(
       : Boolean(process.env.STRIPE_SECRET_KEY);
 
   if (!available) {
-    throw new Error(friendlyErrors.paymentUnavailable);
+    throw new Error("PAYMENT_UNAVAILABLE");
   }
 }

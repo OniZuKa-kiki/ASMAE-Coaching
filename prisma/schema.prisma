@@ -34,6 +34,7 @@ model User {
   firstName String?
   lastName  String?
   role      UserRole @default(CLIENT)
+  preferredLocale String @default("ar")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -48,6 +49,9 @@ model User {
   podcastProgress PodcastListenProgress[]
   bookingReviews BookingReview[]
   notifications Notification[]
+  favorites Favorite[]
+  searchQueries SearchQueryStat[]
+  recommendationClicks RecommendationClick[]
 }
 
 model Service {
@@ -91,6 +95,7 @@ model Booking {
   meetingUrl        String?
   notes             String?
   providerSessionId String?
+  reminderEmailSentAt DateTime?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
@@ -98,6 +103,9 @@ model Booking {
   service Service @relation(fields: [serviceId], references: [id])
   payment Payment?
   review  BookingReview?
+
+  @@index([userId, date])
+  @@index([status, date])
 }
 
 model BookingReview {
@@ -109,8 +117,9 @@ model BookingReview {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  booking     Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  testimonial Testimonial?
 
   @@index([userId, createdAt])
 }
@@ -133,6 +142,8 @@ model Payment {
   user    User     @relation(fields: [userId], references: [id])
   booking Booking? @relation(fields: [bookingId], references: [id])
   course  Course?  @relation(fields: [courseId], references: [id])
+
+  @@index([userId, status])
 }
 
 model Course {
@@ -141,6 +152,7 @@ model Course {
   title       String
   description String
   price       Int
+  topics      String[] @default([])
   isPublished Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -217,6 +229,7 @@ model Podcast {
   description String
   audioUrl    String?
   duration    Int?
+  topics      String[] @default([])
   isPremium   Boolean  @default(false)
   isPublished Boolean  @default(false)
   createdAt   DateTime @default(now())
@@ -255,14 +268,17 @@ model BlogPost {
 }
 
 model Testimonial {
-  id        String   @id @default(cuid())
-  name      String
-  role      String?
-  content   String
-  rating    Int      @default(5)
-  videoUrl  String?
-  isVisible Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id             String   @id @default(cuid())
+  name           String
+  role           String?
+  content        String
+  rating         Int      @default(5)
+  videoUrl       String?
+  isVisible      Boolean  @default(true)
+  sourceReviewId String?  @unique
+  createdAt      DateTime @default(now())
+
+  sourceReview BookingReview? @relation(fields: [sourceReviewId], references: [id], onDelete: SetNull)
 }
 
 model Goal {
@@ -331,6 +347,26 @@ model Notification {
   @@index([userId, readAt, createdAt])
 }
 
+enum FavoriteEntityType {
+  COURSE
+  PODCAST
+  BLOG_POST
+  LESSON
+}
+
+model Favorite {
+  id         String             @id @default(cuid())
+  userId     String
+  entityType FavoriteEntityType
+  entityId   String
+  createdAt  DateTime           @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, entityType, entityId])
+  @@index([userId, createdAt])
+}
+
 model IntakeForm {
   id        String   @id @default(cuid())
   userId    String
@@ -362,5 +398,52 @@ model SiteSettings {
   whatsappUrl     String?
   instagramUrl    String?
   instagramHandle String?
+  localeArEnabled Boolean  @default(true)
+  localeFrEnabled Boolean  @default(false)
   updatedAt       DateTime @updatedAt
+}
+
+enum SearchScope {
+  PUBLIC
+  DASHBOARD
+}
+
+model SearchQueryStat {
+  id             String      @id @default(cuid())
+  scope          SearchScope
+  queryKey       String
+  query          String
+  searchCount    Int         @default(1)
+  lastSearchedAt DateTime    @default(now()) @updatedAt
+  userId         String?
+  user           User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([scope, queryKey])
+  @@index([scope, searchCount(sort: Desc)])
+  @@index([scope, lastSearchedAt(sort: Desc)])
+}
+
+enum RecommendationEntityType {
+  COURSE
+  PODCAST
+}
+
+enum RecommendationSource {
+  DASHBOARD
+  COURSES
+  PODCASTS
+}
+
+model RecommendationClick {
+  id         String                   @id @default(cuid())
+  userId     String
+  entityType RecommendationEntityType
+  entityId   String
+  source     RecommendationSource
+  reasonKey  String?
+  createdAt  DateTime                 @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
 }

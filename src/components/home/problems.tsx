@@ -2,31 +2,30 @@
 
 import { motion } from "framer-motion";
 import { Heart, Brain, Users, Briefcase } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Card } from "@/components/ui/card";
-import { problems, problemsSection } from "@/lib/constants";
 
-const iconMap = {
-  heart: Heart,
-  brain: Brain,
-  users: Users,
-  briefcase: Briefcase,
-};
+const problemKeys = [
+  { key: "confidence", icon: Heart },
+  { key: "stress", icon: Brain },
+  { key: "relationships", icon: Users },
+  { key: "career", icon: Briefcase },
+] as const;
 
 export function Problems() {
+  const t = useTranslations("home.problems");
+
   return (
     <section className="section-padding bg-card/50">
       <div className="container-narrow">
-        <SectionHeading
-          title={problemsSection.title}
-          subtitle={problemsSection.subtitle}
-        />
+        <SectionHeading title={t("title")} subtitle={t("subtitle")} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {problems.map((problem, index) => {
-            const Icon = iconMap[problem.icon as keyof typeof iconMap];
+          {problemKeys.map((problem, index) => {
+            const Icon = problem.icon;
             return (
               <motion.div
-                key={problem.title}
+                key={problem.key}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -39,9 +38,11 @@ export function Problems() {
                     </div>
                     <div>
                       <h3 className="font-heading text-xl font-semibold text-heading mb-2">
-                        {problem.title}
+                        {t(`items.${problem.key}.title`)}
                       </h3>
-                      <p className="text-text">{problem.description}</p>
+                      <p className="text-text">
+                        {t(`items.${problem.key}.description`)}
+                      </p>
                     </div>
                   </div>
                 </Card>

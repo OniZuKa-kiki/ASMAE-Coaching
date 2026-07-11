@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { SignUp, useAuth, useClerk } from "@clerk/nextjs";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { clerkAppearance } from "@/lib/clerk-appearance";
 
 type AuthSignUpPanelProps = {
@@ -18,6 +19,7 @@ export function AuthSignUpPanel({
 }: AuthSignUpPanelProps) {
   const { isLoaded, isSignedIn } = useAuth();
   const { signOut } = useClerk();
+  const t = useTranslations("auth");
   const [phase, setPhase] = useState<Phase>("checking");
   const repairedRef = useRef(false);
 
@@ -51,12 +53,10 @@ export function AuthSignUpPanel({
       <div className="flex min-h-[320px] w-full max-w-[28rem] flex-col items-center justify-center gap-3 px-4 text-center">
         <Loader2
           className="h-8 w-8 animate-spin text-primary"
-          aria-label="جارٍ التحميل"
+          aria-label={t("loadingAria")}
         />
         <p className="text-sm text-text/70">
-          {phase === "repairing"
-            ? "جارٍ مزامنة جلسة الدخول..."
-            : "جارٍ التحميل..."}
+          {phase === "repairing" ? t("repairingSession") : t("loading")}
         </p>
       </div>
     );

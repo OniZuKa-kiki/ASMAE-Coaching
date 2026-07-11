@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { journalMoods, type JournalMoodId } from "@/lib/journal-moods";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +16,7 @@ export function JournalMoodPicker({
   defaultValue = null,
   showLabel = true,
 }: JournalMoodPickerProps) {
+  const t = useTranslations("dashboard.mood");
   const initial =
     defaultValue && journalMoods.some((m) => m.id === defaultValue)
       ? (defaultValue as JournalMoodId)
@@ -25,7 +27,7 @@ export function JournalMoodPicker({
     <div>
       <input type="hidden" name={name} value={selected ?? ""} />
       {showLabel ? (
-        <p className="mb-3 text-sm font-medium text-heading">كيف تشعرين اليوم؟</p>
+        <p className="mb-3 text-sm font-medium text-heading">{t("pickerLabel")}</p>
       ) : null}
       <div className="flex flex-wrap gap-3">
         {journalMoods.map((mood) => {
@@ -51,7 +53,7 @@ export function JournalMoodPicker({
                 {mood.emoji}
               </span>
               <span className="text-xs font-medium text-heading">
-                {mood.label}
+                {t(`options.${mood.id}`)}
               </span>
             </button>
           );

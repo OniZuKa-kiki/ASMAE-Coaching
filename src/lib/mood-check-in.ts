@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
-import { getJournalMoodDisplay, isJournalMoodId } from "@/lib/journal-moods";
+import { getJournalMoodDisplay } from "@/lib/journal-moods-i18n";
+import { getRequestLocale } from "@/lib/request-locale";
+import { isJournalMoodId } from "@/lib/journal-moods";
 import { getOrCreateUser } from "@/lib/user";
 
 export function getTodayCheckInDate(): Date {
@@ -23,7 +25,7 @@ export type MoodCheckInView = {
 };
 
 export async function getUserTodayMoodCheckIn(): Promise<MoodCheckInView | null> {
-  const user = await getOrCreateUser();
+  const [user, locale] = await Promise.all([getOrCreateUser(), getRequestLocale()]);
   if (!user) return null;
 
   const entry = await prisma.moodCheckIn.findUnique({
@@ -37,7 +39,7 @@ export async function getUserTodayMoodCheckIn(): Promise<MoodCheckInView | null>
 
   if (!entry) return null;
 
-  const display = getJournalMoodDisplay(entry.mood);
+  const display = getJournalMoodDisplay(entry.mood, locale);
   if (!display) return null;
 
   return {
@@ -69,12 +71,12 @@ export async function getTodayMoodCheckIns(): Promise<AdminMoodCheckInItem[]> {
   });
 
   return entries.map((entry) => {
-    const display = getJournalMoodDisplay(entry.mood);
+    const display = getJournalMoodDisplay(entry.mood, "ar");
     return {
       userId: entry.userId,
       clientName:
         [entry.user.firstName, entry.user.lastName].filter(Boolean).join(" ") ||
-        "عميلة",
+        "عميل",
       mood: entry.mood,
       note: entry.note,
       emoji: display?.emoji ?? null,
@@ -87,7 +89,7 @@ export function parseMoodCheckInInput(moodRaw: string, noteRaw: string) {
   const mood = moodRaw.trim();
   const note = noteRaw.trim();
   if (!isJournalMoodId(mood)) {
-    throw new Error("يرجى اختيار مزاج صالح.");
+    throw new Error("INVALID_MOOD");
   }
   return {
     mood,

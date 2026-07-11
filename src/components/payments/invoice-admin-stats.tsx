@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
 import type { InvoiceAdminStats } from "@/lib/invoice-utils";
 
@@ -6,12 +9,14 @@ type InvoiceAdminStatsCardsProps = {
 };
 
 export function InvoiceAdminStatsCards({ stats }: InvoiceAdminStatsCardsProps) {
+  const t = useTranslations("adminPages.payments.stats");
+
   const items = [
-    { label: "إجمالي السجلات", value: String(stats.total) },
-    { label: "مدفوعة", value: String(stats.paid) },
-    { label: "مستردة", value: String(stats.refunded) },
-    { label: "قيد الانتظار", value: String(stats.pending) },
-    { label: "إيرادات مؤكدة", value: stats.revenueLabel },
+    { label: t("total"), value: String(stats.total) },
+    { label: t("paid"), value: String(stats.paid) },
+    { label: t("refunded"), value: String(stats.refunded) },
+    { label: t("pending"), value: String(stats.pending) },
+    { label: t("revenue"), value: stats.revenueLabel },
   ];
 
   return (

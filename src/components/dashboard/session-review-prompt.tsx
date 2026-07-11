@@ -1,7 +1,9 @@
+"use client";
+
 import { Star } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
 import { SessionReviewForm } from "@/components/dashboard/session-review-form";
-import { dashboardContent } from "@/lib/constants";
 import type { ReviewableBooking } from "@/lib/session-review";
 
 type SessionReviewPromptProps = {
@@ -9,6 +11,8 @@ type SessionReviewPromptProps = {
 };
 
 export function SessionReviewPrompt({ booking }: SessionReviewPromptProps) {
+  const t = useTranslations("dashboard.sessionReview");
+
   return (
     <Card className="mb-6 border-accent/30 bg-accent/5">
       <div className="mb-4 flex items-start gap-3">
@@ -17,11 +21,9 @@ export function SessionReviewPrompt({ booking }: SessionReviewPromptProps) {
         </div>
         <div>
           <h2 className="font-heading text-lg font-semibold text-heading">
-            {dashboardContent.sessionReview.promptTitle}
+            {t("promptTitle")}
           </h2>
-          <p className="mt-1 text-sm text-text/70">
-            {dashboardContent.sessionReview.promptSubtitle}
-          </p>
+          <p className="mt-1 text-sm text-text/70">{t("promptSubtitle")}</p>
         </div>
       </div>
       <SessionReviewForm

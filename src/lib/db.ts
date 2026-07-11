@@ -9,7 +9,16 @@ function createPrismaClient() {
 }
 
 function isPrismaClientReady(client: PrismaClient) {
-  return typeof (client as PrismaClient & { notification?: unknown }).notification !== "undefined";
+  const extended = client as PrismaClient & {
+    notification?: unknown;
+    favorite?: unknown;
+    searchQueryStat?: unknown;
+  };
+  return (
+    typeof extended.notification !== "undefined" &&
+    typeof extended.favorite !== "undefined" &&
+    typeof extended.searchQueryStat !== "undefined"
+  );
 }
 
 const cached = globalForPrisma.prisma;

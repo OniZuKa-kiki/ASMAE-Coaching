@@ -1,11 +1,14 @@
+import { getTranslations } from "next-intl/server";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function RootLoading() {
+export default async function RootLoading() {
+  const t = await getTranslations("common");
+
   return (
     <div
       className="container-narrow px-4 py-16 duration-300"
       aria-busy
-      aria-label="جارٍ التحميل"
+      aria-label={t("loadingAria")}
     >
       <div className="mx-auto max-w-2xl space-y-6 text-center">
         <Skeleton className="mx-auto h-10 w-2/3" />

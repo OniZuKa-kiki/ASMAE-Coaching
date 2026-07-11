@@ -52,8 +52,6 @@ export interface RefundPaymentResult {
 
 export interface PaymentProviderConfig {
   id: PaymentProviderId;
-  label: string;
-  description: string;
   flag: string;
   available: boolean;
 }

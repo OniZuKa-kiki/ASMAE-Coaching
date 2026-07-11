@@ -21,6 +21,8 @@ function defaultRow() {
     whatsappUrl: contact.whatsapp,
     instagramUrl: contact.instagram,
     instagramHandle: contact.instagramHandle,
+    localeArEnabled: true,
+    localeFrEnabled: false,
     updatedAt: new Date(),
   };
 }

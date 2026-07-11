@@ -1,60 +1,98 @@
-import { Calendar, BookOpen, Target, CreditCard, Video } from "lucide-react";
+import type { Metadata } from "next";
+import { Calendar, BookOpen, Target, CreditCard, Video, Route } from "lucide-react";
+import { getTranslations, getLocale } from "next-intl/server";
 import { Card, CardTitle } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
 import { MoodCheckInCard } from "@/components/dashboard/mood-check-in-card";
+import { ContentRecommendations } from "@/components/dashboard/content-recommendations";
 import { SessionReviewPrompt } from "@/components/dashboard/session-review-prompt";
-import { dashboardContent } from "@/lib/constants";
 import { getDashboardData } from "@/lib/dashboard";
+import { dashboardPageMetadata } from "@/lib/dashboard-metadata";
 import { getPendingSessionReview } from "@/lib/session-review";
 import { getOrCreateUser } from "@/lib/user";
 import { format } from "date-fns";
-import { dateFnsLocale } from "@/lib/locale";
+import { dateFnsLocaleFor } from "@/lib/locale";
+import type { AppLocale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata(): Promise<Metadata> {
+  return dashboardPageMetadata({
+    path: "/dashboard",
+    namespace: "dashboard",
+    titleKey: "spaceTitle",
+    descriptionKey: "overviewSubtitle",
+  });
+}
+
 export default async function DashboardPage() {
-  const user = await getOrCreateUser();
+  const [user, locale, t, tCommon] = await Promise.all([
+    getOrCreateUser(),
+    getLocale() as Promise<AppLocale>,
+    getTranslations("dashboard"),
+    getTranslations("common"),
+  ]);
+
   const [data, pendingReview] = await Promise.all([
     getDashboardData(),
     user ? getPendingSessionReview(user.id) : Promise.resolve(null),
   ]);
 
   if (!data) {
-    return <p>جارٍ التحميل...</p>;
+    return <p>{tCommon("loading")}</p>;
   }
 
   const { stats, upcomingBookings } = data;
+  const dateLocale = dateFnsLocaleFor(locale);
+  const welcome = data.user.firstName
+    ? t("welcomeWithName", { name: data.user.firstName })
+    : t("welcome");
 
   return (
     <div>
-      <h1 className="page-header-title mb-2">
-        {dashboardContent.welcome(data.user.firstName)}
-      </h1>
-      <p className="text-text/70 mb-6">{dashboardContent.overviewSubtitle}</p>
+      <h1 className="page-header-title mb-2">{welcome}</h1>
+      <p className="text-text/70 mb-6">{t("overviewSubtitle")}</p>
+
+      <Card className="mb-8 border-primary/15 bg-gradient-to-br from-primary/5 via-card to-card">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="font-heading text-lg font-semibold text-heading mb-1">
+              {t("journey.title")}
+            </h2>
+            <p className="text-sm text-text/70">{t("journey.subtitle")}</p>
+          </div>
+          <ButtonLink href="/dashboard/journey" variant="secondary" className="shrink-0">
+            <Route className="h-4 w-4" />
+            {t("journey.title")}
+          </ButtonLink>
+        </div>
+      </Card>
 
       <MoodCheckInCard />
+
+      <ContentRecommendations />
 
       {pendingReview ? <SessionReviewPrompt booking={pendingReview} /> : null}
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         {[
           {
-            label: dashboardContent.stats.upcomingSessions,
+            label: t("stats.upcomingSessions"),
             value: stats.upcoming,
             icon: Calendar,
           },
           {
-            label: dashboardContent.stats.activeCourses,
+            label: t("stats.activeCourses"),
             value: stats.enrollments,
             icon: BookOpen,
           },
           {
-            label: dashboardContent.stats.currentGoals,
+            label: t("stats.currentGoals"),
             value: stats.goals,
             icon: Target,
           },
           {
-            label: dashboardContent.stats.payments,
+            label: t("stats.payments"),
             value: stats.payments,
             icon: CreditCard,
           },
@@ -75,16 +113,14 @@ export default async function DashboardPage() {
 
       {upcomingBookings.length === 0 ? (
         <Card className="text-center py-12">
-          <CardTitle className="mb-3">
-            {dashboardContent.noUpcomingSessions}
-          </CardTitle>
-          <p className="text-text/70 mb-6">{dashboardContent.bookNextSession}</p>
-          <ButtonLink href="/booking">{dashboardContent.bookSession}</ButtonLink>
+          <CardTitle className="mb-3">{t("noUpcomingSessions")}</CardTitle>
+          <p className="text-text/70 mb-6">{t("bookNextSession")}</p>
+          <ButtonLink href="/booking">{t("bookSession")}</ButtonLink>
         </Card>
       ) : (
         <div className="space-y-4">
           <h2 className="font-heading text-xl font-semibold text-heading">
-            {dashboardContent.upcomingSessionsTitle}
+            {t("upcomingSessionsTitle")}
           </h2>
           {upcomingBookings.map((booking) => (
             <Card key={booking.id}>
@@ -95,9 +131,9 @@ export default async function DashboardPage() {
                   </h3>
                   <p className="text-sm text-text/70">
                     {format(booking.date, "EEEE d MMMM yyyy", {
-                      locale: dateFnsLocale,
+                      locale: dateLocale,
                     })}{" "}
-                    في {booking.startTime}
+                    {t("bookingAtTime", { time: booking.startTime })}
                   </p>
                 </div>
                 {booking.meetingUrl && (
@@ -108,7 +144,7 @@ export default async function DashboardPage() {
                     className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary-hover"
                   >
                     <Video className="w-4 h-4" />
-                    {dashboardContent.joinSession}
+                    {t("joinSession")}
                   </a>
                 )}
               </div>

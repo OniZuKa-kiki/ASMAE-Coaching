@@ -1,14 +1,19 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { stats } from "@/lib/constants";
+import { useTranslations } from "next-intl";
+
+type StatItem = { value: string; label: string };
 
 export function Stats() {
+  const t = useTranslations("home.stats");
+  const items = t.raw("items") as StatItem[];
+
   return (
     <section className="section-padding bg-primary text-white">
       <div className="container-narrow">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-          {stats.map((stat, index) => (
+          {items.map((stat, index) => (
             <motion.div
               key={stat.label}
               initial={{ opacity: 0, scale: 0.9 }}

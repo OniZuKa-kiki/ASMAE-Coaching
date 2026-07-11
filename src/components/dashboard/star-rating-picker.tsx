@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Star } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 type StarRatingPickerProps = {
@@ -15,8 +16,10 @@ export function StarRatingPicker({
   name = "rating",
   defaultValue = 0,
   required = true,
-  label = "التقييم",
+  label,
 }: StarRatingPickerProps) {
+  const t = useTranslations("dashboard.sessionReview");
+  const resolvedLabel = label ?? t("ratingLabel");
   const [value, setValue] = React.useState(defaultValue);
   const [hover, setHover] = React.useState(0);
 
@@ -24,12 +27,12 @@ export function StarRatingPicker({
 
   return (
     <div>
-      <p className="mb-2 text-sm font-medium text-heading">{label}</p>
+      <p className="mb-2 text-sm font-medium text-heading">{resolvedLabel}</p>
       <input type="hidden" name={name} value={value || ""} required={required} />
       <div
         className="flex items-center gap-1"
         role="radiogroup"
-        aria-label={label}
+        aria-label={resolvedLabel}
       >
         {Array.from({ length: 5 }).map((_, index) => {
           const star = index + 1;

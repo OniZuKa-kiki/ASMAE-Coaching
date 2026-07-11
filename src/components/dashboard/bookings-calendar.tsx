@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Video } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
-import { dashboardContent } from "@/lib/constants";
 import {
   buildMonthGrid,
   format,
@@ -18,6 +18,10 @@ import {
 } from "@/lib/booking-calendar";
 import { dateFnsLocale } from "@/lib/locale";
 import { cn } from "@/lib/utils";
+import {
+  ListSectionHeader,
+  ScrollableItemList,
+} from "@/components/ui/scalable-list";
 
 const statusStyles: Record<string, string> = {
   CONFIRMED: "bg-primary",
@@ -30,6 +34,7 @@ type BookingsCalendarProps = {
 };
 
 export function BookingsCalendar({ bookings }: BookingsCalendarProps) {
+  const t = useTranslations("dashboard");
   const [month, setMonth] = useState(() => startOfTodayMonth());
   const [selectedKey, setSelectedKey] = useState(() => toBookingDateKey(new Date()));
 
@@ -46,7 +51,7 @@ export function BookingsCalendar({ bookings }: BookingsCalendarProps) {
             type="button"
             onClick={() => setMonth((current) => shiftMonth(current, -1))}
             className="rounded-full border border-border p-2 text-heading hover:border-primary/40 hover:text-primary transition-colors"
-            aria-label="الشهر السابق"
+            aria-label={t("calendar.prevMonth")}
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -57,7 +62,7 @@ export function BookingsCalendar({ bookings }: BookingsCalendarProps) {
             type="button"
             onClick={() => setMonth((current) => shiftMonth(current, 1))}
             className="rounded-full border border-border p-2 text-heading hover:border-primary/40 hover:text-primary transition-colors"
-            aria-label="الشهر التالي"
+            aria-label={t("calendar.nextMonth")}
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -116,18 +121,20 @@ export function BookingsCalendar({ bookings }: BookingsCalendarProps) {
       </Card>
 
       <Card>
-        <h3 className="mb-4 font-heading text-lg font-semibold text-heading">
-          {format(new Date(selectedKey), "EEEE d MMMM yyyy", {
+        <ListSectionHeader
+          title={format(new Date(selectedKey), "EEEE d MMMM yyyy", {
             locale: dateFnsLocale,
           })}
-        </h3>
+          count={selectedBookings.length}
+          className="mb-0"
+        />
 
         {selectedBookings.length === 0 ? (
-          <p className="text-sm text-text/70 text-center py-6">
-            {dashboardContent.bookingsNoSessionsDay}
+          <p className="py-6 text-center text-sm text-text/70">
+            {t("bookingsNoSessionsDay")}
           </p>
         ) : (
-          <div className="space-y-3">
+          <ScrollableItemList count={selectedBookings.length} className="mt-4">
             {selectedBookings.map((booking) => (
               <div
                 key={booking.id}
@@ -149,12 +156,12 @@ export function BookingsCalendar({ bookings }: BookingsCalendarProps) {
                     className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary-hover"
                   >
                     <Video className="h-4 w-4" />
-                    {dashboardContent.sessionLink}
+                    {t("sessionLink")}
                   </a>
                 ) : null}
               </div>
             ))}
-          </div>
+          </ScrollableItemList>
         )}
       </Card>
     </div>

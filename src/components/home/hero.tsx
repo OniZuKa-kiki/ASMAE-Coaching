@@ -1,10 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { ButtonLink } from "@/components/ui/button";
-import { heroContent } from "@/lib/constants";
 
 export function Hero() {
+  const t = useTranslations("hero");
+
   return (
     <section className="relative overflow-hidden section-padding">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
@@ -16,24 +18,20 @@ export function Hero() {
           className="max-w-3xl mx-auto text-center"
         >
           <p className="text-accent font-body font-medium text-sm tracking-[0.2em] uppercase mb-6">
-            {heroContent.eyebrow}
+            {t("eyebrow")}
           </p>
-          <h1 className="font-heading text-5xl md:text-6xl font-semibold text-heading leading-tight mb-6">
-            {heroContent.title}
+          <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold text-heading leading-tight mb-6">
+            {t("title")}
           </h1>
-          <p className="font-body text-xl text-text/80 mb-10 max-w-2xl mx-auto leading-relaxed">
-            {heroContent.subtitle}
+          <p className="font-body text-base sm:text-lg lg:text-xl text-text/80 mb-10 max-w-2xl mx-auto leading-relaxed">
+            {t("subtitle")}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <ButtonLink href={heroContent.ctaPrimary.href} size="lg">
-              {heroContent.ctaPrimary.label}
+            <ButtonLink href="/booking" size="lg">
+              {t("ctaPrimary")}
             </ButtonLink>
-            <ButtonLink
-              href={heroContent.ctaSecondary.href}
-              variant="secondary"
-              size="lg"
-            >
-              {heroContent.ctaSecondary.label}
+            <ButtonLink href="/courses" variant="secondary" size="lg">
+              {t("ctaSecondary")}
             </ButtonLink>
           </div>
         </motion.div>

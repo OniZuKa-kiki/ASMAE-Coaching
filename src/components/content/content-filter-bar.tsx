@@ -1,6 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 import {
@@ -31,16 +32,19 @@ export function ContentFilterBar({
   searchValue,
   onSearchChange,
   searchPlaceholder,
-  searchLabel = "بحث",
+  searchLabel,
   filters,
   resultsCount,
   resultsLabel,
 }: ContentFilterBarProps) {
+  const tNav = useTranslations("nav");
+  const resolvedSearchLabel = searchLabel ?? tNav("search");
+
   return (
     <Card className="mb-8">
       <div className="space-y-4">
         <div>
-          <Label htmlFor="content-search">{searchLabel}</Label>
+          <Label htmlFor="content-search">{resolvedSearchLabel}</Label>
           <div className="relative">
             <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text/50" />
             <Input

@@ -3,10 +3,12 @@ import { z } from "zod";
 import { contactSchema } from "@/lib/api-schemas";
 import { auditLog } from "@/lib/audit-log";
 import { sendContactMessage } from "@/lib/email";
-import { friendlyErrors } from "@/lib/api-errors";
+import { getRequestFriendlyErrors } from "@/lib/action-locale";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 
 export async function POST(request: NextRequest) {
+  const errors = await getRequestFriendlyErrors();
+
   try {
     const body = await request.json();
     const data = contactSchema.parse(body);
@@ -14,14 +16,14 @@ export async function POST(request: NextRequest) {
     const turnstileOk = await verifyTurnstileToken(data.turnstileToken);
     if (!turnstileOk) {
       return NextResponse.json(
-        { error: "فشل التحقق الأمني. حاول مجدداً." },
+        { error: errors.incomplete },
         { status: 400 }
       );
     }
 
     if (!process.env.RESEND_API_KEY) {
       return NextResponse.json(
-        { error: friendlyErrors.emailUnavailable },
+        { error: errors.emailUnavailable },
         { status: 503 }
       );
     }
@@ -41,14 +43,14 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: error.issues[0]?.message || "بيانات غير صالحة" },
+        { error: errors.incomplete },
         { status: 400 }
       );
     }
-    const message = error instanceof Error ? error.message : "خطأ غير معروف";
+    const message = error instanceof Error ? error.message : errors.generic;
     console.error("[contact]", message);
     return NextResponse.json(
-      { error: friendlyErrors.emailUnavailable },
+      { error: errors.emailUnavailable },
       { status: 500 }
     );
   }

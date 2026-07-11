@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { InvoicePdfLink } from "@/components/payments/invoice-pdf-link";
 
 type InvoiceDownloadButtonProps = {
@@ -9,12 +12,14 @@ type InvoiceDownloadButtonProps = {
 export function InvoiceDownloadButton({
   paymentId,
   className,
-  label = "تحميل الفاتورة",
+  label,
 }: InvoiceDownloadButtonProps) {
+  const t = useTranslations("dashboard.payments");
+
   return (
     <InvoicePdfLink
       href={`/api/payments/${paymentId}/invoice?download=1`}
-      label={label}
+      label={label ?? t("downloadInvoice")}
       className={className}
     />
   );

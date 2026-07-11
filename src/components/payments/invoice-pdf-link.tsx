@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +18,8 @@ export function InvoicePdfLink({
   className,
   variant = "outline",
 }: InvoicePdfLinkProps) {
+  const tCommon = useTranslations("common");
+  const tPayments = useTranslations("dashboard.payments");
   const [loading, setLoading] = useState(false);
 
   async function handleDownload(event: React.MouseEvent<HTMLAnchorElement>) {
@@ -28,7 +31,7 @@ export function InvoicePdfLink({
       const response = await fetch(href, { credentials: "include" });
 
       if (!response.ok) {
-        let message = "تعذّر تحميل الفاتورة.";
+        let message = tPayments("downloadFailed");
         try {
           const data = (await response.json()) as { error?: string };
           if (data.error) message = data.error;
@@ -52,7 +55,7 @@ export function InvoicePdfLink({
       anchor.click();
       URL.revokeObjectURL(objectUrl);
     } catch {
-      window.alert("تعذّر تحميل الفاتورة.");
+      window.alert(tPayments("downloadFailed"));
     } finally {
       setLoading(false);
     }
@@ -73,7 +76,7 @@ export function InvoicePdfLink({
       )}
     >
       <Download className="h-4 w-4 shrink-0" />
-      {loading ? "جارٍ التحميل..." : label}
+      {loading ? tCommon("loading") : label}
     </a>
   );
 }

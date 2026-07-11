@@ -3,19 +3,25 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { BookOpen, CheckCircle2, GraduationCap, ShoppingBag } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { ContentFilterBar } from "@/components/content/content-filter-bar";
 import { ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  ListScrollHint,
+  ScrollableItemList,
+} from "@/components/ui/scalable-list";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import {
-  formatArabicLessonCount,
-  formatArabicModuleCount,
-} from "@/lib/arabic-count";
-import { dashboardContent } from "@/lib/constants";
+  createCourseLessonCountResolver,
+  createCourseModuleCountResolver,
+  formatLessonCount,
+  formatModuleCount,
+} from "@/lib/count-labels";
+import type { AppLocale } from "@/i18n/routing";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-
-const content = dashboardContent.courses;
+import { matchesArabicSearch } from "@/lib/search-utils";
 
 export type DashboardCourseItem = {
   id: string;
@@ -40,10 +46,6 @@ type DashboardCourseCatalogProps = {
 type ProgressFilter = "all" | "not_started" | "in_progress" | "completed";
 type SectionFilter = "all" | "purchased" | "available";
 
-function normalizeSearch(value: string) {
-  return value.trim().toLowerCase();
-}
-
 function getProgressState(course: DashboardCourseItem): ProgressFilter {
   if (!course.enrolled) return "all";
   const progress = course.progressAuto ?? 0;
@@ -52,27 +54,33 @@ function getProgressState(course: DashboardCourseItem): ProgressFilter {
   return "not_started";
 }
 
-function getProgressBadge(course: DashboardCourseItem) {
+function getProgressBadge(
+  course: DashboardCourseItem,
+  t: ReturnType<typeof useTranslations<"dashboard.courses">>
+) {
   if (!course.enrolled) {
-    return { label: content.badgeAvailable, className: "bg-accent/15 text-accent" };
+    return { label: t("badgeAvailable"), className: "bg-accent/15 text-accent" };
   }
   const state = getProgressState(course);
   if (state === "completed") {
-    return { label: content.badgeCompleted, className: "bg-primary/15 text-primary" };
+    return { label: t("badgeCompleted"), className: "bg-primary/15 text-primary" };
   }
   if (state === "in_progress") {
-    return { label: content.badgeInProgress, className: "bg-accent/15 text-accent" };
+    return { label: t("badgeInProgress"), className: "bg-accent/15 text-accent" };
   }
-  return { label: content.badgeNotStarted, className: "bg-border/60 text-text/70" };
+  return { label: t("badgeNotStarted"), className: "bg-border/60 text-text/70" };
 }
 
 export function DashboardCourseCatalog({ courses }: DashboardCourseCatalogProps) {
+  const locale = useLocale() as AppLocale;
+  const t = useTranslations("dashboard.courses");
   const [search, setSearch] = useState("");
   const [section, setSection] = useState<SectionFilter>("all");
   const [progress, setProgress] = useState<ProgressFilter>("all");
   const [sort, setSort] = useState("recent");
 
-  const query = normalizeSearch(search);
+  const query = search.trim();
+  const collator = locale === "fr" ? "fr" : "ar";
 
   const stats = useMemo(() => {
     const purchased = courses.filter((course) => course.enrolled);
@@ -104,14 +112,14 @@ export function DashboardCourseCatalog({ courses }: DashboardCourseCatalogProps)
       }
 
       if (!query) return true;
-      const haystack = `${course.title} ${course.description}`.toLowerCase();
-      return haystack.includes(query);
+      const haystack = `${course.title} ${course.description}`;
+      return matchesArabicSearch(haystack, query);
     });
 
     const sorted = [...items];
     switch (sort) {
       case "title":
-        return sorted.sort((a, b) => a.title.localeCompare(b.title, "ar"));
+        return sorted.sort((a, b) => a.title.localeCompare(b.title, collator));
       case "progress_desc":
         return sorted.sort(
           (a, b) => (b.progressAuto ?? -1) - (a.progressAuto ?? -1)
@@ -133,81 +141,88 @@ export function DashboardCourseCatalog({ courses }: DashboardCourseCatalogProps)
             );
           }
           if (a.enrolled !== b.enrolled) return a.enrolled ? -1 : 1;
-          return a.title.localeCompare(b.title, "ar");
+          return a.title.localeCompare(b.title, collator);
         });
     }
-  }, [courses, section, progress, query, sort, showProgressFilter]);
+  }, [courses, section, progress, query, sort, showProgressFilter, collator]);
 
   const purchasedVisible = filteredCourses.some((course) => course.enrolled);
   const availableVisible = filteredCourses.some((course) => !course.enrolled);
+  const enrolledCourses = filteredCourses.filter((course) => course.enrolled);
+  const availableCourses = filteredCourses.filter((course) => !course.enrolled);
+
+  const resultsLabel =
+    filteredCourses.length === 1
+      ? t("resultsOne")
+      : t("resultsMany", { count: filteredCourses.length });
 
   const filters = [
     {
       id: "section",
-      label: content.sectionLabel,
+      label: t("sectionLabel"),
       value: section,
       onChange: (value: string) => setSection(value as SectionFilter),
       options: [
-        { value: "all", label: content.sectionAll },
-        { value: "purchased", label: content.sectionPurchased },
-        { value: "available", label: content.sectionAvailable },
+        { value: "all", label: t("sectionAll") },
+        { value: "purchased", label: t("sectionPurchased") },
+        { value: "available", label: t("sectionAvailable") },
       ],
     },
     ...(showProgressFilter
       ? [
           {
             id: "progress",
-            label: content.progressLabel,
+            label: t("progressLabel"),
             value: progress,
             onChange: (value: string) => setProgress(value as ProgressFilter),
             options: [
-              { value: "all", label: content.progressAll },
-              { value: "not_started", label: content.progressNotStarted },
-              { value: "in_progress", label: content.progressInProgress },
-              { value: "completed", label: content.progressCompleted },
+              { value: "all", label: t("progressAll") },
+              { value: "not_started", label: t("progressNotStarted") },
+              { value: "in_progress", label: t("progressInProgress") },
+              { value: "completed", label: t("progressCompleted") },
             ],
           },
         ]
       : []),
     {
       id: "sort",
-      label: content.sortLabel,
+      label: t("sortLabel"),
       value: sort,
       onChange: setSort,
       options: [
-        { value: "recent", label: content.sortRecent },
-        { value: "title", label: content.sortTitle },
-        { value: "progress_desc", label: content.sortProgressDesc },
-        { value: "progress_asc", label: content.sortProgressAsc },
-        { value: "price_asc", label: content.sortPriceAsc },
-        { value: "price_desc", label: content.sortPriceDesc },
+        { value: "recent", label: t("sortRecent") },
+        { value: "title", label: t("sortTitle") },
+        { value: "progress_desc", label: t("sortProgressDesc") },
+        { value: "progress_asc", label: t("sortProgressAsc") },
+        { value: "price_asc", label: t("sortPriceAsc") },
+        { value: "price_desc", label: t("sortPriceDesc") },
       ],
     },
   ];
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      <p className="text-sm text-text/70 max-w-2xl">{content.subtitle}</p>
+      <p className="text-sm text-text/70 max-w-2xl">{t("subtitle")}</p>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
           icon={GraduationCap}
-          label={content.stats.purchased}
+          label={t("stats.purchased")}
           value={stats.purchased}
         />
         <StatCard
           icon={BookOpen}
-          label={content.stats.inProgress}
+          label={t("stats.inProgress")}
           value={stats.inProgress}
         />
         <StatCard
           icon={CheckCircle2}
-          label={content.stats.completed}
+          label={t("stats.completed")}
           value={stats.completed}
         />
         <StatCard
           icon={ShoppingBag}
-          label={content.stats.available}
+          label={t("stats.available")}
           value={stats.available}
         />
       </div>
@@ -215,52 +230,64 @@ export function DashboardCourseCatalog({ courses }: DashboardCourseCatalogProps)
       <ContentFilterBar
         searchValue={search}
         onSearchChange={setSearch}
-        searchPlaceholder={content.searchPlaceholder}
+        searchPlaceholder={t("searchPlaceholder")}
         filters={filters}
         resultsCount={filteredCourses.length}
-        resultsLabel={content.resultsCount(filteredCourses.length)}
+        resultsLabel={resultsLabel}
       />
 
       {filteredCourses.length === 0 ? (
         <Card className="py-12 text-center">
           {section === "purchased" && stats.purchased === 0 ? (
             <>
-              <p className="text-text/70 mb-6">{content.noPurchases}</p>
-              <ButtonLink href="/courses">{content.discoverCourses}</ButtonLink>
+              <p className="text-text/70 mb-6">{t("noPurchases")}</p>
+              <ButtonLink href="/courses">{t("discoverCourses")}</ButtonLink>
             </>
           ) : (
-            <p className="text-text/70">{content.noResults}</p>
+            <p className="text-text/70">{t("noResults")}</p>
           )}
         </Card>
       ) : (
         <div className="space-y-8">
           {purchasedVisible ? (
             <section>
-              <h2 className="font-body font-semibold text-heading mb-4">
-                {content.sectionPurchased}
-              </h2>
-              <div className="grid gap-4 lg:grid-cols-2">
-                {filteredCourses
-                  .filter((course) => course.enrolled)
-                  .map((course) => (
-                    <EnrolledCourseCard key={course.id} course={course} />
-                  ))}
+              <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <h2 className="font-body font-semibold text-heading">
+                  {t("sectionPurchased")}
+                </h2>
+                <ListScrollHint count={enrolledCourses.length} />
               </div>
+              <ScrollableItemList
+                count={enrolledCourses.length}
+                layout="grid"
+                className="gap-4 lg:grid-cols-2"
+                maxHeightClassName="max-h-[32rem] sm:max-h-[36rem]"
+              >
+                {enrolledCourses.map((course) => (
+                  <EnrolledCourseCard key={course.id} course={course} />
+                ))}
+              </ScrollableItemList>
             </section>
           ) : null}
 
           {availableVisible ? (
             <section>
-              <h2 className="font-body font-semibold text-heading mb-4">
-                {content.sectionAvailable}
-              </h2>
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {filteredCourses
-                  .filter((course) => !course.enrolled)
-                  .map((course) => (
-                    <AvailableCourseCard key={course.id} course={course} />
-                  ))}
+              <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <h2 className="font-body font-semibold text-heading">
+                  {t("sectionAvailable")}
+                </h2>
+                <ListScrollHint count={availableCourses.length} />
               </div>
+              <ScrollableItemList
+                count={availableCourses.length}
+                layout="grid"
+                className="gap-4 md:grid-cols-2 xl:grid-cols-3"
+                maxHeightClassName="max-h-[32rem] sm:max-h-[36rem]"
+              >
+                {availableCourses.map((course) => (
+                  <AvailableCourseCard key={course.id} course={course} />
+                ))}
+              </ScrollableItemList>
             </section>
           ) : null}
         </div>
@@ -295,8 +322,24 @@ function StatCard({
   );
 }
 
+function useCourseCountLabels() {
+  const locale = useLocale() as AppLocale;
+  const tCourses = useTranslations("courses");
+  const resolveModuleCount = useMemo(
+    () => createCourseModuleCountResolver(tCourses),
+    [tCourses]
+  );
+  const resolveLessonCount = useMemo(
+    () => createCourseLessonCountResolver(tCourses),
+    [tCourses]
+  );
+  return { locale, resolveModuleCount, resolveLessonCount };
+}
+
 function EnrolledCourseCard({ course }: { course: DashboardCourseItem }) {
-  const badge = getProgressBadge(course);
+  const t = useTranslations("dashboard.courses");
+  const { locale, resolveModuleCount, resolveLessonCount } = useCourseCountLabels();
+  const badge = getProgressBadge(course, t);
   const progress = course.progressAuto ?? 0;
 
   return (
@@ -311,7 +354,7 @@ function EnrolledCourseCard({ course }: { course: DashboardCourseItem }) {
           {badge.label}
         </span>
         <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-          {content.badgePurchased}
+          {t("badgePurchased")}
         </span>
       </div>
 
@@ -323,28 +366,28 @@ function EnrolledCourseCard({ course }: { course: DashboardCourseItem }) {
       </p>
 
       <div className="mb-4 flex flex-wrap gap-3 text-xs text-text/60">
-        <span>{formatArabicModuleCount(course.moduleCount)}</span>
-        <span>{formatArabicLessonCount(course.lessonCount)}</span>
+        <span>{formatModuleCount(course.moduleCount, locale, resolveModuleCount)}</span>
+        <span>{formatLessonCount(course.lessonCount, locale, resolveLessonCount)}</span>
       </div>
 
       <div className="rounded-xl bg-background/80 p-4 mb-4">
         <div className="flex items-center justify-between text-sm mb-2">
-          <span className="text-text/70">{content.progressLabelShort}</span>
+          <span className="text-text/70">{t("progressLabelShort")}</span>
           <span className="font-semibold text-primary">{progress}%</span>
         </div>
         <ProgressBar value={progress} className="mb-2" />
         <p className="text-xs text-text/70">
-          {content.lessonsCompleted(
-            course.completedLessons ?? 0,
-            course.lessonCount
-          )}
+          {t("lessonsCompleted", {
+            done: course.completedLessons ?? 0,
+            total: course.lessonCount,
+          })}
           {course.lastLessonTitle ? (
-            <> · {content.lastLesson(course.lastLessonTitle)}</>
+            <> · {t("lastLesson", { title: course.lastLessonTitle })}</>
           ) : (
-            <> · {content.notStartedYet}</>
+            <> · {t("notStartedYet")}</>
           )}
         </p>
-        <p className="text-xs text-text/50 mt-1">{content.progressNote}</p>
+        <p className="text-xs text-text/50 mt-1">{t("progressNote")}</p>
       </div>
 
       <ButtonLink
@@ -352,18 +395,21 @@ function EnrolledCourseCard({ course }: { course: DashboardCourseItem }) {
         size="sm"
         className="self-start"
       >
-        {content.continue}
+        {t("continue")}
       </ButtonLink>
     </Card>
   );
 }
 
 function AvailableCourseCard({ course }: { course: DashboardCourseItem }) {
+  const t = useTranslations("dashboard.courses");
+  const { locale, resolveModuleCount, resolveLessonCount } = useCourseCountLabels();
+
   return (
     <Card className="flex h-full flex-col">
       <div className="mb-3">
         <span className="rounded-full bg-accent/15 px-2.5 py-1 text-xs font-medium text-accent">
-          {content.badgeAvailable}
+          {t("badgeAvailable")}
         </span>
       </div>
 
@@ -375,8 +421,8 @@ function AvailableCourseCard({ course }: { course: DashboardCourseItem }) {
       </p>
 
       <div className="mb-4 flex flex-wrap gap-3 text-xs text-text/60">
-        <span>{formatArabicModuleCount(course.moduleCount)}</span>
-        <span>{formatArabicLessonCount(course.lessonCount)}</span>
+        <span>{formatModuleCount(course.moduleCount, locale, resolveModuleCount)}</span>
+        <span>{formatLessonCount(course.lessonCount, locale, resolveLessonCount)}</span>
       </div>
 
       <div className="mt-auto flex items-center justify-between gap-3 border-t border-border/50 pt-4">
@@ -387,7 +433,7 @@ function AvailableCourseCard({ course }: { course: DashboardCourseItem }) {
           href={`/courses/${course.slug}`}
           className="text-sm font-semibold text-primary transition-colors hover:text-primary-hover"
         >
-          {content.viewProgram}
+          {t("viewProgram")}
         </Link>
       </div>
     </Card>

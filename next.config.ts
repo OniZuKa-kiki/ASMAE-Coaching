@@ -1,4 +1,8 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+import { withSentryConfig } from "@sentry/nextjs";
+
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
@@ -21,7 +25,7 @@ const securityHeaders = [
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: blob: https:",
       "media-src 'self' https: blob: data:",
-      "connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://api.stripe.com https://challenges.cloudflare.com https://*.neon.tech",
+      "connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://api.stripe.com https://challenges.cloudflare.com https://*.neon.tech https://*.ingest.sentry.io https://*.sentry.io",
       "frame-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://challenges.cloudflare.com https://js.stripe.com https://hooks.stripe.com https://paiement.payzone.ma",
       "object-src 'none'",
       "base-uri 'self'",
@@ -50,4 +54,18 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(withNextIntl(nextConfig), {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+  disableLogger: true,
+  widenClientFileUpload: true,
+  ...(process.env.SENTRY_AUTH_TOKEN
+    ? {}
+    : {
+        sourcemaps: {
+          disable: true,
+        },
+      }),
+});

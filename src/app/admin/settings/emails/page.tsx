@@ -2,12 +2,14 @@ import { adminUrl } from "@/lib/admin-path";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Resend } from "resend";
 import { AdminFormField } from "@/components/admin/form-field";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { adminErrors } from "@/lib/api-errors";
+import { getActionLocale } from "@/lib/action-locale";
+import { getAdminErrors, getAdminPagesCopy } from "@/lib/admin-i18n";
 import {
   actionFail,
   ensureAdmin,
@@ -23,12 +25,13 @@ import {
   getCoachNotificationEmail,
   getPublicContactEmail,
 } from "@/lib/site-settings";
+import type { AppLocale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
 
 async function getEmailConfigSnapshot() {
   const fromEmail =
-    process.env.RESEND_FROM_EMAIL || "ASMAE Coaching <onboarding@resend.dev>";
+    process.env.RESEND_FROM_EMAIL || "ASMAE Coaching <contact@asmae-coaching.fr>";
   const coachEmail = await getCoachNotificationEmail();
   const contactEmail = await getPublicContactEmail();
 
@@ -45,40 +48,42 @@ async function sendTestEmail(formData: FormData): Promise<ActionResult> {
   const denied = await ensureAdmin();
   if (denied) return denied;
 
+  const locale = await getActionLocale();
+  const copy = getAdminPagesCopy(locale).settings.emails.testEmail;
   const to = String(formData.get("to") || "").trim();
-  if (!to) return incomplete("ar");
+  if (!to) return incomplete(locale);
 
   const cfg = await getEmailConfigSnapshot();
   if (!cfg.resendConfigured || !process.env.RESEND_API_KEY) {
-    return actionFail(adminErrors.emailUnavailable);
+    return actionFail(getAdminErrors(locale).emailUnavailable);
   }
 
-  return runAction("ar", async () => {
+  return runAction(locale, async () => {
     const resend = new Resend(process.env.RESEND_API_KEY);
     const html = renderEmailLayout({
-      preheader: "بريد تجريبي — ASMAE Coaching",
-      title: "بريد تجريبي",
-      subtitle: "التحقق من إعدادات الإرسال",
+      preheader: copy.preheader,
+      title: copy.title,
+      subtitle: copy.subtitle,
       body: `
       <p style="margin: 0 0 1.25rem 0; line-height: 1.8;">
-        يؤكد هذا البريد أن الإرسال يعمل بشكل صحيح من موقعك.
+        ${copy.bodyConfirm}
       </p>
       <p style="margin: 0 0 1.25rem 0; line-height: 1.8;">
-        المستلم: <strong>${escapeHtml(to)}</strong>
+        ${copy.recipient} <strong>${escapeHtml(to)}</strong>
       </p>
       <p style="margin: 0; line-height: 1.8;">
-        إذا استلمت هذه الرسالة، فإعداد Resend يعمل بشكل صحيح.
+        ${copy.bodySuccess}
       </p>
     `,
-      cta: { label: "فتح الموقع", href: siteConfig.url },
-      footerNote: "بريد تلقائي — لا ترد عليه.",
+      cta: { label: copy.cta, href: siteConfig.url },
+      footerNote: copy.footer,
       contactEmail: cfg.contactEmail,
     });
 
     const { error } = await resend.emails.send({
       from: cfg.fromEmail,
       to,
-      subject: "رسالة اختبار — ASMAE Coaching",
+      subject: copy.subject,
       html,
       attachments: [getEmailLogoAttachment()],
     });
@@ -96,87 +101,70 @@ export default async function AdminEmailSettingsPage() {
   const role = await getUserRole();
   if (role !== "admin") redirect("/dashboard");
 
+  const locale = (await getLocale()) as AppLocale;
+  const [t, tCommon] = await Promise.all([
+    getTranslations("adminPages.settings.emails"),
+    getTranslations("admin.common"),
+  ]);
   const cfg = await getEmailConfigSnapshot();
 
   return (
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-header-title">البريد الإلكتروني</h1>
-          <p className="text-sm text-text/70 mt-1">
-            حالة الإرسال والاختبار ومعاينة الرسائل.
-          </p>
+          <h1 className="page-header-title">{t("title")}</h1>
+          <p className="mt-1 text-sm text-text/70">{t("subtitle")}</p>
         </div>
         <Link
           href={adminUrl("/settings")}
-          className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
+          className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading transition-colors hover:border-primary hover:text-primary"
         >
-          رجوع
+          {tCommon("back")}
         </Link>
       </div>
 
       <div className="space-y-6">
         <Card>
-          <h2 className="font-heading text-xl text-heading mb-3">الحالة</h2>
+          <h2 className="mb-3 font-heading text-xl text-heading">{t("statusSection")}</h2>
           <div className="space-y-2 text-sm text-text/80">
             <p>
-              <span className="font-semibold text-heading">Resend:</span>{" "}
-              {cfg.resendConfigured ? "مُعدّ" : "غير مُعدّ"}
+              <span className="font-semibold text-heading">{t("emailService")}</span>{" "}
+              {cfg.resendConfigured ? t("active") : t("unavailable")}
             </p>
             <p>
-              <span className="font-semibold text-heading">From:</span>{" "}
-              {cfg.fromEmail}
+              <span className="font-semibold text-heading">{t("fromEmail")}</span>{" "}
+              <span dir="ltr" className="inline-block">
+                {cfg.fromEmail}
+              </span>
             </p>
             <p>
-              <span className="font-semibold text-heading">بريد المدرب:</span>{" "}
-              {cfg.coachEmail}
+              <span className="font-semibold text-heading">{t("coachEmail")}</span>{" "}
+              <span dir="ltr" className="inline-block">
+                {cfg.coachEmail}
+              </span>
             </p>
             <p>
-              <span className="font-semibold text-heading">البريد العام:</span>{" "}
-              {cfg.contactEmail}
+              <span className="font-semibold text-heading">{t("publicEmail")}</span>{" "}
+              <span dir="ltr" className="inline-block">
+                {cfg.contactEmail}
+              </span>
             </p>
-            {!cfg.resendConfigured && (
-              <p className="text-text/70">
-                أضف <code>RESEND_API_KEY</code> في <code>.env.local</code>{" "}
-                (محلياً) أو في متغيرات Vercel (الإنتاج).
-              </p>
-            )}
-            {cfg.fromEmail.includes("resend.dev") && (
-              <p className="text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mt-3">
-                المرسل <code>onboarding@resend.dev</code>: Resend يُرسل
-                فقط إلى بريد حساب Resend. لإرسال الرسائل لعملائك،
-                تحقق من نطاق على{" "}
-                <a
-                  href="https://resend.com/domains"
-                  className="text-primary underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  resend.com/domains
-                </a>
-                .
-              </p>
-            )}
           </div>
         </Card>
 
         <Card>
-          <h2 className="font-heading text-xl text-heading mb-3">
-            إرسال بريد تجريبي
-          </h2>
-          <p className="text-sm text-text/70 mb-4">
-            يُرسل بريداً تجريبياً إلى العنوان الذي تختاره.
-          </p>
+          <h2 className="mb-3 font-heading text-xl text-heading">{t("testSection")}</h2>
+          <p className="mb-4 text-sm text-text/70">{t("testHint")}</p>
           <ActionForm
             action={sendTestEmail}
-            locale="ar"
-            className="flex flex-col sm:flex-row gap-3 items-end"
+            locale={locale}
+            className="flex flex-col items-end gap-3 sm:flex-row"
           >
             <AdminFormField
-              label="عنوان البريد المستلم"
+              label={t("recipientEmail")}
               htmlFor="test-email-to"
-              className="flex-1 w-full"
-              hint="البريد الذي سيستلم الرسالة التجريبية."
+              className="w-full flex-1"
+              hint={t("recipientHint")}
             >
               <Input
                 id="test-email-to"
@@ -190,33 +178,38 @@ export default async function AdminEmailSettingsPage() {
             <button
               type="submit"
               disabled={!cfg.resendConfigured}
-              className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="rounded-full bg-primary px-5 py-2.5 font-semibold text-white transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
-              إرسال
+              {t("send")}
             </button>
           </ActionForm>
         </Card>
 
         <Card>
-          <h2 className="font-heading text-xl text-heading mb-3">معلومات مفيدة</h2>
-          <ul className="space-y-2 text-sm text-text/80 list-disc pl-5">
+          <h2 className="mb-3 font-heading text-xl text-heading">{t("remindersSection")}</h2>
+          <p className="mb-4 text-sm leading-relaxed text-text/70">{t("remindersBody")}</p>
+          <ul className="list-disc space-y-2 pl-5 text-sm text-text/80">
+            <li>{t("remindersList1")}</li>
+            <li>{t("remindersList2")}</li>
+          </ul>
+        </Card>
+
+        <Card>
+          <h2 className="mb-3 font-heading text-xl text-heading">{t("infoSection")}</h2>
+          <ul className="list-disc space-y-2 pl-5 text-sm text-text/80">
             <li>
-              بريد التواصل: يُرسل إلى بريد المدرب (قابل للتعديل من{" "}
+              {t("infoContact")}{" "}
               <Link
                 href={adminUrl("/settings/communication")}
                 className="text-primary underline"
               >
-                التواصل والبريد
+                {t("infoContactLink")}
               </Link>
-              {" "}أو <code>COACH_EMAIL</code>).
+              ).
             </li>
-            <li>
-              رسائل الحجز / الدورة: تُرسل للعميل بعد
-              تأكيد الدفع.
-            </li>
-            <li>
-              الشعار مُضمّن مباشرة في البريد (يعمل محلياً).
-            </li>
+            <li>{t("infoBooking")}</li>
+            <li>{t("infoReminder")}</li>
+            <li>{t("infoLogo")}</li>
           </ul>
         </Card>
       </div>

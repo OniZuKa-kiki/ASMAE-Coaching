@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getFriendlyErrors } from "@/lib/api-errors";
+import { getActionLocale } from "@/lib/action-locale";
 import { incomplete, runAction, type ActionResult } from "@/lib/action-result";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/user";
@@ -9,16 +11,18 @@ export async function toggleLessonCompletion(
   formData: FormData
 ): Promise<ActionResult> {
   const user = await requireUser();
+  const locale = await getActionLocale(user.preferredLocale);
+  const errors = getFriendlyErrors(locale);
   const lessonId = String(formData.get("lessonId") || "").trim();
   const action = String(formData.get("action") || "").trim();
-  if (!lessonId || !action) return incomplete("ar");
+  if (!lessonId || !action) return incomplete(locale);
 
-  return runAction("ar", async () => {
+  return runAction(locale, async () => {
     const lesson = await prisma.courseLesson.findUnique({
       where: { id: lessonId },
       include: { module: true },
     });
-    if (!lesson) throw new Error("الدرس غير موجود");
+    if (!lesson) throw new Error(errors.lessonNotFound);
 
     if (action === "complete") {
       await prisma.lessonCompletion.upsert({

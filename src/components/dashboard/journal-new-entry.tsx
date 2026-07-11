@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { AdminFormField } from "@/components/admin/form-field";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
@@ -14,6 +15,8 @@ type JournalNewEntryProps = {
 };
 
 export function JournalNewEntry({ action }: JournalNewEntryProps) {
+  const t = useTranslations("dashboard.journal");
+  const tCommon = useTranslations("common");
   const [open, setOpen] = useState(false);
 
   if (!open) {
@@ -24,7 +27,7 @@ export function JournalNewEntry({ action }: JournalNewEntryProps) {
         className="mb-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-soft transition-colors hover:bg-primary-hover sm:w-auto"
       >
         <Plus className="h-5 w-5" />
-        ملاحظة جديدة
+        {t("newEntryButton")}
       </button>
     );
   }
@@ -32,12 +35,12 @@ export function JournalNewEntry({ action }: JournalNewEntryProps) {
   return (
     <Card className="mb-8">
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="font-heading text-xl text-heading">ملاحظة جديدة</h2>
+        <h2 className="font-heading text-xl text-heading">{t("newEntryTitle")}</h2>
         <button
           type="button"
           onClick={() => setOpen(false)}
           className="rounded-full border border-border p-2 text-text/70 transition-colors hover:border-primary/40 hover:text-primary"
-          aria-label="إغلاق"
+          aria-label={t("close")}
         >
           <X className="h-4 w-4" />
         </button>
@@ -48,13 +51,13 @@ export function JournalNewEntry({ action }: JournalNewEntryProps) {
         onSuccess={() => setOpen(false)}
       >
         <JournalMoodPicker />
-        <AdminFormField label="ماذا تودين مشاركته؟" htmlFor="journal-content">
+        <AdminFormField label={t("contentLabel")} htmlFor="journal-content">
           <Textarea
             id="journal-content"
             name="content"
             rows={5}
             className="w-full resize-none"
-            placeholder="اكتبي بحرية ما يدور في ذهنكِ..."
+            placeholder={t("contentPlaceholder")}
             required
             autoFocus
           />
@@ -64,14 +67,14 @@ export function JournalNewEntry({ action }: JournalNewEntryProps) {
             type="submit"
             className="rounded-full bg-primary px-5 py-2.5 text-white font-semibold hover:bg-primary-hover transition-colors"
           >
-            حفظ الملاحظة
+            {t("saveEntry")}
           </button>
           <button
             type="button"
             onClick={() => setOpen(false)}
             className="rounded-full border border-border px-5 py-2.5 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
           >
-            إلغاء
+            {tCommon("cancel")}
           </button>
         </div>
       </ActionForm>

@@ -4,6 +4,8 @@ import { formatProviderAmount } from "@/lib/payments/currency";
 import { siteConfig } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 import { getEmbeddedCairoFontCss } from "@/lib/invoice-font";
+import type { AppLocale } from "@/i18n/routing";
+import type { InvoiceCopy } from "@/lib/invoice-i18n";
 
 export type InvoicePayload = {
   invoiceNumber: string;
@@ -14,6 +16,7 @@ export type InvoicePayload = {
   amountCents: number;
   currency: string;
   provider: string;
+  status: string;
   statusLabel: string;
   sellerEmail: string;
   isSample?: boolean;
@@ -33,10 +36,10 @@ function formatProviderLabel(provider: string): string {
   return provider;
 }
 
-function statusBadgeClass(statusLabel: string): string {
-  if (statusLabel === "مدفوع") return "status status--paid";
-  if (statusLabel === "قيد الانتظار") return "status status--pending";
-  if (statusLabel === "مسترد") return "status status--refunded";
+function statusBadgeClass(status: string): string {
+  if (status === "PAID") return "status status--paid";
+  if (status === "PENDING") return "status status--pending";
+  if (status === "REFUNDED") return "status status--refunded";
   return "status";
 }
 
@@ -49,29 +52,36 @@ type GenerateInvoiceHtmlOptions = {
 
 export function generateInvoiceHtml(
   invoice: InvoicePayload,
+  copy: InvoiceCopy,
+  locale: AppLocale,
   options: GenerateInvoiceHtmlOptions = {}
 ): string {
   const showToolbar = options.showToolbar !== false;
   const forPdf = options.forPdf === true;
   const downloadUrl = options.downloadUrl ?? "";
+  const dir = locale === "ar" ? "rtl" : "ltr";
   const embeddedFonts = getEmbeddedCairoFontCss();
   const amountLabel = formatProviderAmount(
     invoice.amountCents,
     invoice.currency
   );
-  const dateLabel = formatDate(invoice.issuedAt);
+  const dateLabel = formatDate(invoice.issuedAt, locale);
   const providerLabel = formatProviderLabel(invoice.provider);
-  const statusClass = statusBadgeClass(invoice.statusLabel);
+  const statusClass = statusBadgeClass(invoice.status);
+  const pageTitle = copy.pageTitle
+    .replace("{number}", invoice.invoiceNumber)
+    .replace("{site}", siteConfig.name);
+  const thanksLine = copy.thanks.replace("{site}", siteConfig.name);
   const sampleBadge = invoice.isSample
-    ? `<span class="badge">نموذج تجريبي</span>`
+    ? `<span class="badge">${escapeHtml(copy.sampleBadge)}</span>`
     : "";
 
   return `<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="${locale}" dir="${dir}">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>فاتورة ${escapeHtml(invoice.invoiceNumber)} — ${escapeHtml(siteConfig.name)}</title>
+  <title>${escapeHtml(pageTitle)}</title>
   <style>
     ${embeddedFonts}
     :root {
@@ -159,7 +169,7 @@ export function generateInvoiceHtml(
       font-size: 11px;
     }
     .title-block {
-      text-align: left;
+      text-align: end;
       min-width: 160px;
     }
     .title-block .doc-type {
@@ -205,7 +215,7 @@ export function generateInvoiceHtml(
       padding: 18px 28px;
     }
     .panel + .panel {
-      border-right: 1px solid var(--border);
+      border-inline-start: 1px solid var(--border);
     }
     .panel-title {
       margin: 0 0 10px;
@@ -246,7 +256,7 @@ export function generateInvoiceHtml(
     }
     .meta-list li:last-child { border-bottom: 0; }
     .meta-list .label { color: var(--muted-label); }
-    .meta-list .value { font-weight: 600; text-align: left; }
+    .meta-list .value { font-weight: 600; text-align: end; }
     .status {
       display: inline-block;
       padding: 2px 10px;
@@ -279,7 +289,7 @@ export function generateInvoiceHtml(
     }
     thead th {
       padding: 10px 14px;
-      text-align: right;
+      text-align: start;
       background: var(--primary);
       color: #fff;
       font-size: 11px;
@@ -287,10 +297,10 @@ export function generateInvoiceHtml(
       letter-spacing: 0.03em;
     }
     thead th:first-child { width: 36px; text-align: center; }
-    thead th:last-child { width: 120px; text-align: left; }
+    thead th:last-child { width: 120px; text-align: end; }
     tbody td {
       padding: 12px 14px;
-      text-align: right;
+      text-align: start;
       border-top: 1px solid var(--border);
       font-size: 13px;
       vertical-align: top;
@@ -302,7 +312,7 @@ export function generateInvoiceHtml(
       background: var(--muted);
     }
     tbody td:last-child {
-      text-align: left;
+      text-align: end;
       font-weight: 700;
       color: var(--heading);
       white-space: nowrap;
@@ -363,8 +373,8 @@ export function generateInvoiceHtml(
       body { padding: 12px; }
       .header, .panel, .lines, .totals, .footer { padding-right: 16px; padding-left: 16px; }
       .panels { grid-template-columns: 1fr; }
-      .panel + .panel { border-right: 0; border-top: 1px solid var(--border); }
-      .title-block { text-align: right; }
+      .panel + .panel { border-inline-start: 0; border-top: 1px solid var(--border); }
+      .title-block { text-align: start; }
     }
     @media print {
       body { background: #fff; padding: 0; }
@@ -394,7 +404,7 @@ export function generateInvoiceHtml(
   ${
     showToolbar && downloadUrl
       ? `<div class="toolbar no-print">
-    <a href="${escapeHtml(downloadUrl)}">تحميل PDF</a>
+    <a href="${escapeHtml(downloadUrl)}">${escapeHtml(copy.downloadPdf)}</a>
   </div>`
       : ""
   }
@@ -405,13 +415,13 @@ export function generateInvoiceHtml(
     <header class="header">
       <div class="brand">
         <h1>${escapeHtml(siteConfig.name)} Coaching</h1>
-        <p class="tagline">كوتشينغ الحياة — مرافقة شخصية</p>
+        <p class="tagline">${escapeHtml(copy.tagline)}</p>
         <p class="contact">${escapeHtml(invoice.sellerEmail)}</p>
       </div>
       <div class="title-block">
-        <p class="doc-type">فاتورة</p>
+        <p class="doc-type">${escapeHtml(copy.documentTitle)}</p>
         <p class="doc-number">
-          رقم الفاتورة
+          ${escapeHtml(copy.invoiceNumberLabel)}
           <strong>${escapeHtml(invoice.invoiceNumber)}</strong>
         </p>
         ${sampleBadge}
@@ -420,31 +430,31 @@ export function generateInvoiceHtml(
 
     <div class="panels">
       <section class="panel">
-        <h3 class="panel-title">فاتورة إلى</h3>
+        <h3 class="panel-title">${escapeHtml(copy.billTo)}</h3>
         <div class="panel-body">
           <p>
-            <span class="label">الاسم</span>
+            <span class="label">${escapeHtml(copy.name)}</span>
             <span class="value">${escapeHtml(invoice.clientName)}</span>
           </p>
           <p>
-            <span class="label">البريد الإلكتروني</span>
+            <span class="label">${escapeHtml(copy.email)}</span>
             <span class="value">${escapeHtml(invoice.clientEmail)}</span>
           </p>
         </div>
       </section>
       <section class="panel">
-        <h3 class="panel-title">معلومات الفاتورة</h3>
+        <h3 class="panel-title">${escapeHtml(copy.invoiceInfo)}</h3>
         <ul class="meta-list">
           <li>
-            <span class="label">تاريخ الإصدار</span>
+            <span class="label">${escapeHtml(copy.issuedAt)}</span>
             <span class="value">${escapeHtml(dateLabel)}</span>
           </li>
           <li>
-            <span class="label">الحالة</span>
+            <span class="label">${escapeHtml(copy.status)}</span>
             <span class="value"><span class="${statusClass}">${escapeHtml(invoice.statusLabel)}</span></span>
           </li>
           <li>
-            <span class="label">طريقة الدفع</span>
+            <span class="label">${escapeHtml(copy.paymentMethod)}</span>
             <span class="value">${escapeHtml(providerLabel)}</span>
           </li>
         </ul>
@@ -452,13 +462,13 @@ export function generateInvoiceHtml(
     </div>
 
     <section class="lines">
-      <h3>تفاصيل الخدمة</h3>
+      <h3>${escapeHtml(copy.serviceDetails)}</h3>
       <table>
         <thead>
           <tr>
             <th>#</th>
-            <th>الوصف</th>
-            <th>المبلغ</th>
+            <th>${escapeHtml(copy.description)}</th>
+            <th>${escapeHtml(copy.amount)}</th>
           </tr>
         </thead>
         <tbody>
@@ -474,19 +484,19 @@ export function generateInvoiceHtml(
     <div class="totals">
       <div class="totals-box">
         <div class="totals-row">
-          <span>المجموع الفرعي</span>
+          <span>${escapeHtml(copy.subtotal)}</span>
           <span class="amount">${escapeHtml(amountLabel)}</span>
         </div>
         <div class="totals-row">
-          <span>الإجمالي المدفوع</span>
+          <span>${escapeHtml(copy.totalPaid)}</span>
           <span class="amount">${escapeHtml(amountLabel)}</span>
         </div>
       </div>
     </div>
 
     <footer class="footer">
-      <p class="thanks">شكرًا لثقتكِ — ${escapeHtml(siteConfig.name)} Coaching</p>
-      <p class="legal">هذه الفاتورة صادرة إلكترونيًا ولا تحتاج إلى توقيع. يُرجى الاحتفاظ بها لسجلاتكِ.</p>
+      <p class="thanks">${escapeHtml(thanksLine)}</p>
+      <p class="legal">${escapeHtml(copy.legal)}</p>
       <p class="site">${escapeHtml(siteConfig.url)}</p>
     </footer>
   </article>

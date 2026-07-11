@@ -30,7 +30,7 @@ export function SiteShell({
   return (
     <>
       <Header />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 min-w-0 overflow-x-hidden">{children}</main>
       <Footer contact={contact} />
       <CookieConsentBanner />
     </>

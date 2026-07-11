@@ -2,13 +2,17 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import { ContentFilterBar } from "@/components/content/content-filter-bar";
 import { Card } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
-import { dashboardContent } from "@/lib/constants";
+import {
+  ListScrollHint,
+  ScrollableItemList,
+} from "@/components/ui/scalable-list";
+import type { AppLocale } from "@/i18n/routing";
+import { matchesArabicSearch } from "@/lib/search-utils";
 import { cn, formatDate } from "@/lib/utils";
-
-const content = dashboardContent.goals;
 
 export type GoalItem = {
   id: string;
@@ -24,17 +28,15 @@ type GoalsListProps = {
   goals: GoalItem[];
 };
 
-function normalizeSearch(value: string) {
-  return value.trim().toLowerCase();
-}
-
 export function GoalsList({ goals }: GoalsListProps) {
+  const locale = useLocale() as AppLocale;
+  const t = useTranslations("dashboard.goals");
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
   const [sort, setSort] = useState("recent");
 
-  const query = normalizeSearch(search);
+  const query = search.trim();
 
   const filteredGoals = useMemo(() => {
     let items = goals.filter((goal) => {
@@ -45,14 +47,15 @@ export function GoalsList({ goals }: GoalsListProps) {
       if (dateFilter === "without_target" && goal.targetDate) return false;
 
       if (!query) return true;
-      const haystack = `${goal.title} ${goal.description ?? ""}`.toLowerCase();
-      return haystack.includes(query);
+      const haystack = `${goal.title} ${goal.description ?? ""}`;
+      return matchesArabicSearch(haystack, query);
     });
 
     const sorted = [...items];
+    const collator = locale === "fr" ? "fr" : "ar";
     switch (sort) {
       case "title":
-        return sorted.sort((a, b) => a.title.localeCompare(b.title, "ar"));
+        return sorted.sort((a, b) => a.title.localeCompare(b.title, collator));
       case "progress_desc":
         return sorted.sort((a, b) => b.progress - a.progress);
       case "progress_asc":
@@ -72,61 +75,75 @@ export function GoalsList({ goals }: GoalsListProps) {
             new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
         );
     }
-  }, [goals, status, dateFilter, query, sort]);
+  }, [goals, status, dateFilter, query, sort, locale]);
+
+  const resultsLabel =
+    filteredGoals.length === 1
+      ? t("resultsOne")
+      : t("resultsMany", { count: filteredGoals.length });
 
   return (
     <>
       <ContentFilterBar
         searchValue={search}
         onSearchChange={setSearch}
-        searchPlaceholder={content.searchPlaceholder}
+        searchPlaceholder={t("searchPlaceholder")}
         filters={[
           {
             id: "status",
-            label: content.statusLabel,
+            label: t("statusLabel"),
             value: status,
             onChange: setStatus,
             options: [
-              { value: "all", label: content.statusAll },
-              { value: "active", label: content.statusActive },
-              { value: "completed", label: content.statusCompleted },
+              { value: "all", label: t("statusAll") },
+              { value: "active", label: t("statusActive") },
+              { value: "completed", label: t("statusCompleted") },
             ],
           },
           {
             id: "date",
-            label: content.dateLabel,
+            label: t("dateLabel"),
             value: dateFilter,
             onChange: setDateFilter,
             options: [
-              { value: "all", label: content.dateAll },
-              { value: "with_target", label: content.dateWithTarget },
-              { value: "without_target", label: content.dateWithoutTarget },
+              { value: "all", label: t("dateAll") },
+              { value: "with_target", label: t("dateWithTarget") },
+              { value: "without_target", label: t("dateWithoutTarget") },
             ],
           },
           {
             id: "sort",
-            label: content.sortLabel,
+            label: t("sortLabel"),
             value: sort,
             onChange: setSort,
             options: [
-              { value: "recent", label: content.sortRecent },
-              { value: "title", label: content.sortTitle },
-              { value: "progress_desc", label: content.sortProgressDesc },
-              { value: "progress_asc", label: content.sortProgressAsc },
-              { value: "target_date", label: content.sortTargetDate },
+              { value: "recent", label: t("sortRecent") },
+              { value: "title", label: t("sortTitle") },
+              { value: "progress_desc", label: t("sortProgressDesc") },
+              { value: "progress_asc", label: t("sortProgressAsc") },
+              { value: "target_date", label: t("sortTargetDate") },
             ],
           },
         ]}
         resultsCount={filteredGoals.length}
-        resultsLabel={content.resultsCount(filteredGoals.length)}
+        resultsLabel={resultsLabel}
+      />
+
+      <ListScrollHint
+        count={filteredGoals.length}
+        className="mb-3 text-end sm:text-start"
       />
 
       {filteredGoals.length === 0 ? (
         <Card className="py-12 text-center">
-          <p className="text-text/70">{content.noResults}</p>
+          <p className="text-text/70">{t("noResults")}</p>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <ScrollableItemList
+          count={filteredGoals.length}
+          stackGapClassName="space-y-4"
+          maxHeightClassName="max-h-96 sm:max-h-[28rem]"
+        >
           {filteredGoals.map((goal) => (
             <Card key={goal.id}>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -142,7 +159,7 @@ export function GoalsList({ goals }: GoalsListProps) {
                     </p>
                     {goal.isCompleted ? (
                       <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
-                        {content.completedBadge}
+                        {t("completedBadge")}
                       </span>
                     ) : null}
                   </div>
@@ -151,13 +168,15 @@ export function GoalsList({ goals }: GoalsListProps) {
                   ) : null}
                   <p className="text-xs text-text/60 mt-2">
                     {goal.targetDate
-                      ? content.targetDate(formatDate(new Date(goal.targetDate)))
-                      : content.noTargetDate}
+                      ? t("targetDate", {
+                          date: formatDate(new Date(goal.targetDate), locale),
+                        })
+                      : t("noTargetDate")}
                   </p>
                 </div>
                 <div className="min-w-[180px] sm:max-w-[220px]">
                   <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="text-text/70">{content.progressLabel}</span>
+                    <span className="text-text/70">{t("progressLabel")}</span>
                     <span className="font-semibold text-primary">
                       {goal.progress}%
                     </span>
@@ -170,12 +189,12 @@ export function GoalsList({ goals }: GoalsListProps) {
                   href={`/dashboard/goals/${goal.id}/edit`}
                   className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
                 >
-                  {content.edit}
+                  {t("edit")}
                 </Link>
               </div>
             </Card>
           ))}
-        </div>
+        </ScrollableItemList>
       )}
     </>
   );

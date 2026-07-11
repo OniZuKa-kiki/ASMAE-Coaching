@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth, SignInButton } from "@clerk/nextjs";
 import { Loader2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { PaymentMethodSelector } from "@/components/payments/payment-method-selector";
-import { formatPrice } from "@/lib/utils";
-import { toFriendlyError, friendlyErrors } from "@/lib/api-errors";
+import { getFriendlyErrors, toFriendlyError } from "@/lib/api-errors";
+import type { AppLocale } from "@/i18n/routing";
 import { notifyError, notifySuccess } from "@/lib/notify";
 import {
   convertCatalogAmountToProvider,
@@ -26,7 +26,8 @@ export function PurchaseCourseButton({
   price: number;
 }) {
   const { isSignedIn } = useAuth();
-  const router = useRouter();
+  const locale = useLocale() as AppLocale;
+  const t = useTranslations("courses");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [providers, setProviders] = useState<PaymentProviderConfig[]>([]);
@@ -62,16 +63,17 @@ export function PurchaseCourseButton({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ slug, provider: selectedProvider }),
       });
+
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "خطأ");
+      if (!res.ok) throw new Error(data.error || getFriendlyErrors(locale).generic);
       if (data.url) {
-        notifySuccess(friendlyErrors.bookingRedirect);
+        notifySuccess(getFriendlyErrors(locale).bookingRedirect);
         window.location.href = data.url;
       }
     } catch (err) {
-      const raw = err instanceof Error ? err.message : "خطأ";
-      setError(toFriendlyError(raw));
-      notifyError(raw);
+      const raw = err instanceof Error ? err.message : t("paymentError");
+      setError(toFriendlyError(raw, undefined, locale));
+      notifyError(raw, t("paymentError"), locale);
       setLoading(false);
     }
   }
@@ -79,7 +81,7 @@ export function PurchaseCourseButton({
   if (!isSignedIn) {
     return (
       <SignInButton mode="modal">
-        <Button className="w-full">سجّل الدخول للشراء</Button>
+        <Button className="w-full">{t("signInToPurchase")}</Button>
       </SignInButton>
     );
   }
@@ -90,16 +92,17 @@ export function PurchaseCourseButton({
         providers={providers}
         selected={selectedProvider}
         onSelect={(id) => setSelectedProvider(id as PaymentProviderId)}
+        footnote={t("paymentFootnote")}
       />
       {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
       <Button onClick={handlePurchase} disabled={loading} className="w-full">
         {loading ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin me-2" />
-            جاري التحويل...
+            {t("paying")}
           </>
         ) : (
-          `شراء — ${payLabel}`
+          t("buyButton", { amount: payLabel })
         )}
       </Button>
     </div>

@@ -1,17 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { availabilityQuerySchema } from "@/lib/api-schemas";
-import { friendlyErrors } from "@/lib/api-errors";
+import { getRequestFriendlyErrors } from "@/lib/action-locale";
 import { getAvailableSlots } from "@/lib/booking";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
 export async function GET(request: NextRequest) {
+  const errors = await getRequestFriendlyErrors();
+
   try {
     const ip = getClientIp(request);
     const limited = rateLimit(`availability:${ip}`, 60, 60_000);
     if (!limited.ok) {
       return NextResponse.json(
-        { error: "طلبات كثيرة. حاول مجدداً." },
+        { error: errors.generic },
         {
           status: 429,
           headers: { "Retry-After": String(limited.retryAfterSec) },
@@ -33,13 +35,13 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: friendlyErrors.incomplete },
+        { error: errors.incomplete },
         { status: 400 }
       );
     }
     console.error("[availability]", error);
     return NextResponse.json(
-      { error: friendlyErrors.generic },
+      { error: errors.generic },
       { status: 500 }
     );
   }

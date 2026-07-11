@@ -1,17 +1,18 @@
+"use client";
+
 import { Eye, FileText } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
 import { InvoicePdfLink } from "@/components/payments/invoice-pdf-link";
 import { formatProviderAmount } from "@/lib/payments/currency";
 
-const samplePreview = {
-  invoiceNumber: "INV-2026-DEMO",
-  clientName: "فاطمة الزهراء",
-  description: "جلسة كوتشينغ فردية — 60 دقيقة",
-  amountLabel: formatProviderAmount(85000, "mad"),
-  provider: "PayZone",
-};
+const sampleInvoiceNumber = "INV-2026-DEMO";
+const sampleAmountLabel = formatProviderAmount(85000, "mad");
+const sampleProvider = "PayZone";
 
 export function InvoiceSamplePreviewCard() {
+  const t = useTranslations("dashboard.payments.sample");
+  const tCommon = useTranslations("common");
   const previewUrl = "/api/payments/sample/invoice";
   const downloadUrl = `${previewUrl}?download=1`;
 
@@ -23,13 +24,11 @@ export function InvoiceSamplePreviewCard() {
             <FileText className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs font-medium text-primary">نموذج تجريبي</p>
+            <p className="text-xs font-medium text-primary">{t("badge")}</p>
             <h2 className="font-heading text-lg font-semibold text-heading">
-              معاينة الفاتورة
+              {t("title")}
             </h2>
-            <p className="mt-1 text-sm text-text/70">
-              هكذا ستظهر الفاتورة للعميلات بعد كل دفعة مؤكدة.
-            </p>
+            <p className="mt-1 text-sm text-text/70">{t("description")}</p>
           </div>
         </div>
 
@@ -41,43 +40,33 @@ export function InvoiceSamplePreviewCard() {
             className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-hover"
           >
             <Eye className="h-4 w-4" />
-            عرض الفاتورة
+            {t("viewInvoice")}
           </a>
-          <InvoicePdfLink href={downloadUrl} label="تحميل" />
+          <InvoicePdfLink href={downloadUrl} label={tCommon("download")} />
         </div>
       </div>
 
       <div className="mt-5 rounded-2xl border border-border/60 bg-card p-4 text-sm">
         <div className="grid gap-2 sm:grid-cols-2">
           <p>
-            <span className="text-text/60">رقم الفاتورة: </span>
-            <span className="font-medium text-heading">
-              {samplePreview.invoiceNumber}
-            </span>
+            <span className="text-text/60">{t("invoiceNumber")}: </span>
+            <span className="font-medium text-heading">{sampleInvoiceNumber}</span>
           </p>
           <p>
-            <span className="text-text/60">العميلة: </span>
-            <span className="font-medium text-heading">
-              {samplePreview.clientName}
-            </span>
+            <span className="text-text/60">{t("client")}: </span>
+            <span className="font-medium text-heading">{t("demoClientName")}</span>
           </p>
           <p className="sm:col-span-2">
-            <span className="text-text/60">الوصف: </span>
-            <span className="font-medium text-heading">
-              {samplePreview.description}
-            </span>
+            <span className="text-text/60">{t("descriptionLabel")}: </span>
+            <span className="font-medium text-heading">{t("demoDescription")}</span>
           </p>
           <p>
-            <span className="text-text/60">المبلغ: </span>
-            <span className="font-semibold text-primary">
-              {samplePreview.amountLabel}
-            </span>
+            <span className="text-text/60">{t("amount")}: </span>
+            <span className="font-semibold text-primary">{sampleAmountLabel}</span>
           </p>
           <p>
-            <span className="text-text/60">المزود: </span>
-            <span className="font-medium text-heading">
-              {samplePreview.provider}
-            </span>
+            <span className="text-text/60">{t("provider")}: </span>
+            <span className="font-medium text-heading">{sampleProvider}</span>
           </p>
         </div>
       </div>

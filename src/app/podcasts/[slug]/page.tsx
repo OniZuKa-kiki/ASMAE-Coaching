@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Clock, Lock } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
 import { AudioPlayer } from "@/components/podcasts/audio-player";
-import { podcastsPageContent } from "@/lib/constants";
-import {
-  formatPodcastDuration,
-  getPodcastBySlug,
-  getPublishedPodcasts,
-} from "@/lib/content";
+import { localeAlternates } from "@/lib/seo";
+import { formatPodcastDuration } from "@/lib/content-i18n";
+import { getPodcastBySlug, getPublishedPodcasts } from "@/lib/content";
+import type { AppLocale } from "@/i18n/routing";
 import { getOrCreateUser } from "@/lib/user";
 import { prisma } from "@/lib/db";
 import { getPodcastProgressBySlug } from "@/lib/podcast-progress";
@@ -23,9 +22,16 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const podcast = await getPodcastBySlug(slug);
-  if (!podcast) return { title: "البودكاست غير موجود" };
-  return { title: podcast.title, description: podcast.description };
+  const [podcast, t] = await Promise.all([
+    getPodcastBySlug(slug),
+    getTranslations("podcasts"),
+  ]);
+  if (!podcast) return { title: t("notFound") };
+  return {
+    title: podcast.title,
+    description: podcast.description,
+    alternates: localeAlternates(`/podcasts/${slug}`),
+  };
 }
 
 export default async function PodcastDetailPage({
@@ -34,9 +40,13 @@ export default async function PodcastDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const podcast = await getPodcastBySlug(slug);
+  const [podcast, user, locale, t] = await Promise.all([
+    getPodcastBySlug(slug),
+    getOrCreateUser(),
+    getLocale() as Promise<AppLocale>,
+    getTranslations("podcasts"),
+  ]);
   if (!podcast) notFound();
-  const user = await getOrCreateUser();
 
   const canAccessPremium = !podcast.isPremium
     ? true
@@ -68,15 +78,15 @@ export default async function PodcastDetailPage({
         {podcast.isPremium && (
           <span className="inline-flex items-center gap-1 text-sm font-semibold text-accent bg-accent/10 px-4 py-1.5 rounded-full mb-6">
             <Lock className="w-4 h-4" />
-            {podcastsPageContent.premiumContentLabel}
+            {t("premiumContentLabel")}
           </span>
         )}
-        <h1 className="font-heading text-4xl font-semibold text-heading mb-4">
+        <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl font-semibold text-heading mb-4">
           {podcast.title}
         </h1>
         <p className="text-text/70 flex items-center gap-2 mb-8">
           <Clock className="w-4 h-4" />
-          {formatPodcastDuration(podcast.duration)}
+          {formatPodcastDuration(podcast.duration, locale)}
         </p>
         <p className="text-text text-lg mb-10">{podcast.description}</p>
 
@@ -85,10 +95,10 @@ export default async function PodcastDetailPage({
             <div className="text-center py-8">
               <Lock className="w-12 h-12 text-accent mx-auto mb-4" />
               <p className="text-heading font-semibold mb-2">
-                {podcastsPageContent.premiumLockedTitle}
+                {t("premiumLockedTitle")}
               </p>
               <p className="text-text/70 text-sm">
-                {podcastsPageContent.premiumLockedMessage}
+                {t("premiumLockedMessage")}
               </p>
             </div>
           ) : podcast.audioUrl ? (
@@ -101,7 +111,7 @@ export default async function PodcastDetailPage({
             />
           ) : (
             <p className="text-center text-text/70 py-8">
-              {podcastsPageContent.audioComingSoon}
+              {t("audioComingSoon")}
             </p>
           )}
         </div>

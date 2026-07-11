@@ -2,6 +2,8 @@ import { adminUrl } from "@/lib/admin-path";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { PUBLIC_INVALIDATIONS } from "@/lib/revalidate-public-content";
+import { getLocale, getTranslations } from "next-intl/server";
 import { AdminFormField } from "@/components/admin/form-field";
 import {
   AdminDangerButton,
@@ -10,6 +12,7 @@ import {
   AdminPrimaryButton,
 } from "@/components/admin/form-actions";
 import { MediaUrlField } from "@/components/admin/media-url-field";
+import { RecommendationTopicsField } from "@/components/admin/recommendation-topics-field";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
 import { FilterSelect } from "@/components/ui/filter-select";
@@ -20,12 +23,15 @@ import {
   runAction,
   type ActionResult,
 } from "@/lib/action-result";
+import { getActionLocale } from "@/lib/action-locale";
+import {
+  getAdminResourceCategoryOptions,
+} from "@/lib/admin-i18n";
 import { prisma } from "@/lib/db";
 import { getUserRole } from "@/lib/auth";
-import {
-  parseLessonResourceCategory,
-  resourceCategoryFilterOptions,
-} from "@/lib/resource-categories";
+import { parseLessonResourceCategory } from "@/lib/resource-categories";
+import { parseRecommendationTopicsFromForm, resolveCourseTopicsForSave } from "@/lib/recommendation-topics-form";
+import type { AppLocale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
 
@@ -45,15 +51,17 @@ async function updateCourse(formData: FormData): Promise<ActionResult> {
   const denied = await ensureAdmin();
   if (denied) return denied;
 
+  const locale = await getActionLocale();
   const id = String(formData.get("id") || "");
   const title = String(formData.get("title") || "").trim();
   const description = String(formData.get("description") || "").trim();
   const priceRaw = Number(String(formData.get("price") || ""));
   const isPublished = String(formData.get("isPublished") || "") === "on";
-  if (!id || !title || !description || !Number.isFinite(priceRaw)) return incomplete("ar");
+  if (!id || !title || !description || !Number.isFinite(priceRaw)) return incomplete(locale);
+  const topics = parseRecommendationTopicsFromForm(formData);
 
   return runAction(
-    "ar",
+    locale,
     async () => {
       const baseSlug = slugify(title);
       const conflict = await prisma.course.findFirst({
@@ -61,6 +69,7 @@ async function updateCourse(formData: FormData): Promise<ActionResult> {
         select: { id: true },
       });
       const slug = conflict ? `${baseSlug}-${Date.now().toString().slice(-4)}` : baseSlug;
+      const resolvedTopics = await resolveCourseTopicsForSave(slug, title, description, topics);
 
       await prisma.course.update({
         where: { id },
@@ -69,12 +78,14 @@ async function updateCourse(formData: FormData): Promise<ActionResult> {
           description,
           price: Math.max(0, Math.round(priceRaw)),
           isPublished,
+          topics: resolvedTopics,
           slug,
         },
       });
 
       revalidatePath("/admin/courses");
-      revalidatePath("/courses");
+      PUBLIC_INVALIDATIONS.courses();
+      revalidatePath("/dashboard");
     },
     "saved",
     adminUrl(`/courses/${id}/edit`)
@@ -86,15 +97,16 @@ async function deleteCourse(formData: FormData): Promise<ActionResult> {
   const denied = await ensureAdmin();
   if (denied) return denied;
 
+  const locale = await getActionLocale();
   const id = String(formData.get("id") || "");
-  if (!id) return incomplete("ar");
+  if (!id) return incomplete(locale);
 
   return runAction(
-    "ar",
+    locale,
     async () => {
       await prisma.course.delete({ where: { id } });
       revalidatePath("/admin/courses");
-      revalidatePath("/courses");
+      PUBLIC_INVALIDATIONS.courses();
       revalidatePath("/dashboard/resources");
     },
     "deleted",
@@ -107,12 +119,13 @@ async function addModule(formData: FormData): Promise<ActionResult> {
   const denied = await ensureAdmin();
   if (denied) return denied;
 
+  const locale = await getActionLocale();
   const courseId = String(formData.get("courseId") || "");
   const title = String(formData.get("title") || "").trim();
-  if (!courseId || !title) return incomplete("ar");
+  if (!courseId || !title) return incomplete(locale);
 
   return runAction(
-    "ar",
+    locale,
     async () => {
       const max = await prisma.courseModule.aggregate({
         where: { courseId },
@@ -127,7 +140,7 @@ async function addModule(formData: FormData): Promise<ActionResult> {
       });
       revalidatePath(`/admin/courses/${courseId}/edit`);
       revalidatePath("/admin/courses");
-      revalidatePath("/courses");
+      PUBLIC_INVALIDATIONS.courses();
       revalidatePath("/dashboard/resources");
     },
     "created",
@@ -140,14 +153,15 @@ async function updateModule(formData: FormData): Promise<ActionResult> {
   const denied = await ensureAdmin();
   if (denied) return denied;
 
+  const locale = await getActionLocale();
   const courseId = String(formData.get("courseId") || "");
   const moduleId = String(formData.get("moduleId") || "");
   const title = String(formData.get("title") || "").trim();
   const orderRaw = Number(String(formData.get("order") || ""));
-  if (!courseId || !moduleId || !title || !Number.isFinite(orderRaw)) return incomplete("ar");
+  if (!courseId || !moduleId || !title || !Number.isFinite(orderRaw)) return incomplete(locale);
 
   return runAction(
-    "ar",
+    locale,
     async () => {
       await prisma.courseModule.update({
         where: { id: moduleId },
@@ -155,7 +169,7 @@ async function updateModule(formData: FormData): Promise<ActionResult> {
       });
       revalidatePath(`/admin/courses/${courseId}/edit`);
       revalidatePath("/admin/courses");
-      revalidatePath("/courses");
+      PUBLIC_INVALIDATIONS.courses();
       revalidatePath("/dashboard/resources");
     },
     "updated",
@@ -168,17 +182,18 @@ async function deleteModule(formData: FormData): Promise<ActionResult> {
   const denied = await ensureAdmin();
   if (denied) return denied;
 
+  const locale = await getActionLocale();
   const courseId = String(formData.get("courseId") || "");
   const moduleId = String(formData.get("moduleId") || "");
-  if (!courseId || !moduleId) return incomplete("ar");
+  if (!courseId || !moduleId) return incomplete(locale);
 
   return runAction(
-    "ar",
+    locale,
     async () => {
       await prisma.courseModule.delete({ where: { id: moduleId } });
       revalidatePath(`/admin/courses/${courseId}/edit`);
       revalidatePath("/admin/courses");
-      revalidatePath("/courses");
+      PUBLIC_INVALIDATIONS.courses();
       revalidatePath("/dashboard/resources");
     },
     "deleted",
@@ -191,6 +206,7 @@ async function addLesson(formData: FormData): Promise<ActionResult> {
   const denied = await ensureAdmin();
   if (denied) return denied;
 
+  const locale = await getActionLocale();
   const courseId = String(formData.get("courseId") || "");
   const moduleId = String(formData.get("moduleId") || "");
   const title = String(formData.get("title") || "").trim();
@@ -200,10 +216,10 @@ async function addLesson(formData: FormData): Promise<ActionResult> {
   const categoryRaw = String(formData.get("resourceCategory") || "").trim();
   const resourceCategory = parseLessonResourceCategory(categoryRaw);
   const durationRaw = Number(String(formData.get("duration") || ""));
-  if (!courseId || !moduleId || !title) return incomplete("ar");
+  if (!courseId || !moduleId || !title) return incomplete(locale);
 
   return runAction(
-    "ar",
+    locale,
     async () => {
       const max = await prisma.courseLesson.aggregate({
         where: { moduleId },
@@ -218,14 +234,17 @@ async function addLesson(formData: FormData): Promise<ActionResult> {
           videoUrl: videoUrl || null,
           pdfUrl: pdfUrl || null,
           resourceCategory,
-          duration: Number.isFinite(durationRaw) && durationRaw > 0 ? Math.round(durationRaw) : null,
+          duration:
+            Number.isFinite(durationRaw) && durationRaw > 0
+              ? Math.round(durationRaw)
+              : null,
           order: (max._max.order ?? 0) + 1,
         },
       });
 
       revalidatePath(`/admin/courses/${courseId}/edit`);
       revalidatePath("/admin/courses");
-      revalidatePath("/courses");
+      PUBLIC_INVALIDATIONS.courses();
       revalidatePath("/dashboard/resources");
     },
     "created",
@@ -238,6 +257,7 @@ async function updateLesson(formData: FormData): Promise<ActionResult> {
   const denied = await ensureAdmin();
   if (denied) return denied;
 
+  const locale = await getActionLocale();
   const courseId = String(formData.get("courseId") || "");
   const lessonId = String(formData.get("lessonId") || "");
   const title = String(formData.get("title") || "").trim();
@@ -248,10 +268,10 @@ async function updateLesson(formData: FormData): Promise<ActionResult> {
   const resourceCategory = parseLessonResourceCategory(categoryRaw);
   const durationRaw = Number(String(formData.get("duration") || ""));
   const orderRaw = Number(String(formData.get("order") || ""));
-  if (!courseId || !lessonId || !title || !Number.isFinite(orderRaw)) return incomplete("ar");
+  if (!courseId || !lessonId || !title || !Number.isFinite(orderRaw)) return incomplete(locale);
 
   return runAction(
-    "ar",
+    locale,
     async () => {
       await prisma.courseLesson.update({
         where: { id: lessonId },
@@ -261,14 +281,17 @@ async function updateLesson(formData: FormData): Promise<ActionResult> {
           videoUrl: videoUrl || null,
           pdfUrl: pdfUrl || null,
           resourceCategory,
-          duration: Number.isFinite(durationRaw) && durationRaw > 0 ? Math.round(durationRaw) : null,
+          duration:
+            Number.isFinite(durationRaw) && durationRaw > 0
+              ? Math.round(durationRaw)
+              : null,
           order: Math.max(1, Math.round(orderRaw)),
         },
       });
 
       revalidatePath(`/admin/courses/${courseId}/edit`);
       revalidatePath("/admin/courses");
-      revalidatePath("/courses");
+      PUBLIC_INVALIDATIONS.courses();
       revalidatePath("/dashboard/resources");
     },
     "updated",
@@ -281,17 +304,18 @@ async function deleteLesson(formData: FormData): Promise<ActionResult> {
   const denied = await ensureAdmin();
   if (denied) return denied;
 
+  const locale = await getActionLocale();
   const courseId = String(formData.get("courseId") || "");
   const lessonId = String(formData.get("lessonId") || "");
-  if (!courseId || !lessonId) return incomplete("ar");
+  if (!courseId || !lessonId) return incomplete(locale);
 
   return runAction(
-    "ar",
+    locale,
     async () => {
       await prisma.courseLesson.delete({ where: { id: lessonId } });
       revalidatePath(`/admin/courses/${courseId}/edit`);
       revalidatePath("/admin/courses");
-      revalidatePath("/courses");
+      PUBLIC_INVALIDATIONS.courses();
       revalidatePath("/dashboard/resources");
     },
     "deleted",
@@ -306,6 +330,24 @@ export default async function AdminCourseEditPage({
 }) {
   const role = await getUserRole();
   if (role !== "admin") redirect("/dashboard");
+
+  const locale = (await getLocale()) as AppLocale;
+  const [t, tFields, tActions, tEmpty, tCommon, tResourceCategories] =
+    await Promise.all([
+      getTranslations("adminPages.courses"),
+      getTranslations("adminPages.fields"),
+      getTranslations("adminPages.actions"),
+      getTranslations("adminPages.empty"),
+      getTranslations("admin.common"),
+      getTranslations("adminPages.resourceCategories"),
+    ]);
+  const resourceCategoryOptions = getAdminResourceCategoryOptions(locale).filter(
+    (option) => option.value !== "all"
+  );
+  const resourceCategorySelectOptions = [
+    { value: "", label: tResourceCategories("auto") },
+    ...resourceCategoryOptions,
+  ];
 
   const { id } = await params;
   const course = await prisma.course.findUnique({
@@ -323,25 +365,28 @@ export default async function AdminCourseEditPage({
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-header-title">
-            تعديل الدورة
-          </h1>
-          <p className="text-sm text-text/70 mt-1">Slug: {course.slug}</p>
+          <h1 className="page-header-title">{t("editTitle")}</h1>
+          <p className="mt-1 text-sm text-text/70">{t("slugLabel", { slug: course.slug })}</p>
         </div>
         <Link
           href={adminUrl("/courses")}
-          className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading hover:border-primary hover:text-primary transition-colors"
+          className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-heading transition-colors hover:border-primary hover:text-primary"
         >
-          رجوع
+          {tCommon("back")}
         </Link>
       </div>
 
       <Card className="mb-6">
-        <h2 className="font-heading text-xl text-heading mb-4">المعلومات</h2>
-        <ActionForm action={updateCourse} locale="ar" className="space-y-4" id="course-update-form">
+        <h2 className="mb-4 font-heading text-xl text-heading">{t("infoSection")}</h2>
+        <ActionForm
+          action={updateCourse}
+          locale={locale}
+          className="space-y-4"
+          id="course-update-form"
+        >
           <input type="hidden" name="id" value={course.id} />
 
-          <AdminFormField label="عنوان الدورة" htmlFor="course-title">
+          <AdminFormField label={tFields("title")} htmlFor="course-title">
             <Input
               id="course-title"
               name="title"
@@ -351,7 +396,7 @@ export default async function AdminCourseEditPage({
             />
           </AdminFormField>
 
-          <AdminFormField label="وصف الدورة" htmlFor="course-description">
+          <AdminFormField label={tFields("description")} htmlFor="course-description">
             <Textarea
               id="course-description"
               name="description"
@@ -362,11 +407,17 @@ export default async function AdminCourseEditPage({
             />
           </AdminFormField>
 
-          <div className="grid sm:grid-cols-2 gap-4 items-end">
+          <RecommendationTopicsField
+            selected={course.topics}
+            label={tFields("recommendationTopics")}
+            hint={tFields("recommendationTopicsHint")}
+          />
+
+          <div className="grid items-end gap-4 sm:grid-cols-2">
             <AdminFormField
-              label="السعر (بالسنتيم)"
+              label={tFields("priceCents")}
               htmlFor="course-price"
-              hint="مثال: 19700 = 197,00 €"
+              hint={tFields("priceCentsHint")}
             >
               <Input
                 id="course-price"
@@ -378,27 +429,35 @@ export default async function AdminCourseEditPage({
               />
             </AdminFormField>
 
-            <label className="inline-flex items-center gap-2 text-sm text-text h-[46px]">
-              <input type="checkbox" name="isPublished" defaultChecked={course.isPublished} />
-              منشورة على الموقع
+            <label className="inline-flex h-[46px] items-center gap-2 text-sm text-text">
+              <input
+                type="checkbox"
+                name="isPublished"
+                defaultChecked={course.isPublished}
+              />
+              {tFields("publishedOnSite")}
             </label>
           </div>
         </ActionForm>
         <AdminFormActions className="mt-2">
-          <AdminPrimaryButton form="course-update-form">حفظ</AdminPrimaryButton>
-          <ActionForm action={deleteCourse} locale="ar" className="inline-flex">
+          <AdminPrimaryButton form="course-update-form">{tActions("save")}</AdminPrimaryButton>
+          <ActionForm action={deleteCourse} locale={locale} className="inline-flex">
             <input type="hidden" name="id" value={course.id} />
-            <AdminDangerButton>حذف الدورة</AdminDangerButton>
+            <AdminDangerButton>{t("deleteCourse")}</AdminDangerButton>
           </ActionForm>
         </AdminFormActions>
       </Card>
 
       <Card>
-        <h2 className="font-heading text-xl text-heading mb-4">الوحدات والدروس</h2>
+        <h2 className="mb-4 font-heading text-xl text-heading">{t("modulesSection")}</h2>
 
-        <ActionForm action={addModule} locale="ar" className="grid sm:grid-cols-[1fr_auto] gap-4 mb-6 items-end">
+        <ActionForm
+          action={addModule}
+          locale={locale}
+          className="mb-6 grid items-end gap-4 sm:grid-cols-[1fr_auto]"
+        >
           <input type="hidden" name="courseId" value={course.id} />
-          <AdminFormField label="عنوان الوحدة" htmlFor={`module-new-${course.id}`}>
+          <AdminFormField label={tFields("moduleTitle")} htmlFor={`module-new-${course.id}`}>
             <Input
               id={`module-new-${course.id}`}
               name="title"
@@ -406,25 +465,30 @@ export default async function AdminCourseEditPage({
               required
             />
           </AdminFormField>
-          <AdminPrimaryButton className="w-full sm:w-auto">إضافة وحدة</AdminPrimaryButton>
+          <AdminPrimaryButton className="w-full sm:w-auto">
+            {tActions("addModule")}
+          </AdminPrimaryButton>
         </ActionForm>
 
         {course.modules.length === 0 ? (
-          <p className="text-sm text-text/70">لا توجد وحدات لهذه الدورة.</p>
+          <p className="text-sm text-text/70">{tEmpty("noModules")}</p>
         ) : (
           <div className="space-y-4">
             {course.modules.map((module) => (
-              <div key={module.id} className="rounded-2xl border border-border/60 bg-background/40 p-4 space-y-4">
+              <div
+                key={module.id}
+                className="space-y-4 rounded-2xl border border-border/60 bg-background/40 p-4"
+              >
                 <ActionForm
                   action={updateModule}
-                  locale="ar"
+                  locale={locale}
                   id={`module-update-${module.id}`}
                   className="space-y-3"
                 >
                   <input type="hidden" name="courseId" value={course.id} />
                   <input type="hidden" name="moduleId" value={module.id} />
-                  <div className="grid sm:grid-cols-[1fr_110px] gap-3">
-                    <AdminFormField label="عنوان الوحدة">
+                  <div className="grid gap-3 sm:grid-cols-[1fr_110px]">
+                    <AdminFormField label={tFields("moduleTitle")}>
                       <Input
                         name="title"
                         defaultValue={module.title}
@@ -432,7 +496,7 @@ export default async function AdminCourseEditPage({
                         required
                       />
                     </AdminFormField>
-                    <AdminFormField label="الترتيب">
+                    <AdminFormField label={tFields("order")}>
                       <Input
                         name="order"
                         type="number"
@@ -446,75 +510,70 @@ export default async function AdminCourseEditPage({
                 </ActionForm>
                 <AdminFormActions align="end">
                   <AdminOutlineButton form={`module-update-${module.id}`}>
-                    حفظ
+                    {tActions("save")}
                   </AdminOutlineButton>
-                  <ActionForm action={deleteModule} locale="ar" className="inline-flex">
+                  <ActionForm action={deleteModule} locale={locale} className="inline-flex">
                     <input type="hidden" name="courseId" value={course.id} />
                     <input type="hidden" name="moduleId" value={module.id} />
-                    <AdminDangerButton>حذف</AdminDangerButton>
+                    <AdminDangerButton>{tActions("delete")}</AdminDangerButton>
                   </ActionForm>
                 </AdminFormActions>
 
                 <div>
-                  <h3 className="font-semibold text-heading mb-3">إضافة درس</h3>
-                  <ActionForm action={addLesson} locale="ar" className="space-y-4">
+                  <h3 className="mb-3 font-semibold text-heading">{t("addLessonSection")}</h3>
+                  <ActionForm action={addLesson} locale={locale} className="space-y-4">
                     <input type="hidden" name="courseId" value={course.id} />
                     <input type="hidden" name="moduleId" value={module.id} />
 
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <AdminFormField label="عنوان الدرس">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <AdminFormField label={tFields("lessonTitle")}>
                         <Input name="title" className="w-full" required />
                       </AdminFormField>
                       <MediaUrlField
                         mediaType="video"
                         urlName="videoUrl"
                         durationName="duration"
-                        label="رابط الفيديو"
-                        hint="رابط ملف فيديو مباشر (.mp4, .webm)."
+                        label={tFields("videoUrl")}
+                        hint={tFields("videoUrlHint")}
                       />
-                      <AdminFormField label="رابط PDF">
+                      <AdminFormField label={tFields("pdfUrl")}>
                         <Input name="pdfUrl" className="w-full" placeholder="https://..." />
                       </AdminFormField>
-                      <AdminFormField label="فئة المورد">
+                      <AdminFormField label={tFields("resourceCategory")}>
                         <FilterSelect
                           name="resourceCategory"
                           value=""
-                          options={[
-                            { value: "", label: "تلقائي (حسب الرابط)" },
-                            ...resourceCategoryFilterOptions.filter(
-                              (option) => option.value !== "all"
-                            ),
-                          ]}
+                          options={resourceCategorySelectOptions}
                         />
                       </AdminFormField>
                     </div>
 
-                    <AdminFormField label="وصف الدرس (اختياري)">
+                    <AdminFormField label={tFields("lessonDescriptionOptional")}>
                       <Textarea name="description" rows={2} className="w-full" />
                     </AdminFormField>
 
                     <AdminFormActions>
-                      <AdminPrimaryButton>إضافة الدرس</AdminPrimaryButton>
+                      <AdminPrimaryButton>{tActions("addLesson")}</AdminPrimaryButton>
                     </AdminFormActions>
                   </ActionForm>
                 </div>
 
                 {module.lessons.length > 0 && (
                   <div className="mt-4 space-y-3">
-                    <h3 className="font-semibold text-heading">الدروس</h3>
+                    <h3 className="font-semibold text-heading">{t("lessonsSection")}</h3>
                     {module.lessons.map((lesson) => (
                       <Card key={lesson.id} className="p-4">
                         <ActionForm
                           action={updateLesson}
-                          locale="ar"
+                          locale={locale}
                           id={`lesson-update-${lesson.id}`}
                           className="space-y-4"
                         >
                           <input type="hidden" name="courseId" value={course.id} />
                           <input type="hidden" name="lessonId" value={lesson.id} />
 
-                          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <AdminFormField label="عنوان الدرس">
+                          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                            <AdminFormField label={tFields("lessonTitle")}>
                               <Input
                                 name="title"
                                 defaultValue={lesson.title}
@@ -526,31 +585,26 @@ export default async function AdminCourseEditPage({
                               mediaType="video"
                               urlName="videoUrl"
                               durationName="duration"
-                              label="رابط الفيديو"
+                              label={tFields("videoUrl")}
                               defaultUrl={lesson.videoUrl ?? ""}
                               defaultDuration={lesson.duration}
-                              hint="رابط ملف فيديو مباشر (.mp4, .webm)."
+                              hint={tFields("videoUrlHint")}
                             />
-                            <AdminFormField label="رابط PDF">
+                            <AdminFormField label={tFields("pdfUrl")}>
                               <Input
                                 name="pdfUrl"
                                 defaultValue={lesson.pdfUrl ?? ""}
                                 className="w-full"
                               />
                             </AdminFormField>
-                            <AdminFormField label="فئة المورد">
+                            <AdminFormField label={tFields("resourceCategory")}>
                               <FilterSelect
                                 name="resourceCategory"
                                 value={lesson.resourceCategory ?? ""}
-                                options={[
-                                  { value: "", label: "تلقائي (حسب الرابط)" },
-                                  ...resourceCategoryFilterOptions.filter(
-                                    (option) => option.value !== "all"
-                                  ),
-                                ]}
+                                options={resourceCategorySelectOptions}
                               />
                             </AdminFormField>
-                            <AdminFormField label="الترتيب">
+                            <AdminFormField label={tFields("order")}>
                               <Input
                                 name="order"
                                 type="number"
@@ -562,7 +616,7 @@ export default async function AdminCourseEditPage({
                             </AdminFormField>
                           </div>
 
-                          <AdminFormField label="وصف الدرس">
+                          <AdminFormField label={tFields("lessonDescription")}>
                             <Textarea
                               name="description"
                               defaultValue={lesson.description ?? ""}
@@ -573,12 +627,12 @@ export default async function AdminCourseEditPage({
                         </ActionForm>
                         <AdminFormActions align="end" className="mt-3">
                           <AdminOutlineButton form={`lesson-update-${lesson.id}`}>
-                            حفظ الدرس
+                            {tActions("saveLesson")}
                           </AdminOutlineButton>
-                          <ActionForm action={deleteLesson} locale="ar" className="inline-flex">
+                          <ActionForm action={deleteLesson} locale={locale} className="inline-flex">
                             <input type="hidden" name="courseId" value={course.id} />
                             <input type="hidden" name="lessonId" value={lesson.id} />
-                            <AdminDangerButton>حذف</AdminDangerButton>
+                            <AdminDangerButton>{tActions("delete")}</AdminDangerButton>
                           </ActionForm>
                         </AdminFormActions>
                       </Card>

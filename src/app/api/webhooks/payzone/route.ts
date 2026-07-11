@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { paymentService } from "@/lib/payments/payment-service";
-import { fulfillVerifiedPayment } from "@/lib/payments/fulfillment";
+import { enqueuePaymentFulfillment } from "@/lib/payments/fulfillment-queue";
 import type { PayzoneStatusPayload } from "@/lib/payments/payzone-crypto";
 
 export async function POST(request: NextRequest) {
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (verified.status === "paid") {
-      await fulfillVerifiedPayment(verified);
+      await enqueuePaymentFulfillment(verified);
     } else if (verified.status === "failed") {
       await prisma.payment.update({
         where: { id: verified.metadata.paymentId },

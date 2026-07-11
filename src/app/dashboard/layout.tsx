@@ -22,10 +22,9 @@ export default async function DashboardLayout({
   // Auth protégée par le middleware uniquement — pas de redirect ici
   // (évite la course auth() intermittente → boucle /sign-in ↔ /dashboard)
   return (
-    <div className="min-h-screen bg-background" suppressHydrationWarning>
+    <div className="min-h-screen overflow-x-hidden bg-background" suppressHydrationWarning>
       <PanelMobileHeader
         variant="dashboard"
-        homeLabel="الرئيسية"
         unreadNotifications={unreadNotifications}
       />
       <DashboardSidebar unreadNotifications={unreadNotifications} />

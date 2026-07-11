@@ -9,24 +9,31 @@ import {
   LayoutDashboard,
   PenLine,
   Bell,
+  Heart,
+  Search,
+  Route,
   type LucideIcon,
 } from "lucide-react";
 
 export type PanelNavLink = {
   href: string;
-  label: string;
+  label?: string;
+  labelKey?: string;
   icon: LucideIcon;
 };
 
 export const dashboardNavLinks: PanelNavLink[] = [
-  { href: "/dashboard", label: "الرئيسية", icon: LayoutDashboard },
-  { href: "/dashboard/notifications", label: "الإشعارات", icon: Bell },
-  { href: "/dashboard/bookings", label: "جلساتي", icon: Calendar },
-  { href: "/dashboard/courses", label: "دوراتي", icon: BookOpen },
-  { href: "/dashboard/podcasts", label: "البودكاست", icon: Headphones },
-  { href: "/dashboard/goals", label: "أهدافي", icon: Target },
-  { href: "/dashboard/journal", label: "يومياتي", icon: PenLine },
-  { href: "/dashboard/resources", label: "مكتبتي", icon: FileText },
-  { href: "/dashboard/payments", label: "المدفوعات", icon: CreditCard },
-  { href: "/dashboard/settings", label: "الإعدادات", icon: Settings },
+  { href: "/dashboard", labelKey: "home", icon: LayoutDashboard },
+  { href: "/dashboard/journey", labelKey: "journey", icon: Route },
+  { href: "/dashboard/notifications", labelKey: "notifications", icon: Bell },
+  { href: "/dashboard/favorites", labelKey: "favorites", icon: Heart },
+  { href: "/dashboard/search", labelKey: "search", icon: Search },
+  { href: "/dashboard/bookings", labelKey: "bookings", icon: Calendar },
+  { href: "/dashboard/courses", labelKey: "courses", icon: BookOpen },
+  { href: "/dashboard/podcasts", labelKey: "podcasts", icon: Headphones },
+  { href: "/dashboard/goals", labelKey: "goals", icon: Target },
+  { href: "/dashboard/journal", labelKey: "journal", icon: PenLine },
+  { href: "/dashboard/resources", labelKey: "resources", icon: FileText },
+  { href: "/dashboard/payments", labelKey: "payments", icon: CreditCard },
+  { href: "/dashboard/settings", labelKey: "settings", icon: Settings },
 ];

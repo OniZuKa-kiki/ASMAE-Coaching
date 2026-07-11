@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { toFriendlyActionError } from "@/lib/api-errors";
 import type { ActionLocale, ActionResult } from "@/lib/action-result";
@@ -23,7 +24,7 @@ type ActionFormProps = {
 export function ActionForm({
   action,
   successMessage,
-  locale = "ar",
+  locale,
   redirectTo,
   onSuccess,
   className,
@@ -31,6 +32,10 @@ export function ActionForm({
   children,
 }: ActionFormProps) {
   const router = useRouter();
+  const currentLocale = useLocale();
+  const t = useTranslations("common");
+  const resolvedLocale: ActionLocale =
+    locale ?? (currentLocale === "fr" ? "fr" : "ar");
   const [pending, startTransition] = useTransition();
 
   function handleAction(formData: FormData) {
@@ -42,7 +47,9 @@ export function ActionForm({
           return;
         }
         if (result.ok) {
-          toast.success(result.message || successMessage || actionMessagesFallback(locale));
+          toast.success(
+            result.message || successMessage || t("actionSuccess")
+          );
           onSuccess?.();
           const target = result.redirect || redirectTo;
           if (target) router.push(target);
@@ -52,7 +59,7 @@ export function ActionForm({
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        toast.error(toFriendlyActionError(message, locale));
+        toast.error(toFriendlyActionError(message, resolvedLocale));
       }
     });
   }
@@ -66,8 +73,4 @@ export function ActionForm({
       {children}
     </form>
   );
-}
-
-function actionMessagesFallback(locale: ActionLocale) {
-  return locale === "fr" ? "Action réussie" : "تم بنجاح";
 }

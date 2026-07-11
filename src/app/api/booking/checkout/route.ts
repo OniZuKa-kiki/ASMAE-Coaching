@@ -4,7 +4,8 @@ import { bookingCheckoutSchema } from "@/lib/api-schemas";
 import { auditLog } from "@/lib/audit-log";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/user";
-import { friendlyErrors, toFriendlyError } from "@/lib/api-errors";
+import { toFriendlyError } from "@/lib/api-errors";
+import { getRequestFriendlyErrors } from "@/lib/action-locale";
 import {
   formatBookingDate,
   reserveBookingSlot,
@@ -18,12 +19,16 @@ import {
 import { getDefaultProvider } from "@/lib/payments/config";
 import type { PaymentProviderId } from "@/lib/payments/types";
 import { isAnyPaymentProviderConfigured } from "@/lib/payments/config";
+import { getRequestLocale } from "@/lib/request-locale";
 
 export async function POST(request: NextRequest) {
+  const locale = await getRequestLocale();
+  const errors = await getRequestFriendlyErrors();
+
   try {
     if (!isAnyPaymentProviderConfigured()) {
       return NextResponse.json(
-        { error: friendlyErrors.paymentUnavailable },
+        { error: errors.paymentUnavailable },
         { status: 503 }
       );
     }
@@ -48,7 +53,7 @@ export async function POST(request: NextRequest) {
     });
     if (!service) {
       return NextResponse.json(
-        { error: "الخدمة غير موجودة" },
+        { error: errors.serviceNotFound },
         { status: 404 }
       );
     }
@@ -82,22 +87,29 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result);
   } catch (error) {
     if (error instanceof z.ZodError) {
+      const needsReasonDetail = error.issues.some(
+        (issue) => issue.message === "BOOKING_REASON_OTHER_DETAIL"
+      );
       return NextResponse.json(
-        { error: friendlyErrors.incomplete },
+        {
+          error: needsReasonDetail
+            ? errors.bookingReasonOtherDetail
+            : errors.incomplete,
+        },
         { status: 400 }
       );
     }
     if (error instanceof SlotUnavailableError) {
       return NextResponse.json(
-        { error: friendlyErrors.slotUnavailable },
+        { error: errors.slotUnavailable },
         { status: 409 }
       );
     }
     const raw =
-      error instanceof Error ? error.message : friendlyErrors.generic;
+      error instanceof Error ? error.message : errors.generic;
     const status = raw === "Non authentifié" ? 401 : 500;
     return NextResponse.json(
-      { error: toFriendlyError(raw, status) },
+      { error: toFriendlyError(raw, status, locale) },
       { status }
     );
   }

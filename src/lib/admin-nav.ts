@@ -8,29 +8,41 @@ import {
   BarChart3,
   Settings,
   Tag,
+  Star,
+  Briefcase,
   type LucideIcon,
 } from "lucide-react";
 import { adminUrl } from "@/lib/admin-path";
+import type { PanelNavLink } from "@/lib/dashboard-nav";
 
-export type PanelNavLink = {
+export type AdminNavLinkDef = {
   href: string;
-  label: string;
+  labelKey: string;
   icon: LucideIcon;
 };
 
-export function getAdminNavLinks(): PanelNavLink[] {
+export function getAdminNavLinkDefs(): AdminNavLinkDef[] {
   return [
-    { href: adminUrl(), label: "لوحة التحكم", icon: BarChart3 },
-    { href: adminUrl("/users"), label: "العملاء", icon: Users },
-    { href: adminUrl("/bookings"), label: "الحجوزات", icon: Calendar },
-    { href: adminUrl("/courses"), label: "الدورات", icon: BookOpen },
-    { href: adminUrl("/podcasts"), label: "البودكاست", icon: Headphones },
-    { href: adminUrl("/blog"), label: "المدونة", icon: FileText },
-    { href: adminUrl("/payments"), label: "الفواتير", icon: CreditCard },
-    { href: adminUrl("/coupons"), label: "القسائم", icon: Tag },
-    { href: adminUrl("/settings"), label: "الإعدادات", icon: Settings },
+    { href: adminUrl(), labelKey: "dashboard", icon: BarChart3 },
+    { href: adminUrl("/users"), labelKey: "users", icon: Users },
+    { href: adminUrl("/bookings"), labelKey: "bookings", icon: Calendar },
+    { href: adminUrl("/services"), labelKey: "services", icon: Briefcase },
+    { href: adminUrl("/courses"), labelKey: "courses", icon: BookOpen },
+    { href: adminUrl("/podcasts"), labelKey: "podcasts", icon: Headphones },
+    { href: adminUrl("/blog"), labelKey: "blog", icon: FileText },
+    { href: adminUrl("/testimonials"), labelKey: "testimonials", icon: Star },
+    { href: adminUrl("/payments"), labelKey: "payments", icon: CreditCard },
+    { href: adminUrl("/coupons"), labelKey: "coupons", icon: Tag },
+    { href: adminUrl("/settings"), labelKey: "settings", icon: Settings },
   ];
 }
 
-/** @deprecated Utiliser getAdminNavLinks() */
-export const adminNavLinks = getAdminNavLinks();
+export function getAdminNavLinks(
+  labelForKey: (key: string) => string
+): PanelNavLink[] {
+  return getAdminNavLinkDefs().map((link) => ({
+    href: link.href,
+    label: labelForKey(link.labelKey),
+    icon: link.icon,
+  }));
+}

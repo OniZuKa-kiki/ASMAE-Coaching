@@ -1,69 +1,62 @@
 import type { Metadata } from "next";
-import { Star, Quote } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import { localeAlternates } from "@/lib/seo";
+import { PUBLIC_CONTENT_REVALIDATE_SECONDS } from "@/lib/public-cache";
+
+export const revalidate = PUBLIC_CONTENT_REVALIDATE_SECONDS;
 import { SectionHeading } from "@/components/ui/section-heading";
-import { Card } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
-import { testimonialsPageContent } from "@/lib/constants";
+import { TestimonialsPageList } from "@/components/testimonials/testimonials-page-list";
 import { getVisibleTestimonials } from "@/lib/content";
 
-export const metadata: Metadata = {
-  title: testimonialsPageContent.title,
-  description: testimonialsPageContent.subtitle,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("testimonials");
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: localeAlternates("/testimonials"),
+  };
+}
 
 export default async function TestimonialsPage() {
-  const testimonials = await getVisibleTestimonials();
+  const [testimonials, t] = await Promise.all([
+    getVisibleTestimonials(),
+    getTranslations("testimonials"),
+  ]);
 
   return (
     <>
       <section className="section-padding bg-gradient-to-b from-primary/5 to-transparent">
         <div className="container-narrow text-center">
-          <h1 className="page-title mb-6">{testimonialsPageContent.title}</h1>
-          <p className="text-xl text-text/80 max-w-2xl mx-auto">
-            {testimonialsPageContent.subtitle}
+          <h1 className="page-title mb-6">{t("title")}</h1>
+          <p className="mx-auto max-w-2xl text-xl text-text/80">
+            {t("subtitle")}
           </p>
         </div>
       </section>
 
       <section className="section-padding">
         <div className="container-narrow">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {testimonials.map((testimonial) => (
-              <Card key={testimonial.id} className="relative">
-                <Quote className="w-8 h-8 text-accent/30 absolute top-6 end-6" />
-                <div className="flex gap-1 mb-4">
-                  {Array.from({ length: testimonial.rating }).map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-accent text-accent" />
-                  ))}
-                </div>
-                <p className="text-text italic mb-6 leading-relaxed">
-                  &ldquo;{testimonial.content}&rdquo;
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                    <span className="font-heading text-primary font-semibold">
-                      {testimonial.name.charAt(0)}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-heading">{testimonial.name}</p>
-                    <p className="text-sm text-text/70">{testimonial.role}</p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
+          <TestimonialsPageList
+            testimonials={testimonials.map((testimonial) => ({
+              id: testimonial.id,
+              name: testimonial.name,
+              role: testimonial.role,
+              content: testimonial.content,
+              rating: testimonial.rating,
+            }))}
+          />
         </div>
       </section>
 
       <section className="section-padding bg-card/50">
         <div className="container-narrow text-center">
           <SectionHeading
-            title={testimonialsPageContent.ctaTitle}
-            subtitle={testimonialsPageContent.ctaSubtitle}
+            title={t("ctaTitle")}
+            subtitle={t("ctaSubtitle")}
           />
           <ButtonLink href="/booking" size="lg">
-            {testimonialsPageContent.ctaButton}
+            {t("ctaButton")}
           </ButtonLink>
         </div>
       </section>

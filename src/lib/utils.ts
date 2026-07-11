@@ -1,21 +1,32 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { AppLocale } from "@/i18n/routing";
+import { intlLocale, siteLocale } from "@/lib/locale";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-import { siteLocale } from "@/lib/locale";
-
-export function formatPrice(cents: number, currency = "EUR"): string {
-  return new Intl.NumberFormat(siteLocale, {
+export function formatPrice(
+  cents: number,
+  currency = "EUR",
+  locale?: string
+): string {
+  return new Intl.NumberFormat(locale ?? siteLocale, {
     style: "currency",
     currency,
   }).format(cents / 100);
 }
 
-export function formatDate(date: Date | string): string {
-  return new Intl.DateTimeFormat(siteLocale, {
+export function formatDate(
+  date: Date | string,
+  locale?: AppLocale | string
+): string {
+  const resolved =
+    typeof locale === "string" && locale.includes("-")
+      ? locale
+      : intlLocale((locale as AppLocale | undefined) ?? "ar");
+  return new Intl.DateTimeFormat(resolved, {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -25,7 +36,7 @@ export function formatDate(date: Date | string): string {
 const userRoleLabels: Record<string, string> = {
   ADMIN: "مدير النظام",
   COACH: "المدربة",
-  CLIENT: "العميلة",
+  CLIENT: "العميل",
 };
 
 export function formatUserRole(role: string): string {

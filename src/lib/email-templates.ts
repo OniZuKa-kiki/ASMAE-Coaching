@@ -1,5 +1,21 @@
 import { siteConfig } from "@/lib/constants";
-import { getEmailLogoSrc } from "@/lib/email-logo";
+import {
+  bookingConfirmationCopy,
+  bookingReminderCopy,
+  clerkAccountLockedCopy,
+  clerkInvitationCopy,
+  clerkMagicLinkCopy,
+  clerkNewDeviceCopy,
+  clerkPasswordChangedCopy,
+  clerkPasswordRemovedCopy,
+  clerkPasswordResetCopy,
+  clerkPrimaryEmailChangedCopy,
+  clerkVerificationCodeCopy,
+  coursePurchaseCopy,
+  emailLayoutCopy,
+  type EmailLang,
+} from "@/lib/email-copy";
+import { getEmailLogoDataUri, getEmailLogoSrc } from "@/lib/email-logo";
 
 const colors = {
   sage: "#6B7C6A",
@@ -30,8 +46,10 @@ interface EmailLayoutOptions {
   body: string;
   cta?: { label: string; href: string };
   footerNote?: string;
-  lang?: "ar" | "fr";
+  lang?: EmailLang;
   contactEmail?: string;
+  /** Aperçu navigateur : logo en data URI au lieu de cid: */
+  forPreview?: boolean;
 }
 
 export function renderEmailLayout({
@@ -43,14 +61,37 @@ export function renderEmailLayout({
   footerNote,
   lang = "ar",
   contactEmail = siteConfig.contact.email,
+  forPreview = false,
 }: EmailLayoutOptions): string {
+  const layout = emailLayoutCopy[lang];
   const dir = lang === "ar" ? "rtl" : "ltr";
+  const align = lang === "ar" ? "right" : "left";
+  const tdAlign = lang === "ar" ? "right" : "left";
+  const fontStack =
+    lang === "ar"
+      ? "'Segoe UI', Tahoma, 'Helvetica Neue', Arial, sans-serif"
+      : "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+  const cellDir = `direction: ${dir}; text-align: ${align}; unicode-bidi: embed;`;
+  const arabicStyles =
+    lang === "ar"
+      ? `
+    body, table, td, p, h1, h2, h3, div, span {
+      direction: rtl !important;
+      text-align: right !important;
+      unicode-bidi: plaintext;
+    }
+    .email-ltr {
+      direction: ltr !important;
+      text-align: center !important;
+      unicode-bidi: embed;
+    }`
+      : "";
   const appUrl = siteConfig.url;
   const safeTitle = escapeHtml(title);
   const safeSubtitle = subtitle ? escapeHtml(subtitle) : "";
   const safeFooter = footerNote ? escapeHtml(footerNote) : "";
   const preheaderText = preheader ? escapeHtml(preheader) : "";
-  const logoSrc = getEmailLogoSrc();
+  const logoSrc = forPreview ? getEmailLogoDataUri() : getEmailLogoSrc();
 
   const ctaBlock = cta
     ? `
@@ -82,6 +123,7 @@ export function renderEmailLayout({
   </noscript>
   <![endif]-->
   <style>
+    ${arabicStyles}
     @media only screen and (max-width: 620px) {
       .email-container { width: 100% !important; }
       .email-padding { padding-left: 24px !important; padding-right: 24px !important; }
@@ -89,7 +131,7 @@ export function renderEmailLayout({
     }
   </style>
 </head>
-<body style="margin: 0; padding: 0; background-color: ${colors.ivory}; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
+<body style="margin: 0; padding: 0; background-color: ${colors.ivory}; direction: ${dir}; text-align: ${align}; unicode-bidi: embed; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
   ${
     preheaderText
       ? `<div style="display: none; max-height: 0; overflow: hidden; mso-hide: all; font-size: 1px; line-height: 1px; color: ${colors.ivory};">${preheaderText}</div>`
@@ -99,7 +141,7 @@ export function renderEmailLayout({
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${colors.ivory};">
     <tr>
       <td align="center" style="padding: 40px 16px;">
-        <table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: ${colors.card}; border-radius: 20px; overflow: hidden; border: 1px solid ${colors.border}; box-shadow: 0 8px 30px rgba(0,0,0,0.06);">
+        <table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0" border="0" dir="${dir}" style="max-width: 600px; width: 100%; background-color: ${colors.card}; border-radius: 20px; overflow: hidden; border: 1px solid ${colors.border}; box-shadow: 0 8px 30px rgba(0,0,0,0.06); direction: ${dir};">
 
           <!-- Bandeau doré -->
           <tr>
@@ -129,13 +171,13 @@ export function renderEmailLayout({
 
           <!-- Titre -->
           <tr>
-            <td class="email-padding" style="padding: 32px 40px 8px 40px;">
-              <h1 style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 26px; font-weight: 600; color: ${colors.heading}; line-height: 1.3;">
+            <td align="${tdAlign}" dir="${dir}" class="email-padding" style="padding: 32px 40px 8px 40px; ${cellDir}">
+              <h1 style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 26px; font-weight: 600; color: ${colors.heading}; line-height: 1.4; ${cellDir}">
                 ${safeTitle}
               </h1>
               ${
                 safeSubtitle
-                  ? `<p style="margin: 12px 0 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; color: ${colors.text}; line-height: 1.6;">${safeSubtitle}</p>`
+                  ? `<p style="margin: 12px 0 0 0; font-family: ${fontStack}; font-size: 15px; color: ${colors.text}; line-height: 1.8; ${cellDir}">${safeSubtitle}</p>`
                   : ""
               }
             </td>
@@ -143,7 +185,7 @@ export function renderEmailLayout({
 
           <!-- Corps -->
           <tr>
-            <td class="email-padding" style="padding: 16px 40px 24px 40px;">
+            <td align="${tdAlign}" dir="${dir}" class="email-padding" style="padding: 16px 40px 24px 40px; ${cellDir}">
               ${body}
             </td>
           </tr>
@@ -152,14 +194,14 @@ export function renderEmailLayout({
 
           <!-- Signature -->
           <tr>
-            <td class="email-padding" style="padding: 0 40px 32px 40px;">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+            <td align="${tdAlign}" dir="${dir}" class="email-padding" style="padding: 0 40px 32px 40px; ${cellDir}">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" dir="${dir}">
                 <tr>
-                  <td style="padding-top: 24px; border-top: 1px solid ${colors.border};">
-                    <p style="margin: 0 0 4px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; color: ${colors.text};">
-                      بكل تقدير،
+                  <td align="${tdAlign}" dir="${dir}" style="padding-top: 24px; border-top: 1px solid ${colors.border}; ${cellDir}">
+                    <p style="margin: 0 0 4px 0; font-family: ${fontStack}; font-size: 14px; color: ${colors.text}; ${cellDir}">
+                      ${escapeHtml(layout.signOff)}
                     </p>
-                    <p style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 18px; font-weight: 600; color: ${colors.sage};">
+                    <p style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 18px; font-weight: 600; color: ${colors.sage}; ${cellDir}">
                       Asmae
                     </p>
                   </td>
@@ -182,7 +224,7 @@ export function renderEmailLayout({
                 <a href="mailto:${escapeHtml(contactEmail)}" style="color: rgba(255,255,255,0.9); text-decoration: underline;">${escapeHtml(contactEmail)}</a>
               </p>
               <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; color: rgba(255,255,255,0.5);">
-                © ${new Date().getFullYear()} ASMAE Coaching — جميع الحقوق محفوظة
+                © ${new Date().getFullYear()} ASMAE Coaching — ${escapeHtml(layout.rights)}
               </p>
             </td>
           </tr>
@@ -211,14 +253,15 @@ export function infoCard(label: string, value: string, highlight = false): strin
     </table>`;
 }
 
-export function messageQuote(message: string): string {
+export function messageQuote(message: string, lang: EmailLang = "ar"): string {
   const safe = escapeHtml(message).replace(/\n/g, "<br />");
+  const label = emailLayoutCopy[lang].messageLabel;
   return `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
       <tr>
         <td style="padding: 20px 24px; background-color: ${colors.white}; border: 1px solid ${colors.border}; border-radius: 12px; border-left: 4px solid ${colors.gold};">
           <p style="margin: 0 0 8px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 600; color: ${colors.gold}; text-transform: uppercase; letter-spacing: 1px;">
-            الرسالة
+            ${escapeHtml(label)}
           </p>
           <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; color: ${colors.text}; line-height: 1.7; font-style: italic;">
             «&nbsp;${safe}&nbsp;»
@@ -271,6 +314,7 @@ export function renderBookingConfirmationEmail({
   time,
   meetingUrl,
   contactEmail = siteConfig.contact.email,
+  lang = "ar",
 }: {
   clientName: string;
   serviceName: string;
@@ -278,36 +322,90 @@ export function renderBookingConfirmationEmail({
   time: string;
   meetingUrl?: string;
   contactEmail?: string;
+  lang?: EmailLang;
 }): string {
+  const copy = bookingConfirmationCopy[lang];
   const visioBlock = meetingUrl
     ? infoCard(
-        "رابط الفيديو",
-        `<a href="${escapeHtml(meetingUrl)}" style="color: ${colors.sage}; text-decoration: underline; word-break: break-all;">انضم للجلسة</a>`,
+        copy.videoLabel,
+        `<a href="${escapeHtml(meetingUrl)}" style="color: ${colors.sage}; text-decoration: underline; word-break: break-all;">${escapeHtml(copy.joinLink)}</a>`,
         true
       )
     : "";
 
   return renderEmailLayout({
-    preheader: `جلستك ${serviceName} مؤكدة ليوم ${date}`,
-    title: `مرحباً ${clientName}،`,
-    subtitle: "جلسة الكوتشينغ الخاصة بك مؤكدة. إليك كل التفاصيل للاستعداد باطمئنان.",
+    preheader: copy.preheader(serviceName, date),
+    title: copy.title(clientName),
+    subtitle: copy.subtitle,
     body: `
       <p style="margin: 0 0 20px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; color: ${colors.text}; line-height: 1.7;">
-        يسعدني مرافقتك في هذه الجلسة. خصصي لحظة للجلوس في مكان هادئ مع اتصال مستقر.
+        ${escapeHtml(copy.intro)}
       </p>
-      ${infoCard("الخدمة", escapeHtml(serviceName))}
-      ${infoCard("التاريخ", escapeHtml(date))}
-      ${infoCard("الوقت", escapeHtml(time) + " (توقيت باريس)")}
+      ${infoCard(copy.serviceLabel, escapeHtml(serviceName))}
+      ${infoCard(copy.dateLabel, escapeHtml(date))}
+      ${infoCard(copy.timeLabel, escapeHtml(time) + copy.timeZone)}
       ${visioBlock}
       <p style="margin: 20px 0 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; color: ${colors.muted}; line-height: 1.6; text-align: center;">
-        في حال التعذر، يرجى إبلاغي قبل 24 ساعة على الأقل.
+        ${escapeHtml(copy.cancelNote)}
       </p>
     `,
     cta: meetingUrl
-      ? { label: "انضم لجلستي", href: meetingUrl }
+      ? { label: copy.ctaJoin, href: meetingUrl }
       : undefined,
-    footerNote: "تلقيت هذا البريد بعد حجزك على asmae-coaching.fr",
+    footerNote: copy.footerNote,
+    lang,
     contactEmail,
+  });
+}
+
+export function renderBookingReminderEmail({
+  clientName,
+  serviceName,
+  date,
+  time,
+  meetingUrl,
+  contactEmail = siteConfig.contact.email,
+  forPreview = false,
+  lang = "ar",
+}: {
+  clientName: string;
+  serviceName: string;
+  date: string;
+  time: string;
+  meetingUrl?: string;
+  contactEmail?: string;
+  forPreview?: boolean;
+  lang?: EmailLang;
+}): string {
+  const copy = bookingReminderCopy[lang];
+  const visioBlock = meetingUrl
+    ? infoCard(
+        copy.videoLabel,
+        `<a href="${escapeHtml(meetingUrl)}" style="color: ${colors.sage}; text-decoration: underline; word-break: break-all;">${escapeHtml(copy.joinLink)}</a>`,
+        true
+      )
+    : "";
+
+  return renderEmailLayout({
+    preheader: copy.preheader(serviceName, date),
+    title: copy.title(clientName),
+    subtitle: copy.subtitle,
+    body: `
+      <p style="margin: 0 0 20px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; color: ${colors.text}; line-height: 1.7;">
+        ${escapeHtml(copy.intro)}
+      </p>
+      ${infoCard(copy.serviceLabel, escapeHtml(serviceName))}
+      ${infoCard(copy.dateLabel, escapeHtml(date))}
+      ${infoCard(copy.timeLabel, escapeHtml(time) + copy.timeZone)}
+      ${visioBlock}
+    `,
+    cta: meetingUrl
+      ? { label: copy.ctaJoin, href: meetingUrl }
+      : { label: copy.ctaBookings, href: `${siteConfig.url}/dashboard/bookings` },
+    footerNote: copy.footerNote,
+    lang,
+    contactEmail,
+    forPreview,
   });
 }
 
@@ -316,27 +414,32 @@ export function renderCoursePurchaseEmail({
   courseName,
   dashboardUrl,
   contactEmail = siteConfig.contact.email,
+  lang = "ar",
 }: {
   clientName: string;
   courseName: string;
   dashboardUrl: string;
   contactEmail?: string;
+  lang?: EmailLang;
 }): string {
+  const copy = coursePurchaseCopy[lang];
+
   return renderEmailLayout({
-    preheader: `مرحباً بك في دورة ${courseName}`,
-    title: `مرحباً ${clientName}،`,
-    subtitle: "شكراً لثقتك. دورتك جاهزة — يمكنك البدء الآن.",
+    preheader: copy.preheader(courseName),
+    title: copy.title(clientName),
+    subtitle: copy.subtitle,
     body: `
       <p style="margin: 0 0 20px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; color: ${colors.text}; line-height: 1.7;">
-        تهانينا على هذه الخطوة نحو ازدهارك. مساحتك الشخصية في انتظارك مع كل محتوى الدورة.
+        ${escapeHtml(copy.intro)}
       </p>
-      ${infoCard("الدورة", escapeHtml(courseName), true)}
+      ${infoCard(copy.courseLabel, escapeHtml(courseName), true)}
       <p style="margin: 20px 0 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; color: ${colors.muted}; line-height: 1.6; text-align: center;">
-        تقدمي بوتيرتك — كل وحدة متاحة مدى الحياة من مساحتك.
+        ${escapeHtml(copy.paceNote)}
       </p>
     `,
-    cta: { label: "الوصول إلى دورتي", href: dashboardUrl },
-    footerNote: "تلقيت هذا البريد بعد شرائك على asmae-coaching.fr",
+    cta: { label: copy.cta, href: dashboardUrl },
+    footerNote: copy.footerNote,
+    lang,
     contactEmail,
   });
 }
@@ -346,10 +449,39 @@ function otpCodeBlock(code: string): string {
   return `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
       <tr>
-        <td align="center" style="padding: 8px 0 20px 0;">
+        <td align="center" class="email-ltr" style="padding: 8px 0 20px 0; direction: ltr; text-align: center;">
           <div style="display: inline-block; padding: 20px 32px; background-color: ${colors.ivory}; border: 2px solid ${colors.sage}; border-radius: 16px;">
-            <span style="font-family: 'Courier New', Courier, monospace; font-size: 32px; font-weight: 700; letter-spacing: 10px; color: ${colors.sage};">${safe}</span>
+            <span style="font-family: 'Courier New', Courier, monospace; font-size: 32px; font-weight: 700; letter-spacing: 10px; color: ${colors.sage}; direction: ltr; unicode-bidi: embed; display: inline-block;">${safe}</span>
           </div>
+        </td>
+      </tr>
+    </table>`;
+}
+
+function rtlEmailParagraph(text: string, muted = false): string {
+  const color = muted ? colors.muted : colors.text;
+  const size = muted ? "13px" : "15px";
+  const safe = escapeHtml(text);
+  return `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 12px;">
+      <tr>
+        <td align="right" dir="rtl" style="direction: rtl; text-align: right; unicode-bidi: plaintext;">
+          <p style="margin: 0; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; font-size: ${size}; color: ${color}; line-height: 1.8; direction: rtl; text-align: right; unicode-bidi: plaintext;">${safe}</p>
+        </td>
+      </tr>
+    </table>`;
+}
+
+function emailParagraph(text: string, lang: EmailLang, muted = false): string {
+  if (lang === "ar") return rtlEmailParagraph(text, muted);
+  const color = muted ? colors.muted : colors.text;
+  const size = muted ? "13px" : "15px";
+  const safe = escapeHtml(text);
+  return `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 12px;">
+      <tr>
+        <td align="left" dir="ltr" style="direction: ltr; text-align: left;">
+          <p style="margin: 0; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; font-size: ${size}; color: ${color}; line-height: 1.8;">${safe}</p>
         </td>
       </tr>
     </table>`;
@@ -358,25 +490,24 @@ function otpCodeBlock(code: string): string {
 export function renderClerkVerificationCodeEmail({
   code,
   contactEmail = siteConfig.contact.email,
+  lang = "ar",
 }: {
   code: string;
   contactEmail?: string;
+  lang?: EmailLang;
 }): string {
+  const copy = clerkVerificationCodeCopy[lang];
   return renderEmailLayout({
-    preheader: `رمز التحقق الخاص بك: ${code}`,
-    title: "رمز التحقق",
-    subtitle: "أدخلي الرمز التالي لمتابعة تسجيل الدخول إلى ASMAE Coaching.",
+    preheader: copy.preheader(code),
+    title: copy.title,
+    subtitle: copy.subtitle,
     body: `
-      <p style="margin: 0 0 8px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; color: ${colors.text}; line-height: 1.7; text-align: center;">
-        هذا الرمز صالح لفترة محدودة. لا تشاركيه مع أي شخص.
-      </p>
+      ${emailParagraph(copy.codeExpiryNote, lang)}
       ${otpCodeBlock(code)}
-      <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; color: ${colors.muted}; line-height: 1.6; text-align: center;">
-        إن لم تطلُبي هذا الرمز، يمكنك تجاهل هذا البريد بأمان.
-      </p>
+      ${emailParagraph(copy.ignoreNote, lang, true)}
     `,
-    footerNote: "بريد أمان — تسجيل الدخول إلى مساحتكِ",
-    lang: "ar",
+    footerNote: copy.footerNote,
+    lang,
     contactEmail,
   });
 }
@@ -384,22 +515,23 @@ export function renderClerkVerificationCodeEmail({
 export function renderClerkPasswordResetEmail({
   code,
   contactEmail = siteConfig.contact.email,
+  lang = "ar",
 }: {
   code: string;
   contactEmail?: string;
+  lang?: EmailLang;
 }): string {
+  const copy = clerkPasswordResetCopy[lang];
   return renderEmailLayout({
-    preheader: `رمز إعادة تعيين كلمة المرور: ${code}`,
-    title: "إعادة تعيين كلمة المرور",
-    subtitle: "استخدمي الرمز التالي لإنشاء كلمة مرور جديدة.",
+    preheader: copy.preheader(code),
+    title: copy.title,
+    subtitle: copy.subtitle,
     body: `
-      <p style="margin: 0 0 8px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; color: ${colors.text}; line-height: 1.7; text-align: center;">
-        إن لم تطلُبي إعادة التعيين، تجاهلي هذا البريد.
-      </p>
+      ${emailParagraph(copy.ignoreNote, lang)}
       ${otpCodeBlock(code)}
     `,
-    footerNote: "بريد أمان — إعادة تعيين كلمة المرور",
-    lang: "ar",
+    footerNote: copy.footerNote,
+    lang,
     contactEmail,
   });
 }
@@ -407,26 +539,25 @@ export function renderClerkPasswordResetEmail({
 export function renderClerkMagicLinkEmail({
   actionUrl,
   contactEmail = siteConfig.contact.email,
+  lang = "ar",
 }: {
   actionUrl: string;
   contactEmail?: string;
+  lang?: EmailLang;
 }): string {
+  const copy = clerkMagicLinkCopy[lang];
   const safeUrl = escapeHtml(actionUrl);
   return renderEmailLayout({
-    preheader: "رابط تسجيل الدخول إلى ASMAE Coaching",
-    title: "تسجيل الدخول",
-    subtitle: "اضغطي على الزر أدناه للوصول إلى مساحتكِ بأمان.",
+    preheader: copy.preheader(),
+    title: copy.title,
+    subtitle: copy.subtitle,
     body: `
-      <p style="margin: 0 0 8px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; color: ${colors.text}; line-height: 1.7; text-align: center;">
-        الرابط صالح لفترة محدودة ولمرة واحدة.
-      </p>
-      <p style="margin: 16px 0 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; color: ${colors.muted}; line-height: 1.5; word-break: break-all; text-align: center;">
-        ${safeUrl}
-      </p>
+      ${emailParagraph(copy.codeExpiryNote, lang)}
+      ${emailParagraph(safeUrl, lang, true)}
     `,
-    cta: { label: "تسجيل الدخول", href: actionUrl },
-    footerNote: "بريد أمان — رابط تسجيل الدخول",
-    lang: "ar",
+    cta: { label: copy.cta, href: actionUrl },
+    footerNote: copy.footerNote,
+    lang,
     contactEmail,
   });
 }
@@ -434,22 +565,158 @@ export function renderClerkMagicLinkEmail({
 export function renderClerkNewDeviceEmail({
   code,
   contactEmail = siteConfig.contact.email,
+  lang = "ar",
 }: {
   code: string;
   contactEmail?: string;
+  lang?: EmailLang;
 }): string {
+  const copy = clerkNewDeviceCopy[lang];
   return renderEmailLayout({
-    preheader: `رمز التحقق من جهاز جديد: ${code}`,
-    title: "تسجيل دخول من جهاز جديد",
-    subtitle: "لحماية حسابكِ، نحتاج للتحقق من هويتكِ قبل المتابعة.",
+    preheader: copy.preheader(code),
+    title: copy.title,
+    subtitle: copy.subtitle,
     body: `
-      <p style="margin: 0 0 8px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; color: ${colors.text}; line-height: 1.7; text-align: center;">
-        إن لم تكوني أنتِ من حاول تسجيل الدخول، تجاهلي هذا البريد وغيّري كلمة المرور.
-      </p>
+      ${emailParagraph(copy.ignoreNote, lang)}
       ${otpCodeBlock(code)}
     `,
-    footerNote: "بريد أمان — جهاز جديد",
-    lang: "ar",
+    footerNote: copy.footerNote,
+    lang,
     contactEmail,
+  });
+}
+
+function renderClerkSecurityNoticeEmail({
+  preheader,
+  title,
+  subtitle,
+  paragraphs,
+  cta,
+  footerNote,
+  contactEmail = siteConfig.contact.email,
+  lang = "ar",
+}: {
+  preheader: string;
+  title: string;
+  subtitle?: string;
+  paragraphs: string[];
+  cta?: { label: string; href: string };
+  footerNote: string;
+  contactEmail?: string;
+  lang?: EmailLang;
+}): string {
+  return renderEmailLayout({
+    preheader,
+    title,
+    subtitle,
+    body: paragraphs.map((paragraph) => emailParagraph(paragraph, lang)).join(""),
+    cta,
+    footerNote,
+    lang,
+    contactEmail,
+  });
+}
+
+export function renderClerkInvitationEmail({
+  actionUrl,
+  contactEmail = siteConfig.contact.email,
+  lang = "ar",
+}: {
+  actionUrl: string;
+  contactEmail?: string;
+  lang?: EmailLang;
+}): string {
+  const copy = clerkInvitationCopy[lang];
+  return renderClerkSecurityNoticeEmail({
+    preheader: copy.preheader,
+    title: copy.title,
+    subtitle: copy.subtitle,
+    paragraphs: copy.paragraphs,
+    cta: { label: copy.cta, href: actionUrl },
+    footerNote: copy.footerNote,
+    contactEmail,
+    lang,
+  });
+}
+
+export function renderClerkAccountLockedEmail({
+  contactEmail = siteConfig.contact.email,
+  lang = "ar",
+}: {
+  contactEmail?: string;
+  lang?: EmailLang;
+}): string {
+  const copy = clerkAccountLockedCopy[lang];
+  return renderClerkSecurityNoticeEmail({
+    preheader: copy.preheader,
+    title: copy.title,
+    subtitle: copy.subtitle,
+    paragraphs: copy.paragraphs,
+    footerNote: copy.footerNote,
+    contactEmail,
+    lang,
+  });
+}
+
+export function renderClerkPasswordChangedEmail({
+  contactEmail = siteConfig.contact.email,
+  lang = "ar",
+}: {
+  contactEmail?: string;
+  lang?: EmailLang;
+}): string {
+  const copy = clerkPasswordChangedCopy[lang];
+  return renderClerkSecurityNoticeEmail({
+    preheader: copy.preheader,
+    title: copy.title,
+    subtitle: copy.subtitle,
+    paragraphs: copy.paragraphs,
+    footerNote: copy.footerNote,
+    contactEmail,
+    lang,
+  });
+}
+
+export function renderClerkPasswordRemovedEmail({
+  contactEmail = siteConfig.contact.email,
+  lang = "ar",
+}: {
+  contactEmail?: string;
+  lang?: EmailLang;
+}): string {
+  const copy = clerkPasswordRemovedCopy[lang];
+  return renderClerkSecurityNoticeEmail({
+    preheader: copy.preheader,
+    title: copy.title,
+    subtitle: copy.subtitle,
+    paragraphs: copy.paragraphs,
+    footerNote: copy.footerNote,
+    contactEmail,
+    lang,
+  });
+}
+
+export function renderClerkPrimaryEmailChangedEmail({
+  newEmail,
+  contactEmail = siteConfig.contact.email,
+  lang = "ar",
+}: {
+  newEmail?: string | null;
+  contactEmail?: string;
+  lang?: EmailLang;
+}): string {
+  const copy = clerkPrimaryEmailChangedCopy[lang];
+  const emailLine = newEmail
+    ? `${copy.newEmailLabel}: ${newEmail}`
+    : copy.updatedFallback;
+
+  return renderClerkSecurityNoticeEmail({
+    preheader: copy.preheader,
+    title: copy.title,
+    subtitle: copy.subtitle,
+    paragraphs: [emailLine, ...copy.paragraphs],
+    footerNote: copy.footerNote,
+    contactEmail,
+    lang,
   });
 }

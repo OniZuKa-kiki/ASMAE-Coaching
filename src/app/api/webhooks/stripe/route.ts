@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { paymentService } from "@/lib/payments/payment-service";
-import { fulfillVerifiedPayment } from "@/lib/payments/fulfillment";
+import { enqueuePaymentFulfillment } from "@/lib/payments/fulfillment-queue";
 
 export async function POST(request: NextRequest) {
   if (!stripe) {
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     const session = event.data.object as Stripe.Checkout.Session;
     const verified = await paymentService.verifyPayment("stripe", session.id);
     if (verified) {
-      await fulfillVerifiedPayment(verified);
+      await enqueuePaymentFulfillment(verified);
     }
   }
 

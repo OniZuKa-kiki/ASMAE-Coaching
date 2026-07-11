@@ -1,3 +1,4 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import { AdminFormField } from "@/components/admin/form-field";
 import { Card } from "@/components/ui/card";
 import { FilterSelect } from "@/components/ui/filter-select";
@@ -6,7 +7,9 @@ import { InvoiceAdminStatsCards } from "@/components/payments/invoice-admin-stat
 import { InvoiceListTable } from "@/components/payments/invoice-list-table";
 import { prisma } from "@/lib/db";
 import { AdminFilterCard } from "@/components/admin/filter-card";
-import { adminFilterLabels } from "@/lib/admin-filters";
+import { AdminListLimitNotice } from "@/components/admin/list-limit-notice";
+import { adminListLimits } from "@/lib/admin-filters";
+import { getAdminFilters } from "@/lib/admin-i18n";
 import {
   buildInvoiceNumber,
   buildPaymentPeriodWhere,
@@ -14,10 +17,10 @@ import {
   getClientDisplayName,
   getInvoiceAdminStats,
   getPaymentServiceTitle,
-  paymentStatusLabels,
 } from "@/lib/invoice-utils";
 import { formatProviderAmount } from "@/lib/payments/currency";
 import { formatDate } from "@/lib/utils";
+import type { AppLocale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +37,16 @@ export default async function AdminPaymentsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const params = await searchParams;
+  const locale = (await getLocale()) as AppLocale;
+  const [params, t, tFilters, tPaymentStatuses, tEmpty] = await Promise.all([
+    searchParams,
+    getTranslations("adminPages.payments"),
+    getTranslations("adminPages.filters"),
+    getTranslations("adminPages.statuses.payment"),
+    getTranslations("adminPages.empty"),
+  ]);
+  const filters = getAdminFilters(locale);
+
   const q = getQueryValue(params.q).trim();
   const status = getQueryValue(params.status).trim();
   const provider = getQueryValue(params.provider).trim();
@@ -68,7 +80,7 @@ export default async function AdminPaymentsPage({
         course: true,
       },
       orderBy,
-      take: 100,
+      take: adminListLimits.payments,
     }),
     getInvoiceAdminStats(where),
   ]);
@@ -78,29 +90,26 @@ export default async function AdminPaymentsPage({
     invoiceNumber: buildInvoiceNumber(payment.id, payment.createdAt),
     clientName: getClientDisplayName(payment.user),
     clientEmail: payment.user.email,
-    serviceTitle: getPaymentServiceTitle(payment),
+    serviceTitle: getPaymentServiceTitle(payment, t("fallbackServiceTitle")),
     amountLabel: formatProviderAmount(payment.amount, payment.currency),
-    dateLabel: formatDate(payment.createdAt),
+    dateLabel: formatDate(payment.createdAt, locale),
     status: payment.status,
-    statusLabel: paymentStatusLabels[payment.status] || payment.status,
+    statusLabel: tPaymentStatuses(payment.status) || payment.status,
   }));
 
   return (
     <div>
-      <h1 className="page-header-title mb-2">الفواتير والمدفوعات</h1>
-      <p className="mb-6 text-sm text-text/70 sm:mb-8">
-        إدارة الفواتير الصادرة، البحث برقم الفاتورة أو اسم العميلة، وتصفية
-        حسب التاريخ والحالة.
-      </p>
+      <h1 className="page-header-title mb-2">{t("title")}</h1>
+      <p className="mb-6 text-sm text-text/70 sm:mb-8">{t("subtitle")}</p>
 
       <InvoiceAdminStatsCards stats={stats} />
 
       <AdminFilterCard
-        title={adminFilterLabels.payments.title}
+        title={filters.payments.title}
         formClassName="grid md:grid-cols-2 lg:grid-cols-6 gap-4"
       >
         <AdminFormField
-          label={adminFilterLabels.search}
+          label={filters.search}
           htmlFor="payment-filter-q"
           className="lg:col-span-2"
         >
@@ -108,55 +117,55 @@ export default async function AdminPaymentsPage({
             id="payment-filter-q"
             name="q"
             defaultValue={q}
-            placeholder={adminFilterLabels.payments.searchPlaceholder}
+            placeholder={filters.payments.searchPlaceholder}
             className="text-sm"
           />
         </AdminFormField>
-        <AdminFormField label="الفترة">
+        <AdminFormField label={t("period")}>
           <FilterSelect
             name="period"
             value={period}
             options={[
-              { value: "", label: "كل الفترات" },
-              { value: "today", label: "اليوم" },
-              { value: "month", label: "هذا الشهر" },
-              { value: "year", label: "هذه السنة" },
+              { value: "", label: tFilters("allPeriods") },
+              { value: "today", label: tFilters("periodToday") },
+              { value: "month", label: tFilters("periodMonth") },
+              { value: "year", label: tFilters("periodYear") },
             ]}
           />
         </AdminFormField>
-        <AdminFormField label="حالة الدفع">
+        <AdminFormField label={tFilters("paymentStatus")}>
           <FilterSelect
             name="status"
             value={status}
             options={[
-              { value: "", label: "جميع الحالات" },
-              { value: "PENDING", label: "قيد الانتظار" },
-              { value: "PAID", label: "مدفوع" },
-              { value: "REFUNDED", label: "مسترد" },
-              { value: "FAILED", label: "فاشل" },
+              { value: "", label: tFilters("allStatuses") },
+              { value: "PENDING", label: tPaymentStatuses("PENDING") },
+              { value: "PAID", label: tPaymentStatuses("PAID") },
+              { value: "REFUNDED", label: tPaymentStatuses("REFUNDED") },
+              { value: "FAILED", label: tPaymentStatuses("FAILED") },
             ]}
           />
         </AdminFormField>
-        <AdminFormField label="مزود الدفع">
+        <AdminFormField label={t("provider")}>
           <FilterSelect
             name="provider"
             value={provider}
             options={[
-              { value: "", label: "جميع المزودين" },
+              { value: "", label: tFilters("allProviders") },
               { value: "PAYZONE", label: "PayZone" },
               { value: "STRIPE", label: "Stripe" },
             ]}
           />
         </AdminFormField>
-        <AdminFormField label={adminFilterLabels.sort}>
+        <AdminFormField label={filters.sort}>
           <FilterSelect
             name="sort"
             value={sort}
             options={[
-              { value: "created_desc", label: adminFilterLabels.sortNewest },
-              { value: "created_asc", label: adminFilterLabels.sortOldest },
-              { value: "amount_desc", label: "المبلغ ↓" },
-              { value: "amount_asc", label: "المبلغ ↑" },
+              { value: "created_desc", label: filters.sortNewest },
+              { value: "created_asc", label: filters.sortOldest },
+              { value: "amount_desc", label: filters.sortAmountDesc },
+              { value: "amount_asc", label: filters.sortAmountAsc },
             ]}
           />
         </AdminFormField>
@@ -164,10 +173,16 @@ export default async function AdminPaymentsPage({
 
       {payments.length === 0 ? (
         <Card className="py-12 text-center">
-          <p className="text-text/70">لا توجد فواتير أو مدفوعات مطابقة.</p>
+          <p className="text-text/70">{tEmpty("noPayments")}</p>
         </Card>
       ) : (
-        <InvoiceListTable rows={rows} variant="admin" />
+        <>
+          <InvoiceListTable rows={rows} variant="admin" />
+          <AdminListLimitNotice
+            shown={payments.length}
+            limit={adminListLimits.payments}
+          />
+        </>
       )}
     </div>
   );

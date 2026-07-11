@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ExternalLink, Home, Menu, X } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { Logo } from "@/components/layout/logo";
 import { PanelNavList } from "@/components/layout/panel-nav-list";
 import { getAdminNavLinks } from "@/lib/admin-nav";
-import { dashboardContent } from "@/lib/constants";
 import { dashboardNavLinks } from "@/lib/dashboard-nav";
 import { cn } from "@/lib/utils";
 
@@ -26,8 +27,20 @@ export function PanelMobileHeader({
 }: PanelMobileHeaderProps) {
   const [open, setOpen] = useState(false);
   const isAdmin = variant === "admin";
-  const links = isAdmin ? getAdminNavLinks() : dashboardNavLinks;
-  const label = homeLabel ?? (isAdmin ? "عرض الموقع" : "الرئيسية");
+  const tDashboard = useTranslations("dashboard");
+  const tNav = useTranslations("dashboard.nav");
+  const tAdmin = useTranslations("admin");
+  const tAdminNav = useTranslations("admin.nav");
+  const tSiteNav = useTranslations("nav");
+  const links = isAdmin
+    ? getAdminNavLinks((key) => tAdminNav(key))
+    : dashboardNavLinks.map((link) => ({
+        ...link,
+        label: tNav(link.labelKey!),
+      }));
+  const label = homeLabel ?? (isAdmin ? tAdmin("viewSite") : tDashboard("backToSite"));
+  const openMenuLabel = isAdmin ? tSiteNav("openMenu") : tSiteNav("openMenu");
+  const closeMenuLabel = isAdmin ? tSiteNav("closeMenu") : tSiteNav("closeMenu");
 
   useEffect(() => {
     if (!open) return;
@@ -57,7 +70,7 @@ export function PanelMobileHeader({
             type="button"
             onClick={() => setOpen(true)}
             className="p-2 -ml-2 text-heading rounded-lg hover:bg-primary/5 transition-colors"
-            aria-label={isAdmin ? "فتح القائمة" : "فتح القائمة"}
+            aria-label={openMenuLabel}
           >
             <Menu className="w-6 h-6" />
           </button>
@@ -101,7 +114,7 @@ export function PanelMobileHeader({
               type="button"
               className="absolute inset-0 bg-heading/40"
               onClick={() => setOpen(false)}
-              aria-label="إغلاق القائمة"
+              aria-label={closeMenuLabel}
             />
 
             <motion.aside
@@ -127,7 +140,7 @@ export function PanelMobileHeader({
                       isAdmin ? "text-white" : "text-heading"
                     )}
                   >
-                    {isAdmin ? "لوحة الإدارة" : dashboardContent.spaceTitle}
+                    {isAdmin ? tAdmin("spaceTitle") : tDashboard("spaceTitle")}
                   </p>
                   {isAdmin && (
                     <p className="text-white/50 text-xs mt-0.5">ASMAE Coaching</p>
@@ -140,13 +153,20 @@ export function PanelMobileHeader({
                     "p-2 rounded-lg transition-colors",
                     isAdmin ? "text-white hover:bg-white/10" : "text-heading hover:bg-primary/5"
                   )}
-                  aria-label="إغلاق القائمة"
+                  aria-label={closeMenuLabel}
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               <div className="flex-1 overflow-y-auto p-4">
+                <div className="mb-4">
+                  <LocaleSwitcher
+                    variant={isAdmin ? "onDark" : "default"}
+                    compact={isAdmin}
+                    fullWidth
+                  />
+                </div>
                 <Link
                   href="/"
                   target={isAdmin ? "_blank" : undefined}
@@ -164,7 +184,7 @@ export function PanelMobileHeader({
                   ) : (
                     <Home className="w-5 h-5" />
                   )}
-                  {isAdmin ? "عرض الموقع" : dashboardContent.backToSite}
+                  {isAdmin ? tAdmin("viewSite") : tDashboard("backToSite")}
                 </Link>
 
                 <PanelNavList

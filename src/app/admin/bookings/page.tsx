@@ -1,36 +1,33 @@
-import { adminUrl } from "@/lib/admin-path";
 import { format } from "date-fns";
 import { revalidatePath } from "next/cache";
 import { Star } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
 import { AdminFormField } from "@/components/admin/form-field";
 import { ActionForm } from "@/components/ui/action-form";
 import { Card } from "@/components/ui/card";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input } from "@/components/ui/input";
-import { adminErrors } from "@/lib/api-errors";
 import {
   ensureAdmin,
   incomplete,
   runAction,
   type ActionResult,
 } from "@/lib/action-result";
+import { getActionLocale } from "@/lib/action-locale";
+import { getAdminFilters } from "@/lib/admin-i18n";
 import { prisma } from "@/lib/db";
 import { slotKeyForStatus } from "@/lib/booking";
 import { formatDate } from "@/lib/utils";
 import { notifySessionReview } from "@/lib/notifications";
 import { AdminFilterCard } from "@/components/admin/filter-card";
-import { adminFilterLabels } from "@/lib/admin-filters";
+import { AdminListLimitNotice } from "@/components/admin/list-limit-notice";
+import { adminListLimits } from "@/lib/admin-filters";
+import { filterByArabicSearch } from "@/lib/search-utils";
+import type { AppLocale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
 
 const bookingStatuses = ["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"] as const;
-
-const bookingStatusLabels: Record<(typeof bookingStatuses)[number], string> = {
-  PENDING: "قيد الانتظار",
-  CONFIRMED: "مؤكد",
-  COMPLETED: "مكتمل",
-  CANCELLED: "ملغى",
-};
 
 async function updateBookingStatus(formData: FormData): Promise<ActionResult> {
   "use server";
@@ -38,13 +35,14 @@ async function updateBookingStatus(formData: FormData): Promise<ActionResult> {
   const denied = await ensureAdmin();
   if (denied) return denied;
 
+  const locale = await getActionLocale();
   const bookingId = String(formData.get("bookingId") || "");
   const status = String(formData.get("status") || "");
   if (!bookingId || !bookingStatuses.includes(status as (typeof bookingStatuses)[number])) {
-    return incomplete("ar");
+    return incomplete(locale);
   }
 
-  return runAction("ar", async () => {
+  return runAction(locale, async () => {
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
       select: {
@@ -54,7 +52,7 @@ async function updateBookingStatus(formData: FormData): Promise<ActionResult> {
         service: { select: { title: true } },
       },
     });
-    if (!booking) throw new Error(adminErrors.notFound);
+    if (!booking) throw new Error("NOT_FOUND");
 
     const dateStr = format(booking.date, "yyyy-MM-dd");
     const nextStatus = status as "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
@@ -92,7 +90,20 @@ export default async function AdminBookingsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const params = await searchParams;
+  const locale = (await getLocale()) as AppLocale;
+  const [params, t, tFilters, tStatuses, tPaymentStatuses, tActions, tEmpty, tMisc] =
+    await Promise.all([
+      searchParams,
+      getTranslations("adminPages.bookings"),
+      getTranslations("adminPages.filters"),
+      getTranslations("adminPages.statuses.booking"),
+      getTranslations("adminPages.statuses.payment"),
+      getTranslations("adminPages.actions"),
+      getTranslations("adminPages.empty"),
+      getTranslations("adminPages.misc"),
+    ]);
+  const filters = getAdminFilters(locale);
+
   const q = getQueryValue(params.q).trim();
   const status = getQueryValue(params.status).trim();
   const sort = getQueryValue(params.sort, "created_desc");
@@ -100,16 +111,6 @@ export default async function AdminBookingsPage({
   const where = {
     ...(status && bookingStatuses.includes(status as (typeof bookingStatuses)[number])
       ? { status: status as "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED" }
-      : {}),
-    ...(q
-      ? {
-          OR: [
-            { user: { email: { contains: q, mode: "insensitive" as const } } },
-            { user: { firstName: { contains: q, mode: "insensitive" as const } } },
-            { user: { lastName: { contains: q, mode: "insensitive" as const } } },
-            { service: { title: { contains: q, mode: "insensitive" as const } } },
-          ],
-        }
       : {}),
   };
 
@@ -122,7 +123,7 @@ export default async function AdminBookingsPage({
       ? ({ date: "desc" } as const)
       : ({ createdAt: "desc" } as const);
 
-  const bookings = await prisma.booking.findMany({
+  const bookingsRaw = await prisma.booking.findMany({
     where,
     include: {
       user: true,
@@ -131,51 +132,61 @@ export default async function AdminBookingsPage({
       review: true,
     },
     orderBy,
-    take: 100,
   });
+
+  const bookings = (
+    q
+      ? filterByArabicSearch(bookingsRaw, q, [
+          (booking) => booking.user.email,
+          (booking) => booking.user.firstName,
+          (booking) => booking.user.lastName,
+          (booking) => booking.service.title,
+        ])
+      : bookingsRaw
+  ).slice(0, adminListLimits.bookings);
 
   return (
     <div>
-      <h1 className="page-header-title mb-6 sm:mb-8">الحجوزات</h1>
-      <AdminFilterCard title={adminFilterLabels.bookings.title}>
-        <AdminFormField label={adminFilterLabels.search} htmlFor="booking-filter-q">
+      <h1 className="page-header-title mb-6 sm:mb-8">{t("title")}</h1>
+      <AdminFilterCard title={filters.bookings.title}>
+        <AdminFormField label={filters.search} htmlFor="booking-filter-q">
           <Input
             id="booking-filter-q"
             name="q"
             defaultValue={q}
-            placeholder={adminFilterLabels.bookings.searchPlaceholder}
+            placeholder={filters.bookings.searchPlaceholder}
             className="text-sm"
           />
         </AdminFormField>
-        <AdminFormField label="حالة الحجز">
+        <AdminFormField label={t("statusFilter")}>
           <FilterSelect
             name="status"
             value={status}
             options={[
-              { value: "", label: "جميع الحالات" },
-              { value: "PENDING", label: "قيد الانتظار" },
-              { value: "CONFIRMED", label: "مؤكد" },
-              { value: "COMPLETED", label: "مكتمل" },
-              { value: "CANCELLED", label: "ملغى" },
+              { value: "", label: tFilters("allStatuses") },
+              ...bookingStatuses.map((statusOption) => ({
+                value: statusOption,
+                label: tStatuses(statusOption),
+              })),
             ]}
           />
         </AdminFormField>
-        <AdminFormField label={adminFilterLabels.sort}>
+        <AdminFormField label={filters.sort}>
           <FilterSelect
             name="sort"
             value={sort}
             options={[
-              { value: "created_desc", label: adminFilterLabels.sortNewest },
-              { value: "created_asc", label: adminFilterLabels.sortOldest },
-              { value: "date_asc", label: "تاريخ الجلسة ↑" },
-              { value: "date_desc", label: "تاريخ الجلسة ↓" },
+              { value: "created_desc", label: filters.sortNewest },
+              { value: "created_asc", label: filters.sortOldest },
+              { value: "date_asc", label: filters.sortSessionDateAsc },
+              { value: "date_desc", label: filters.sortSessionDateDesc },
             ]}
           />
         </AdminFormField>
       </AdminFilterCard>
       {bookings.length === 0 ? (
         <Card className="text-center py-12">
-          <p className="text-text/70">لا توجد حجوزات حالياً.</p>
+          <p className="text-text/70">{tEmpty("noBookings")}</p>
         </Card>
       ) : (
         <div className="space-y-4">
@@ -185,11 +196,12 @@ export default async function AdminBookingsPage({
                 <div>
                   <p className="font-semibold text-heading">{booking.service.title}</p>
                   <p className="text-sm text-text/70">
-                    {booking.user.firstName || "عميل"} {booking.user.lastName || ""} —{" "}
-                    {booking.user.email}
+                    {booking.user.firstName || tMisc("clientFallback")}{" "}
+                    {booking.user.lastName || ""} — {booking.user.email}
                   </p>
                   <p className="text-sm text-text/70">
-                    {formatDate(booking.date)} في {booking.startTime}
+                    {formatDate(booking.date, locale)}{" "}
+                    {tMisc("atTime", { time: booking.startTime })}
                   </p>
                   {booking.notes ? (
                     <p className="text-sm text-text/80 mt-2 rounded-xl bg-muted/50 px-3 py-2">
@@ -199,7 +211,7 @@ export default async function AdminBookingsPage({
                   {booking.review ? (
                     <div className="mt-2 rounded-xl border border-accent/20 bg-accent/5 px-3 py-2">
                       <p className="text-xs font-semibold text-heading">
-                        تقييم الجلسة
+                        {t("sessionReview")}
                       </p>
                       <div className="mt-1 flex items-center gap-0.5">
                         {Array.from({ length: booking.review.rating }).map(
@@ -219,44 +231,51 @@ export default async function AdminBookingsPage({
                     </div>
                   ) : null}
                   <p className="text-xs text-text/60 mt-1">
-                    الدفع: {booking.payment?.status || "لا يوجد"}
+                    {t("paymentLabel", {
+                      status: booking.payment?.status
+                        ? tPaymentStatuses(booking.payment.status)
+                        : tMisc("noPayment"),
+                    })}
                   </p>
                 </div>
 
                 <ActionForm
                   action={updateBookingStatus}
-                  locale="ar"
-                  className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-end gap-2 w-full lg:w-auto"
+                  locale={locale}
+                  className="w-full lg:w-auto shrink-0"
                 >
                   <input type="hidden" name="bookingId" value={booking.id} />
                   <AdminFormField
-                    label="تحديث الحالة"
+                    label={t("updateStatus")}
                     htmlFor={`booking-status-${booking.id}`}
-                    className="w-full sm:w-auto"
+                    className="w-full lg:min-w-[220px]"
                   >
-                    <select
-                      id={`booking-status-${booking.id}`}
-                      name="status"
-                      defaultValue={booking.status}
-                      className="w-full sm:w-auto rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-heading"
-                    >
-                      {bookingStatuses.map((statusOption) => (
-                        <option key={statusOption} value={statusOption}>
-                          {bookingStatusLabels[statusOption]}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                      <FilterSelect
+                        name="status"
+                        value={booking.status}
+                        className="relative min-w-0 flex-1"
+                        options={bookingStatuses.map((statusOption) => ({
+                          value: statusOption,
+                          label: tStatuses(statusOption),
+                        }))}
+                      />
+                      <button
+                        type="submit"
+                        className="w-full sm:w-auto shrink-0 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-hover transition-colors"
+                      >
+                        {tActions("update")}
+                      </button>
+                    </div>
                   </AdminFormField>
-                  <button
-                    type="submit"
-                    className="w-full sm:w-auto rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover transition-colors"
-                  >
-                    تحديث
-                  </button>
                 </ActionForm>
               </div>
             </Card>
           ))}
+          <AdminListLimitNotice
+            shown={bookings.length}
+            limit={adminListLimits.bookings}
+          />
         </div>
       )}
     </div>

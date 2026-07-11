@@ -1,11 +1,16 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function SignInSkeleton() {
+  const t = useTranslations("common");
+
   return (
     <div
       className="flex min-h-[80vh] items-center justify-center section-padding bg-background"
       aria-busy
-      aria-label="جارٍ التحميل"
+      aria-label={t("loadingAria")}
     >
       <div className="w-full max-w-[420px] space-y-4 rounded-[20px] border border-border bg-card p-8 shadow-soft">
         <Skeleton className="mx-auto h-8 w-40" />

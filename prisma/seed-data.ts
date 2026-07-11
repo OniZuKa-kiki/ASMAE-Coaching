@@ -124,6 +124,7 @@ export const seedPodcasts = [
       "جلسة تأمل موجهة تساعدكِ على بدء يومكِ بهدوء وصفاء ذهني.",
     duration: 15,
     isPremium: false,
+    topics: ["stress", "wellbeing"],
   },
   {
     slug: "premiers-pas",
@@ -132,6 +133,7 @@ export const seedPodcasts = [
       "اكتشفي كيف تبدئين رحلة التغيير الشخصي بخطوات عملية وواضحة.",
     duration: 25,
     isPremium: false,
+    topics: ["change", "wellbeing"],
   },
   {
     slug: "affirmation-soi",
@@ -139,6 +141,7 @@ export const seedPodcasts = [
     description: "تعلّمي كيف تضعين حدودًا صحية بثقة واحترام.",
     duration: 30,
     isPremium: true,
+    topics: ["confidence"],
   },
   {
     slug: "relations-saines",
@@ -147,6 +150,7 @@ export const seedPodcasts = [
       "اكتشفي أسس بناء علاقات متوازنة، قائمة على الاحترام والتفاهم.",
     duration: 35,
     isPremium: true,
+    topics: ["couple", "wellbeing"],
   },
 ];
 
@@ -179,7 +183,7 @@ export const seedServices = [
     slug: "bien-etre",
     title: "التطوير الشخصي",
     description:
-      "رحلة تساعدكِ على تعزيز رفاهكِ النفسي، وإدارة مشاعركِ بوعي، وتنمية قدراتكِ الشخصية.",
+      "رحلة تساعدكِ على تعزيز رفاهيتكِ النفسية، وإدارة مشاعركِ بوعي، وتنمية قدراتكِ الشخصية.",
     duration: "60 دقيقة",
     price: 12000,
   },
@@ -192,6 +196,7 @@ export const seedCourses = [
     description:
       "برنامج متكامل يساعدكِ على بناء ثقة راسخة بنفسكِ، وتعزيز تقديركِ لذاتكِ على المدى الطويل.",
     price: 19700,
+    topics: ["confidence"],
   },
   {
     slug: "gestion-stress",
@@ -199,6 +204,7 @@ export const seedCourses = [
     description:
       "تعلّمي أساليب عملية تساعدكِ على إدارة التوتر في حياتكِ اليومية، واستعادة هدوئكِ وتوازنكِ.",
     price: 14700,
+    topics: ["stress", "wellbeing"],
   },
   {
     slug: "objectifs-vie",
@@ -206,6 +212,7 @@ export const seedCourses = [
     description:
       "برنامج عملي يساعدكِ على تحديد أهداف واضحة، ووضع خطة فعالة لتحقيقها بثقة واستمرارية.",
     price: 16700,
+    topics: ["career", "wellbeing", "change"],
   },
 ];
 
