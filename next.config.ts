@@ -43,18 +43,6 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["puppeteer"],
-  turbopack: {
-    resolveAlias: {
-      "@clerk/shared/authorization": path.join(
-        clerkSharedDist,
-        "authorization.mjs"
-      ),
-      "@clerk/shared/authorization-errors": path.join(
-        clerkSharedDist,
-        "authorization-errors.mjs"
-      ),
-    },
-  },
   images: {
     remotePatterns: [
       {
