@@ -12,9 +12,9 @@ import type { AppLocale } from "@/i18n/routing";
 import { formatDate } from "@/lib/utils";
 import { ButtonLink } from "@/components/ui/button";
 import { localeAlternates } from "@/lib/seo";
-import { PUBLIC_CONTENT_REVALIDATE_SECONDS } from "@/lib/public-cache";
 
-export const revalidate = PUBLIC_CONTENT_REVALIDATE_SECONDS;
+/** ISR — 1 h (aligné sur src/lib/public-cache.ts) */
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   const posts = await getPublishedBlogPosts();

@@ -29,7 +29,7 @@ export default async function DashboardLayout({
       />
       <DashboardSidebar unreadNotifications={unreadNotifications} />
       <div
-        className="min-w-0 p-4 sm:p-6 lg:p-10 lg:ps-72"
+        className="panel-content min-w-0 p-4 sm:p-6 lg:p-10 lg:ps-72"
         suppressHydrationWarning
       >
         {children}

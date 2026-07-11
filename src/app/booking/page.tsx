@@ -1,6 +1,8 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { localeAlternates } from "@/lib/seo";
+import { PageHero } from "@/components/layout/page-hero";
+import { ContentSection } from "@/components/layout/content-section";
 import { BookingForm } from "@/components/booking/booking-form";
 import { getActiveServices } from "@/lib/services";
 
@@ -22,23 +24,19 @@ export default async function BookingPage() {
 
   return (
     <>
-      <section className="section-padding bg-gradient-to-b from-primary/5 to-transparent">
-        <div className="container-narrow text-center mb-8">
-          <h1 className="page-title mb-4">{t("title")}</h1>
-          <p className="text-base sm:text-lg lg:text-xl text-text/80">
-            {t("subtitle")}
-          </p>
-        </div>
-      </section>
-      <section className="section-padding !pt-0">
+      <PageHero
+        title={t("title")}
+        subtitle={t("subtitle")}
+        className="!pb-8 sm:!pb-12 lg:!pb-16"
+      />
+
+      <ContentSection tightTop>
         <Suspense
-          fallback={
-            <div className="text-center">{tCommon("loading")}</div>
-          }
+          fallback={<div className="text-center">{tCommon("loading")}</div>}
         >
           <BookingForm services={services} />
         </Suspense>
-      </section>
+      </ContentSection>
     </>
   );
 }

@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { Users, Calendar, CreditCard, TrendingUp } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
+import { PanelPageHeader } from "@/components/layout/panel-page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { AdminTodayOverview } from "@/components/admin/today-overview";
 import { AdminAdvancedStats } from "@/components/admin/advanced-stats";
@@ -84,7 +85,7 @@ export default async function AdminPage() {
 
   return (
     <div>
-      <h1 className="page-header-title mb-6 sm:mb-8">{t("title")}</h1>
+      <PanelPageHeader title={t("title")} />
       <Suspense
         fallback={
           <PanelPageSkeleton variant="stats" showFilters={false} rows={0} />

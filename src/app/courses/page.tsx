@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
 import { getTranslations } from "next-intl/server";
 import { localeAlternates } from "@/lib/seo";
+import { PageHero } from "@/components/layout/page-hero";
+import { ContentSection } from "@/components/layout/content-section";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { ButtonLink } from "@/components/ui/button";
 import { getPublishedCourses } from "@/lib/content";
@@ -28,45 +30,33 @@ export default async function CoursesPage() {
 
   return (
     <>
-      <section className="section-padding bg-gradient-to-b from-primary/5 to-transparent">
-        <div className="container-narrow text-center">
-          <h1 className="page-title mb-6">{t("title")}</h1>
-          <p className="mx-auto max-w-2xl text-xl text-text/80">
-            {t("subtitle")}
-          </p>
-        </div>
-      </section>
+      <PageHero title={t("title")} subtitle={t("subtitle")} />
 
-      <section className="section-padding">
-        <div className="container-narrow">
-          {userId ? (
-            <ContentRecommendations
-              type="course"
-              limit={2}
-              showCatalogLinks={false}
-              source="COURSES"
-              className="mb-10"
-            />
-          ) : null}
-          <CourseCatalog
-            courses={courses}
-            favoriteKeys={[...favoriteKeys]}
-            signedIn={!!userId}
+      <ContentSection>
+        {userId ? (
+          <ContentRecommendations
+            type="course"
+            limit={2}
+            showCatalogLinks={false}
+            source="COURSES"
+            className="mb-10"
           />
-        </div>
-      </section>
+        ) : null}
+        <CourseCatalog
+          courses={courses}
+          favoriteKeys={[...favoriteKeys]}
+          signedIn={!!userId}
+        />
+      </ContentSection>
 
-      <section className="section-padding bg-card/50">
-        <div className="container-narrow text-center">
-          <SectionHeading
-            title={t("ctaTitle")}
-            subtitle={t("ctaSubtitle")}
-          />
+      <ContentSection variant="band">
+        <div className="text-center">
+          <SectionHeading title={t("ctaTitle")} subtitle={t("ctaSubtitle")} />
           <ButtonLink href="/booking" size="lg">
             {t("ctaButton")}
           </ButtonLink>
         </div>
-      </section>
+      </ContentSection>
     </>
   );
 }

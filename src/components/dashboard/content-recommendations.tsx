@@ -1,10 +1,8 @@
-import { BookOpen, Clock, Headphones, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import type { RecommendationSource } from "@/lib/recommendation-types";
-import { Card, CardDescription, CardTitle } from "@/components/ui/card";
+import { RecommendationCard } from "@/components/dashboard/recommendation-card";
 import { ButtonLink } from "@/components/ui/button";
-import { RecommendationTrackedLink } from "@/components/dashboard/recommendation-tracked-link";
-import { formatPodcastDuration } from "@/lib/content-i18n";
+import type { RecommendationSource } from "@/lib/recommendation-types";
 import { getRequestLocale } from "@/lib/request-locale";
 import {
   getContentRecommendations,
@@ -61,20 +59,38 @@ export async function ContentRecommendations({
         ? t("titlePodcasts")
         : t("title");
 
+  const typeLabel =
+    type === "course"
+      ? t("typeCourse")
+      : type === "podcast"
+        ? t("typePodcast")
+        : null;
+
   return (
-    <section className={cn("mb-8", className)}>
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="mb-1 flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            <h2 className="font-heading text-xl font-semibold text-heading">
-              {title}
-            </h2>
+    <section
+      className={cn(
+        "overflow-hidden rounded-card border border-primary/12 bg-gradient-to-br from-primary/[0.06] via-card to-accent/[0.04] p-5 sm:p-6",
+        className
+      )}
+    >
+      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
+              <Sparkles className="h-3.5 w-3.5" />
+              {t("personalizedBadge")}
+            </span>
           </div>
-          <p className="text-sm text-text/70">{t("subtitle")}</p>
+          <h2 className="font-heading text-xl font-semibold text-heading sm:text-2xl">
+            {title}
+          </h2>
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-text/70">
+            {t("subtitle")}
+          </p>
         </div>
+
         {showCatalogLinks ? (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex shrink-0 flex-wrap gap-2">
             {type !== "podcast" ? (
               <ButtonLink href="/courses" variant="secondary" size="sm">
                 {t("viewAllCourses")}
@@ -91,57 +107,36 @@ export async function ContentRecommendations({
 
       <div
         className={cn(
-          "grid gap-4",
-          recommendations.length > 1 ? "md:grid-cols-2" : "max-w-2xl"
+          "grid gap-3",
+          recommendations.length === 1
+            ? "grid-cols-1"
+            : recommendations.length === 2
+              ? "md:grid-cols-2"
+              : "md:grid-cols-2 xl:grid-cols-2"
         )}
       >
         {recommendations.map((item) => (
-          <Card
+          <RecommendationCard
             key={`${item.type}-${item.id}`}
-            className="border-primary/10 bg-gradient-to-br from-primary/5 via-card to-card"
-          >
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                {item.type === "course" ? (
-                  <BookOpen className="h-5 w-5 text-primary" />
-                ) : (
-                  <Headphones className="h-5 w-5 text-primary" />
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <CardTitle className="text-lg">{item.title}</CardTitle>
-                <CardDescription className="mt-1 line-clamp-2">
-                  {item.description}
-                </CardDescription>
-                <p className="mt-2 text-xs font-medium text-primary">
-                  {getReasonLabel(item, t)}
-                </p>
-                <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <RecommendationTrackedLink
-                    href={item.href}
-                    entityType={item.type}
-                    entityId={item.id}
-                    source={source}
-                    reasonKey={item.reasonKey}
-                    className="text-sm font-semibold text-primary hover:text-primary-hover"
-                  >
-                    {item.type === "course" ? t("viewCourse") : t("viewPodcast")}
-                  </RecommendationTrackedLink>
-                  {item.type === "podcast" && item.duration ? (
-                    <span className="flex items-center gap-1 text-xs text-text/60">
-                      <Clock className="h-3 w-3" />
-                      {formatPodcastDuration(item.duration, appLocale)}
-                    </span>
-                  ) : null}
-                  {item.isPremium ? (
-                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                      {t("premiumBadge")}
-                    </span>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-          </Card>
+            item={item}
+            reasonLabel={getReasonLabel(item, t)}
+            topicLabel={
+              item.topic && item.reasonKey !== "moodToday"
+                ? t(`topics.${item.topic}`)
+                : null
+            }
+            ctaLabel={
+              item.type === "course" ? t("viewCourse") : t("viewPodcast")
+            }
+            typeLabel={
+              typeLabel ??
+              (item.type === "course" ? t("typeCourse") : t("typePodcast"))
+            }
+            premiumBadge={t("premiumBadge")}
+            locale={appLocale}
+            source={source}
+            featured={recommendations.length === 1}
+          />
         ))}
       </div>
     </section>

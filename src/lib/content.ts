@@ -192,18 +192,23 @@ export async function getVisibleTestimonials() {
 
 const getVisibleTestimonialsCached = unstable_cache(
   async () => {
-    const testimonials = await prisma.testimonial.findMany({
-      where: { isVisible: true },
-      orderBy: { createdAt: "desc" },
-    });
+    try {
+      const testimonials = await prisma.testimonial.findMany({
+        where: { isVisible: true },
+        orderBy: { createdAt: "desc" },
+      });
 
-    const order = ["نادية ر.", "ليلى د.", "كريم ب.", "سارة م."];
+      const order = ["نادية ر.", "ليلى د.", "كريم ب.", "سارة م."];
 
-    return [...testimonials].sort((a, b) => {
-      const ai = order.indexOf(a.name);
-      const bi = order.indexOf(b.name);
-      return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
-    });
+      return [...testimonials].sort((a, b) => {
+        const ai = order.indexOf(a.name);
+        const bi = order.indexOf(b.name);
+        return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+      });
+    } catch (error) {
+      console.error("[content] getVisibleTestimonials:", error);
+      return [];
+    }
   },
   ["visible-testimonials"],
   {

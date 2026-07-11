@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Calendar, BookOpen, Target, CreditCard, Video, Route } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
+import { PanelPageHeader } from "@/components/layout/panel-page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
 import { MoodCheckInCard } from "@/components/dashboard/mood-check-in-card";
@@ -50,8 +51,7 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <h1 className="page-header-title mb-2">{welcome}</h1>
-      <p className="text-text/70 mb-6">{t("overviewSubtitle")}</p>
+      <PanelPageHeader title={welcome} subtitle={t("overviewSubtitle")} />
 
       <Card className="mb-8 border-primary/15 bg-gradient-to-br from-primary/5 via-card to-card">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

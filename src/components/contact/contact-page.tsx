@@ -4,6 +4,8 @@ import { useCallback, useState } from "react";
 import { Mail, MessageCircle, Phone, Share2, Send } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { SectionHeading } from "@/components/ui/section-heading";
+import { PageHero } from "@/components/layout/page-hero";
+import { ContentSection } from "@/components/layout/content-section";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label, Input, Textarea } from "@/components/ui/input";
@@ -79,18 +81,10 @@ export function ContactPageContent({ contact }: ContactPageContentProps) {
 
   return (
     <>
-      <section className="section-padding bg-gradient-to-b from-primary/5 to-transparent">
-        <div className="container-narrow text-center">
-          <h1 className="page-title mb-6">{t("title")}</h1>
-          <p className="text-base sm:text-lg lg:text-xl text-text/80 max-w-2xl mx-auto">
-            {t("subtitle")}
-          </p>
-        </div>
-      </section>
+      <PageHero title={t("title")} subtitle={t("subtitle")} />
 
-      <section className="section-padding">
-        <div className="container-narrow">
-          <div className="grid lg:grid-cols-2 gap-12">
+      <ContentSection>
+        <div className="grid gap-12 lg:grid-cols-2">
             <div>
               <SectionHeading
                 title={t("channelsTitle")}
@@ -226,9 +220,8 @@ export function ContactPageContent({ contact }: ContactPageContentProps) {
                 </form>
               )}
             </Card>
-          </div>
         </div>
-      </section>
+      </ContentSection>
     </>
   );
 }

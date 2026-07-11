@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
 import { getTranslations } from "next-intl/server";
 import { localeAlternates } from "@/lib/seo";
+import { PageHero } from "@/components/layout/page-hero";
+import { ContentSection } from "@/components/layout/content-section";
 import { getPublishedPodcasts } from "@/lib/content";
 import { PodcastCatalog } from "@/components/podcasts/podcast-catalog";
 import { ContentRecommendations } from "@/components/dashboard/content-recommendations";
 import { getFavoriteKeysForCurrentUser } from "@/lib/favorites";
+import { toIsoString } from "@/lib/utils";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("podcasts");
@@ -30,39 +33,30 @@ export default async function PodcastsPage() {
     description: podcast.description,
     duration: podcast.duration,
     isPremium: podcast.isPremium,
-    createdAt: podcast.createdAt.toISOString(),
+    createdAt: toIsoString(podcast.createdAt) ?? "",
     order,
   }));
 
   return (
     <>
-      <section className="section-padding bg-gradient-to-b from-primary/5 to-transparent">
-        <div className="container-narrow text-center">
-          <h1 className="page-title mb-6">{t("title")}</h1>
-          <p className="mx-auto max-w-2xl text-xl text-text/80">
-            {t("subtitle")}
-          </p>
-        </div>
-      </section>
+      <PageHero title={t("title")} subtitle={t("subtitle")} />
 
-      <section className="section-padding">
-        <div className="container-narrow">
-          {userId ? (
-            <ContentRecommendations
-              type="podcast"
-              limit={2}
-              showCatalogLinks={false}
-              source="PODCASTS"
-              className="mb-10"
-            />
-          ) : null}
-          <PodcastCatalog
-            podcasts={items}
-            favoriteKeys={[...favoriteKeys]}
-            signedIn={!!userId}
+      <ContentSection>
+        {userId ? (
+          <ContentRecommendations
+            type="podcast"
+            limit={2}
+            showCatalogLinks={false}
+            source="PODCASTS"
+            className="mb-10"
           />
-        </div>
-      </section>
+        ) : null}
+        <PodcastCatalog
+          podcasts={items}
+          favoriteKeys={[...favoriteKeys]}
+          signedIn={!!userId}
+        />
+      </ContentSection>
     </>
   );
 }

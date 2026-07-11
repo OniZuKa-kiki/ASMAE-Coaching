@@ -153,24 +153,28 @@ export function DashboardPodcastList({
 
             return (
               <Card key={podcast.id} className="relative">
-                <FavoriteButton
-                  entityType="PODCAST"
-                  entityId={podcast.id}
-                  initialFavorited={isFavorited(
-                    favoriteKeys,
-                    "PODCAST",
-                    podcast.id
-                  )}
-                  signedIn
-                  className="absolute top-3 left-3 z-10"
-                />
                 <div className="flex items-start gap-4">
                   <PodcastThumbnail
                     isPremium={podcast.isPremium}
                     badgeLabel={tPodcasts("premiumBadge")}
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-heading">{podcast.title}</p>
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="min-w-0 flex-1 font-semibold leading-snug text-heading">
+                        {podcast.title}
+                      </p>
+                      <FavoriteButton
+                        entityType="PODCAST"
+                        entityId={podcast.id}
+                        initialFavorited={isFavorited(
+                          favoriteKeys,
+                          "PODCAST",
+                          podcast.id
+                        )}
+                        signedIn
+                        className="shrink-0"
+                      />
+                    </div>
                     <p className="mt-1 text-sm text-text/70">
                       {podcast.description}
                     </p>

@@ -9,9 +9,9 @@ import { FAQ } from "@/components/home/faq";
 import { FinalCTA } from "@/components/home/final-cta";
 import { getVisibleTestimonials } from "@/lib/content";
 import { localeAlternates } from "@/lib/seo";
-import { PUBLIC_CONTENT_REVALIDATE_SECONDS } from "@/lib/public-cache";
 
-export const revalidate = PUBLIC_CONTENT_REVALIDATE_SECONDS;
+/** ISR — 1 h (aligné sur src/lib/public-cache.ts) */
+export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("metadata");

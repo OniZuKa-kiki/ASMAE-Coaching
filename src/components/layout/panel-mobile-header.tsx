@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ExternalLink, Home, Menu, X } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { Logo } from "@/components/layout/logo";
 import { PanelNavList } from "@/components/layout/panel-nav-list";
@@ -32,6 +32,8 @@ export function PanelMobileHeader({
   const tAdmin = useTranslations("admin");
   const tAdminNav = useTranslations("admin.nav");
   const tSiteNav = useTranslations("nav");
+  const locale = useLocale();
+  const menuSlideX = locale === "ar" ? "100%" : "-100%";
   const links = isAdmin
     ? getAdminNavLinks((key) => tAdminNav(key))
     : dashboardNavLinks.map((link) => ({
@@ -119,12 +121,12 @@ export function PanelMobileHeader({
 
             <motion.aside
               className={cn(
-                "absolute top-0 left-0 h-full w-[min(100vw-3rem,20rem)] shadow-soft flex flex-col",
-                isAdmin ? "bg-heading text-white" : "bg-card border-r border-border/50"
+                "absolute top-0 inset-inline-start-0 h-full w-[min(100vw-3rem,20rem)] shadow-soft flex flex-col",
+                isAdmin ? "bg-heading text-white" : "bg-card border-e border-border/50"
               )}
-              initial={{ x: "-100%" }}
+              initial={{ x: menuSlideX }}
               animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
+              exit={{ x: menuSlideX }}
               transition={{ duration: 0.22, ease: easeOut }}
             >
               <div
@@ -160,7 +162,12 @@ export function PanelMobileHeader({
               </div>
 
               <div className="flex-1 overflow-y-auto p-4">
-                <div className="mb-4">
+                <div
+                  className={cn(
+                    "mb-4 pb-4 border-b",
+                    isAdmin ? "border-white/10" : "border-border/40"
+                  )}
+                >
                   <LocaleSwitcher
                     variant={isAdmin ? "onDark" : "default"}
                     compact={isAdmin}

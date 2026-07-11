@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import { Play } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { localeAlternates } from "@/lib/seo";
-import { PUBLIC_CONTENT_REVALIDATE_SECONDS } from "@/lib/public-cache";
-
-export const revalidate = PUBLIC_CONTENT_REVALIDATE_SECONDS;
+import { PageHero } from "@/components/layout/page-hero";
+import { ContentSection } from "@/components/layout/content-section";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Card, CardTitle } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
+
+/** ISR — 1 h (aligné sur src/lib/public-cache.ts) */
+export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("about");
@@ -20,11 +22,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
 function Paragraphs({ text }: { text: string }) {
   return (
-    <div className="space-y-4">
+    <div className="prose-content">
       {text.split("\n\n").map((paragraph) => (
-        <p key={paragraph} className="text-text leading-relaxed">
-          {paragraph}
-        </p>
+        <p key={paragraph}>{paragraph}</p>
       ))}
     </div>
   );
@@ -42,90 +42,70 @@ export default async function AboutPage() {
 
   return (
     <>
-      <section className="section-padding bg-gradient-to-b from-primary/5 to-transparent">
-        <div className="container-narrow text-center">
-          <p className="text-accent font-medium text-sm tracking-[0.2em] uppercase mb-4">
-            {t("eyebrow")}
-          </p>
-          <h1 className="page-title mb-6">{t("title")}</h1>
-          <p className="text-base sm:text-lg lg:text-xl text-text/80 max-w-2xl mx-auto">
-            {t("subtitle")}
-          </p>
-        </div>
-      </section>
+      <PageHero
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        subtitle={t("subtitle")}
+      />
 
-      <section className="section-padding">
-        <div className="container-narrow">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-heading mb-6">
-                {t("storyTitle")}
-              </h2>
-              <Paragraphs text={t("story")} />
-            </div>
-            <div className="aspect-video rounded-[20px] bg-primary/10 flex items-center justify-center border border-border/50">
-              <div className="text-center">
-                <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
-                  <Play className="w-8 h-8 text-primary ml-1" />
-                </div>
-                <p className="text-text/70 text-sm">{t("videoLabel")}</p>
+      <ContentSection>
+        <div className="grid items-center gap-16 lg:grid-cols-2">
+          <div>
+            <h2 className="section-title mb-6">{t("storyTitle")}</h2>
+            <Paragraphs text={t("story")} />
+          </div>
+          <div className="flex aspect-video items-center justify-center rounded-card border border-border/50 bg-primary/10">
+            <div className="text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/20">
+                <Play className="ms-1 h-8 w-8 text-primary" />
               </div>
+              <p className="text-sm text-text/70">{t("videoLabel")}</p>
             </div>
           </div>
         </div>
-      </section>
+      </ContentSection>
 
-      <section className="section-padding bg-card/50">
-        <div className="container-narrow">
-          <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-heading mb-6 text-center">
-            {t("whyTitle")}
-          </h2>
-          <div className="text-text leading-relaxed max-w-3xl mx-auto text-base sm:text-lg text-center">
+      <ContentSection variant="band">
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="section-title mb-6">{t("whyTitle")}</h2>
+          <div className="section-lead">
             <Paragraphs text={t("why")} />
           </div>
         </div>
-      </section>
+      </ContentSection>
 
-      <section className="section-padding">
-        <div className="container-narrow text-center">
-          <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-heading mb-6">
-            {t("missionTitle")}
-          </h2>
-          <p className="text-text leading-relaxed max-w-3xl mx-auto text-base sm:text-lg">
-            {t("mission")}
-          </p>
+      <ContentSection>
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="section-title mb-6">{t("missionTitle")}</h2>
+          <p className="section-lead">{t("mission")}</p>
         </div>
-      </section>
+      </ContentSection>
 
-      <section className="section-padding bg-card/50">
-        <div className="container-narrow">
-          <SectionHeading title={t("valuesTitle")} />
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {valueKeys.map((key) => (
-              <Card key={key} className="text-center">
-                <CardTitle className="text-xl mb-3">
-                  {t(`values.${key}.title`)}
-                </CardTitle>
-                <p className="text-text text-sm">
-                  {t(`values.${key}.description`)}
-                </p>
-              </Card>
-            ))}
-          </div>
+      <ContentSection variant="band">
+        <SectionHeading title={t("valuesTitle")} />
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+          {valueKeys.map((key) => (
+            <Card key={key} className="text-center">
+              <CardTitle className="mb-3 text-xl">
+                {t(`values.${key}.title`)}
+              </CardTitle>
+              <p className="text-sm text-text">
+                {t(`values.${key}.description`)}
+              </p>
+            </Card>
+          ))}
         </div>
-      </section>
+      </ContentSection>
 
-      <section className="section-padding">
-        <div className="container-narrow text-center">
-          <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-heading mb-4">
-            {t("ctaTitle")}
-          </h2>
-          <p className="text-text mb-8">{t("ctaSubtitle")}</p>
+      <ContentSection>
+        <div className="text-center">
+          <h2 className="section-title mb-4">{t("ctaTitle")}</h2>
+          <p className="mb-8 text-text/80">{t("ctaSubtitle")}</p>
           <ButtonLink href="/booking" size="lg">
             {t("ctaButton")}
           </ButtonLink>
         </div>
-      </section>
+      </ContentSection>
     </>
   );
 }

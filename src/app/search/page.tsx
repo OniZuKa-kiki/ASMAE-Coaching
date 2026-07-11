@@ -3,6 +3,8 @@ import Link from "next/link";
 import { after } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { localeAlternates } from "@/lib/seo";
+import { PageHero } from "@/components/layout/page-hero";
+import { ContentSection } from "@/components/layout/content-section";
 import { Card } from "@/components/ui/card";
 import { SearchResultsList } from "@/components/search/search-results-list";
 import { SiteSearchForm } from "@/components/search/site-search-form";
@@ -52,11 +54,10 @@ export default async function SearchPage({
   }
 
   return (
-    <section className="section-padding">
-      <div className="container-narrow">
-        <h1 className="page-header-title mb-2">{t("title")}</h1>
-        <p className="mb-6 text-text/70">{t("placeholder")}</p>
+    <>
+      <PageHero title={t("title")} subtitle={t("placeholder")} />
 
+      <ContentSection tightTop>
         <SiteSearchForm
           action="/search"
           scope="public"
@@ -90,7 +91,7 @@ export default async function SearchPage({
             {t("dashboardLink")}
           </Link>
         </p>
-      </div>
-    </section>
+      </ContentSection>
+    </>
   );
 }

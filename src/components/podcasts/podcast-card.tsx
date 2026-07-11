@@ -37,32 +37,38 @@ export function PodcastCard({
   const locale = useLocale() as AppLocale;
 
   return (
-    <div className="relative">
-      <FavoriteButton
-        entityType="PODCAST"
-        entityId={podcast.id}
-        initialFavorited={isFavorited(favoriteKeys, "PODCAST", podcast.id)}
-        signedIn={signedIn}
-        className="absolute top-3 left-3 z-10"
-      />
-      <Link href={`/podcasts/${podcast.slug}`}>
-        <Card className="h-full cursor-pointer transition-shadow hover:shadow-lg">
-          <div className="flex items-start gap-4">
-            <PodcastThumbnail
-              isPremium={podcast.isPremium}
-              badgeLabel={premiumBadge}
-            />
-            <div className="min-w-0 flex-1">
-              <CardTitle className="text-lg">{podcast.title}</CardTitle>
-              <CardDescription>{podcast.description}</CardDescription>
-              <span className="mt-2 flex items-center gap-1 text-sm text-text/60">
-                <Clock className="h-3 w-3 shrink-0" />
-                {formatPodcastDuration(podcast.duration, locale)}
-              </span>
+    <Link href={`/podcasts/${podcast.slug}`} className="block h-full">
+      <Card className="h-full cursor-pointer" hoverable>
+        <div className="flex items-start gap-4">
+          <PodcastThumbnail
+            isPremium={podcast.isPremium}
+            badgeLabel={premiumBadge}
+          />
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <CardTitle className="min-w-0 flex-1 text-lg leading-snug">
+                {podcast.title}
+              </CardTitle>
+              <FavoriteButton
+                entityType="PODCAST"
+                entityId={podcast.id}
+                initialFavorited={isFavorited(
+                  favoriteKeys,
+                  "PODCAST",
+                  podcast.id
+                )}
+                signedIn={signedIn}
+                className="shrink-0"
+              />
             </div>
+            <CardDescription>{podcast.description}</CardDescription>
+            <span className="mt-2 flex items-center gap-1 text-sm text-text/60">
+              <Clock className="h-3 w-3 shrink-0" />
+              {formatPodcastDuration(podcast.duration, locale)}
+            </span>
           </div>
-        </Card>
-      </Link>
-    </div>
+        </div>
+      </Card>
+    </Link>
   );
 }

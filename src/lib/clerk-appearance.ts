@@ -20,8 +20,10 @@ export const clerkAppearance = {
     spacing: "1rem",
   },
   elements: {
-    rootBox: "font-body",
-    card: "rounded-[20px] shadow-[0_8px_30px_rgba(0,0,0,0.1)] border border-[#DDD7CD] bg-[#FCFBF8] overflow-hidden",
+    rootBox: "w-full mx-auto font-body",
+    signIn: { rootBox: "w-full mx-auto" },
+    signUp: { rootBox: "w-full mx-auto" },
+    card: "w-full max-w-full mx-auto rounded-[20px] shadow-[0_8px_30px_rgba(0,0,0,0.1)] border border-[#DDD7CD] bg-[#FCFBF8] overflow-hidden",
     cardBox: "rounded-[20px] bg-[#FCFBF8]",
     main: "bg-[#FCFBF8]",
     scrollBox: "bg-[#FCFBF8]",

@@ -139,7 +139,7 @@ export function BlogCatalog({
                 className="absolute top-3 left-3 z-10"
               />
               <Link href={`/blog/${post.slug}`}>
-                <Card className="h-full cursor-pointer transition-shadow hover:shadow-lg">
+                <Card className="h-full cursor-pointer" hoverable>
                   <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
                     {post.category}
                   </span>

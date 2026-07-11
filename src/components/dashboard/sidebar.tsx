@@ -20,7 +20,7 @@ export function DashboardSidebar({
   }));
 
   return (
-    <aside className="hidden lg:block fixed top-0 right-0 z-30 w-64 h-dvh overflow-y-auto shrink-0 bg-card border-e border-border/60 shadow-[-8px_0_24px_rgba(0,0,0,0.04)] p-6">
+    <aside className="hidden lg:block fixed top-0 inset-inline-end-0 z-30 w-64 h-dvh overflow-y-auto shrink-0 bg-card border-e border-border/60 shadow-[-8px_0_24px_rgba(0,0,0,0.04)] p-6">
       <h2 className="font-heading text-xl font-semibold text-heading mb-4">
         {t("spaceTitle")}
       </h2>

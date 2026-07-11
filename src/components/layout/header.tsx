@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, User, Search } from "lucide-react";
 import { SignInButton, Show } from "@clerk/nextjs";
@@ -29,6 +29,8 @@ const mobileNavItems = [
 
 export function Header() {
   const t = useTranslations("nav");
+  const locale = useLocale();
+  const menuSlideX = locale === "ar" ? "100%" : "-100%";
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -121,9 +123,9 @@ export function Header() {
 
             <motion.aside
               className="absolute top-0 inset-inline-start-0 h-full w-[min(100vw-3rem,20rem)] bg-card border-inline-end border-border/50 shadow-soft flex flex-col"
-              initial={{ x: "100%" }}
+              initial={{ x: menuSlideX }}
               animate={{ x: 0 }}
-              exit={{ x: "100%" }}
+              exit={{ x: menuSlideX }}
               transition={{ duration: 0.22, ease: easeOut }}
             >
               <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border/50">
@@ -139,8 +141,8 @@ export function Header() {
               </div>
 
               <nav className="flex-1 overflow-y-auto p-3 flex flex-col gap-0.5">
-                <div className="px-3 pb-3">
-                  <LocaleSwitcher className="w-full justify-center" />
+                <div className="px-1 pb-4 mb-1 border-b border-border/40">
+                  <LocaleSwitcher fullWidth />
                 </div>
 
                 {mobileNavItems.map((item) => (

@@ -3,12 +3,19 @@ import { cn } from "@/lib/utils";
 export function Card({
   className,
   children,
+  hoverable = false,
+  compact = false,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+}: React.HTMLAttributes<HTMLDivElement> & {
+  hoverable?: boolean;
+  compact?: boolean;
+}) {
   return (
     <div
       className={cn(
-        "rounded-[20px] bg-card p-4 sm:p-6 lg:p-8 shadow-soft border border-border/50 transition-all duration-300 ease-out",
+        "rounded-card bg-card shadow-soft border border-border/50 transition-all duration-300 ease-out",
+        compact ? "p-4 sm:p-5" : "p-4 sm:p-6 lg:p-8",
+        hoverable && "card-hover",
         className
       )}
       suppressHydrationWarning

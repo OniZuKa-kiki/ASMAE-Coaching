@@ -267,14 +267,15 @@ export function SiteSearchForm({
         <div
           id="search-suggestions-list"
           ref={listRef}
-          className="space-y-3"
+          className="rounded-card border border-border/50 bg-card/60 p-4"
           role="listbox"
         >
           <div>
-            <p className="mb-2 text-xs font-medium text-text/60">
+            <p className="mb-2.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-text/55">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
               {t("suggestionsLabel")}
               {showPopularHint ? (
-                <span className="ms-1 font-normal text-text/50">
+                <span className="font-normal normal-case tracking-normal text-text/45">
                   · {t("popularSuggestionsHint")}
                 </span>
               ) : null}
@@ -291,10 +292,10 @@ export function SiteSearchForm({
                   onMouseEnter={() => setActiveIndex(index)}
                   onClick={() => applySearchQuery(suggestion)}
                   className={cn(
-                    "rounded-full border px-3 py-1.5 text-sm transition-colors",
+                    "rounded-full border px-3.5 py-1.5 text-sm transition-all",
                     activeIndex === index
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border/70 bg-card text-heading hover:border-primary/40 hover:text-primary"
+                      ? "border-primary bg-primary text-white shadow-sm"
+                      : "border-border/70 bg-background text-heading hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
                   )}
                 >
                   {suggestion}
@@ -302,8 +303,8 @@ export function SiteSearchForm({
               ))}
             </div>
           </div>
-          <div>
-            <p className="mb-2 text-xs font-medium text-text/60">
+          <div className="mt-4 border-t border-border/50 pt-4">
+            <p className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-text/55">
               {t("shortcutsLabel")}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -334,10 +335,11 @@ export function SiteSearchForm({
           </div>
         </div>
       ) : (
-        <Card className="overflow-hidden p-0">
+        <Card className="overflow-hidden border-primary/10 p-0 shadow-soft">
           <div id="search-suggestions-list" ref={listRef}>
-            <div className="border-b border-border/60 px-4 py-2.5">
-              <p className="text-xs font-medium text-text/60">
+            <div className="border-b border-border/60 bg-primary/[0.04] px-4 py-3">
+              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-primary">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                 {t("liveSuggestionsLabel")}
               </p>
             </div>

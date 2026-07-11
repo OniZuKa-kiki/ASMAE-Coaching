@@ -2,9 +2,12 @@ import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
 import { getTranslations } from "next-intl/server";
 import { localeAlternates } from "@/lib/seo";
+import { PageHero } from "@/components/layout/page-hero";
+import { ContentSection } from "@/components/layout/content-section";
 import { getPublishedBlogPosts } from "@/lib/content";
 import { BlogCatalog } from "@/components/blog/blog-catalog";
 import { getFavoriteKeysForCurrentUser } from "@/lib/favorites";
+import { toIsoString } from "@/lib/utils";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("blog");
@@ -29,33 +32,24 @@ export default async function BlogPage() {
     excerpt: post.excerpt,
     content: post.content,
     category: post.category,
-    publishedAt: post.publishedAt?.toISOString() ?? null,
+    publishedAt: toIsoString(post.publishedAt),
   }));
 
   return (
     <>
-      <section className="section-padding bg-gradient-to-b from-primary/5 to-transparent">
-        <div className="container-narrow text-center">
-          <h1 className="page-title mb-6">{t("title")}</h1>
-          <p className="mx-auto max-w-2xl text-xl text-text/80">
-            {t("subtitle")}
-          </p>
-        </div>
-      </section>
+      <PageHero title={t("title")} subtitle={t("subtitle")} />
 
-      <section className="section-padding">
-        <div className="container-narrow">
-          {posts.length === 0 ? (
-            <p className="text-center text-text/70">{t("emptyMessage")}</p>
-          ) : (
-            <BlogCatalog
-              posts={items}
-              favoriteKeys={[...favoriteKeys]}
-              signedIn={!!userId}
-            />
-          )}
-        </div>
-      </section>
+      <ContentSection>
+        {posts.length === 0 ? (
+          <p className="text-center text-text/70">{t("emptyMessage")}</p>
+        ) : (
+          <BlogCatalog
+            posts={items}
+            favoriteKeys={[...favoriteKeys]}
+            signedIn={!!userId}
+          />
+        )}
+      </ContentSection>
     </>
   );
 }

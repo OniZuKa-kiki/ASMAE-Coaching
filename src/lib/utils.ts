@@ -7,6 +7,15 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** Date Prisma ou chaîne ISO (après unstable_cache). */
+export function toIsoString(
+  value: Date | string | null | undefined
+): string | null {
+  if (value == null) return null;
+  if (typeof value === "string") return value;
+  return value.toISOString();
+}
+
 export function formatPrice(
   cents: number,
   currency = "EUR",

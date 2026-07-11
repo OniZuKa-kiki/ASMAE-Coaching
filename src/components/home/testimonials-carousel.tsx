@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   animate,
@@ -84,32 +84,45 @@ export function TestimonialsCarousel({
   const [paused, setPaused] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [slideStep, setSlideStep] = useState(0);
+  const [visualIndex, setVisualIndex] = useState(0);
 
   const count = testimonials.length;
   const maxIndex = Math.max(0, count - perView);
   const lotCount = maxIndex + 1;
-  const canSlide = lotCount > 1;
+  const canSlide = lotCount > 1 && slideStep > 0;
+
+  const goTo = useCallback(
+    (next: number) => {
+      const clamped = Math.max(0, Math.min(maxIndex, next));
+      setIndex(clamped);
+      setDragLot(clamped);
+    },
+    [maxIndex]
+  );
 
   const goNext = useCallback(() => {
-    setIndex((current) => (current >= maxIndex ? 0 : current + 1));
-  }, [maxIndex]);
+    goTo(index >= maxIndex ? 0 : index + 1);
+  }, [goTo, index, maxIndex]);
 
   const goPrev = useCallback(() => {
-    setIndex((current) => (current <= 0 ? maxIndex : current - 1));
-  }, [maxIndex]);
-
-  const displayLot = isDragging ? dragLot : index;
+    goTo(index <= 0 ? maxIndex : index - 1);
+  }, [goTo, index, maxIndex]);
 
   useEffect(() => {
     setIndex(0);
     setDragLot(0);
+    setVisualIndex(0);
     x.set(0);
   }, [perView, count, x]);
 
   useMotionValueEvent(x, "change", (latest) => {
-    if (!slideStep || !isDraggingRef.current) return;
+    if (!slideStep) return;
     const derived = Math.round(-latest / slideStep);
-    setDragLot(Math.max(0, Math.min(maxIndex, derived)));
+    const clamped = Math.max(0, Math.min(maxIndex, derived));
+    setVisualIndex(clamped);
+    if (isDraggingRef.current) {
+      setDragLot(clamped);
+    }
   });
 
   useEffect(() => {
@@ -119,13 +132,27 @@ export function TestimonialsCarousel({
   }, [canSlide, paused, isDragging, goNext]);
 
   useEffect(() => {
+    if (!isDragging) {
+      setVisualIndex(index);
+    }
+  }, [index, isDragging]);
+
+  useLayoutEffect(() => {
     const viewport = viewportRef.current;
     if (!viewport) return;
 
     const updateStep = () => {
       const width = viewport.offsetWidth;
       const cardWidth = (width - GAP_PX * (perView - 1)) / perView;
-      setSlideStep(cardWidth + GAP_PX);
+      const nextStep = cardWidth + GAP_PX;
+      setSlideStep(nextStep);
+      if (!isDraggingRef.current && nextStep > 0) {
+        const currentIndex = Math.max(
+          0,
+          Math.min(maxIndex, Math.round(-x.get() / nextStep))
+        );
+        x.set(-currentIndex * nextStep);
+      }
     };
 
     updateStep();
@@ -133,7 +160,7 @@ export function TestimonialsCarousel({
     const observer = new ResizeObserver(updateStep);
     observer.observe(viewport);
     return () => observer.disconnect();
-  }, [perView, count]);
+  }, [perView, count, maxIndex, x]);
 
   useEffect(() => {
     if (!slideStep || isDragging) return;
@@ -150,12 +177,11 @@ export function TestimonialsCarousel({
     let nextIndex = Math.round(-draggedX / slideStep);
 
     if (Math.abs(info.velocity.x) > 350) {
-      nextIndex = info.velocity.x < 0 ? dragLot + 1 : dragLot - 1;
+      nextIndex = info.velocity.x < 0 ? visualIndex + 1 : visualIndex - 1;
     }
 
     nextIndex = Math.max(0, Math.min(maxIndex, nextIndex));
-    setIndex(nextIndex);
-    setDragLot(nextIndex);
+    goTo(nextIndex);
   }
 
   if (count === 0) return null;
@@ -178,14 +204,17 @@ export function TestimonialsCarousel({
       {canSlide ? (
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="min-w-0 text-xs text-text/60">{t("carouselHint")}</p>
-          <div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
+          <div
+            dir="ltr"
+            className="flex shrink-0 items-center gap-2 self-end sm:self-auto"
+          >
             <button
               type="button"
               onClick={goPrev}
               aria-label={t("previous")}
               className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/70 bg-card text-heading transition-colors hover:border-primary hover:text-primary"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4" />
             </button>
             <button
               type="button"
@@ -193,13 +222,13 @@ export function TestimonialsCarousel({
               aria-label={t("next")}
               className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/70 bg-card text-heading transition-colors hover:border-primary hover:text-primary"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4" />
             </button>
           </div>
         </div>
       ) : null}
 
-      <div ref={viewportRef} className="overflow-hidden">
+      <div ref={viewportRef} className="overflow-hidden" dir="ltr">
         {canSlide ? (
           <motion.div
             className="flex cursor-grab gap-8 active:cursor-grabbing"
@@ -211,7 +240,7 @@ export function TestimonialsCarousel({
             onDragStart={() => {
               isDraggingRef.current = true;
               setIsDragging(true);
-              setDragLot(index);
+              setDragLot(visualIndex);
             }}
             onDragEnd={handleDragEnd}
           >
@@ -219,7 +248,8 @@ export function TestimonialsCarousel({
               <div
                 key={testimonial.id}
                 className="shrink-0"
-                style={{ width: cardWidth }}
+                style={{ width: cardWidth, minWidth: cardWidth }}
+                dir="auto"
               >
                 <TestimonialCard testimonial={testimonial} />
               </div>
@@ -251,14 +281,11 @@ export function TestimonialsCarousel({
                 key={lotIndex}
                 type="button"
                 aria-label={`${t("positionLabel")} ${lotIndex + 1}`}
-                aria-current={lotIndex === displayLot ? "true" : undefined}
-                onClick={() => {
-                  setIndex(lotIndex);
-                  setDragLot(lotIndex);
-                }}
+                aria-current={lotIndex === visualIndex ? "true" : undefined}
+                onClick={() => goTo(lotIndex)}
                 className={cn(
                   "h-2.5 rounded-full transition-[width,background-color] duration-200",
-                  lotIndex === displayLot
+                  lotIndex === visualIndex
                     ? "w-7 bg-primary"
                     : "w-2.5 bg-border hover:bg-primary/40"
                 )}

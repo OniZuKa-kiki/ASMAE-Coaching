@@ -3,17 +3,17 @@ import { notFound } from "next/navigation";
 import { Clock, Check } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { ButtonLink } from "@/components/ui/button";
-import { getPublicServiceBySlug, getPublicServices } from "@/lib/services";
+import { getPublicServiceBySlug, getActiveServices } from "@/lib/services";
 import { intlLocale } from "@/lib/locale";
 import { formatPrice } from "@/lib/utils";
 import type { AppLocale } from "@/i18n/routing";
 import { localeAlternates } from "@/lib/seo";
-import { PUBLIC_CONTENT_REVALIDATE_SECONDS } from "@/lib/public-cache";
 
-export const revalidate = PUBLIC_CONTENT_REVALIDATE_SECONDS;
+/** ISR — 1 h (aligné sur src/lib/public-cache.ts) */
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  const services = await getPublicServices();
+  const services = await getActiveServices();
   return services.map((service) => ({ slug: service.slug }));
 }
 

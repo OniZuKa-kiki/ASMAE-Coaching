@@ -29,7 +29,7 @@ export default async function AdminLayout({
         suppressHydrationWarning
       >
         <PanelMobileHeader variant="admin" />
-        <div className="min-w-0 flex-1 p-4 sm:p-6 lg:p-10">
+        <div className="panel-content min-w-0 flex-1 p-4 sm:p-6 lg:p-10">
           <AdminTwoFactorGate />
         </div>
       </div>
@@ -46,7 +46,7 @@ export default async function AdminLayout({
       <PanelMobileHeader variant="admin" />
       <AdminSidebar />
       <div
-        className="min-w-0 p-4 sm:p-6 lg:p-10 lg:ps-72"
+        className="panel-content min-w-0 p-4 sm:p-6 lg:p-10 lg:ps-72"
         suppressHydrationWarning
       >
         {children}

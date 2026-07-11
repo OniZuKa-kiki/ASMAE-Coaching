@@ -72,12 +72,28 @@ export async function POST(request: NextRequest) {
       reason: result.reason ?? null,
     });
   } catch (error) {
+    const detail = error instanceof Error ? error.message : "unknown";
     console.error("[clerk-webhook]", error);
+
+    if (detail.includes("RESEND_API_KEY")) {
+      return NextResponse.json(
+        { error: "RESEND_API_KEY non configuré sur le serveur" },
+        { status: 503 }
+      );
+    }
+
+    if (
+      detail.includes("Can't reach database server") ||
+      detail.includes("PrismaClientInitializationError")
+    ) {
+      return NextResponse.json(
+        { error: "Base de données injoignable" },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json(
-      {
-        error: "Échec envoi email Clerk",
-        detail: error instanceof Error ? error.message : "unknown",
-      },
+      { error: "Échec envoi email Clerk", detail },
       { status: 500 }
     );
   }

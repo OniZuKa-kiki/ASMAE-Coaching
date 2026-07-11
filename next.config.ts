@@ -1,8 +1,14 @@
 import type { NextConfig } from "next";
+import path from "node:path";
 import createNextIntlPlugin from "next-intl/plugin";
 import { withSentryConfig } from "@sentry/nextjs";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+
+const clerkSharedDist = path.join(
+  process.cwd(),
+  "node_modules/@clerk/shared/dist"
+);
 
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
@@ -20,12 +26,13 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.clerk.accounts.dev https://*.clerk.com https://challenges.cloudflare.com https://js.stripe.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://*.clerk.accounts.dev https://*.clerk.com https://challenges.cloudflare.com https://js.stripe.com",
+      "worker-src 'self' blob:",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: blob: https:",
       "media-src 'self' https: blob: data:",
-      "connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://api.stripe.com https://challenges.cloudflare.com https://*.neon.tech https://*.ingest.sentry.io https://*.sentry.io",
+      "connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://clerk-telemetry.com https://*.clerk-telemetry.com https://api.stripe.com https://challenges.cloudflare.com https://*.neon.tech https://*.ingest.sentry.io https://*.sentry.io",
       "frame-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://challenges.cloudflare.com https://js.stripe.com https://hooks.stripe.com https://paiement.payzone.ma",
       "object-src 'none'",
       "base-uri 'self'",
@@ -36,6 +43,18 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["puppeteer"],
+  turbopack: {
+    resolveAlias: {
+      "@clerk/shared/authorization": path.join(
+        clerkSharedDist,
+        "authorization.mjs"
+      ),
+      "@clerk/shared/authorization-errors": path.join(
+        clerkSharedDist,
+        "authorization-errors.mjs"
+      ),
+    },
+  },
   images: {
     remotePatterns: [
       {
@@ -52,6 +71,21 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  webpack: (config) => {
+    config.resolve ??= {};
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@clerk/shared/authorization": path.join(
+        clerkSharedDist,
+        "authorization.mjs"
+      ),
+      "@clerk/shared/authorization-errors": path.join(
+        clerkSharedDist,
+        "authorization-errors.mjs"
+      ),
+    };
+    return config;
+  },
 };
 
 export default withSentryConfig(withNextIntl(nextConfig), {
@@ -59,7 +93,6 @@ export default withSentryConfig(withNextIntl(nextConfig), {
   project: process.env.SENTRY_PROJECT,
   authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: !process.env.CI,
-  disableLogger: true,
   widenClientFileUpload: true,
   ...(process.env.SENTRY_AUTH_TOKEN
     ? {}

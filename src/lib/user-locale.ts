@@ -14,9 +14,13 @@ export async function getEmailLangForAddress(
   email: string | null | undefined
 ): Promise<EmailLang> {
   if (!email) return "ar";
-  const user = await prisma.user.findUnique({
-    where: { email },
-    select: { preferredLocale: true },
-  });
-  return toEmailLang(user?.preferredLocale);
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { preferredLocale: true },
+    });
+    return toEmailLang(user?.preferredLocale);
+  } catch {
+    return "ar";
+  }
 }

@@ -1,125 +1,210 @@
 # ASMAE Coaching — Plateforme de coaching de vie
 
-Site premium pour coach de vie avec réservation, paiement, formations, podcasts, blog et espaces client/administrateur.
+Site premium bilingue (**arabe RTL** / **français**) pour coach de vie : réservation en ligne, paiements, formations, podcasts, blog, espace client et administration.
+
+**Production :** [Vercel](https://vercel.com) · **Base :** [Neon PostgreSQL](https://neon.tech) · **Auth :** [Clerk](https://clerk.com)
+
+---
 
 ## Stack technique
 
 | Domaine | Technologie |
 |---------|-------------|
-| Framework | Next.js 16 (App Router) |
+| Framework | Next.js 16 (App Router, Turbopack) |
 | Langage | TypeScript |
-| Style | Tailwind CSS v4 |
-| Composants | shadcn-style (custom) |
+| UI | Tailwind CSS v4, composants custom (style shadcn) |
 | Animations | Framer Motion |
-| Base de données | PostgreSQL (Supabase) |
+| i18n | next-intl (ar / fr, cookie `NEXT_LOCALE`) |
+| Base de données | PostgreSQL (Neon) |
 | ORM | Prisma |
-| Auth | Clerk |
-| Paiement | Stripe |
-| Emails | Resend |
-| Déploiement | Vercel |
+| Auth | Clerk (rôles client / admin via metadata) |
+| Paiements | **PayZone** (principal, Maroc) + Stripe (optionnel) |
+| Emails | Resend + templates Clerk personnalisés (webhook) |
+| Jobs async | Inngest (fulfillment post-paiement) |
+| Monitoring | Sentry |
+| PDF factures | Puppeteer |
+| Déploiement | Vercel (ISR 1 h, cron rappels) |
+
+---
 
 ## Fonctionnalités
 
-### Site vitrine
-- Accueil (hero orienté client, problèmes, méthode, témoignages, stats, FAQ)
-- À propos (histoire, mission, valeurs)
-- Services de coaching (individuel, couple, carrière, bien-être)
-- Réservation en 4 étapes (service → date → paiement → confirmation)
-- Podcasts (gratuits & premium)
-- Formations en ligne
-- Blog SEO
-- Témoignages
-- Contact (formulaire, WhatsApp, Instagram, email)
+### Site public
+- Accueil, à propos, services, témoignages (carrousel)
+- Réservation en 4 étapes : service → date → questionnaire → paiement
+- Formations, podcasts, blog (catalogues filtrables + favoris)
+- Recherche globale `/search`
+- Contact (formulaire + Turnstile optionnel)
+- Pages légales (CGU, CGV, confidentialité, cookies, mentions légales)
+- Bandeau consentement cookies
 
 ### Espace client (`/dashboard`)
-- Consultations à venir & historique
-- Formations achetées
-- Objectifs & suivi
-- Journal personnel
-- Ressources & podcasts
-- Paiements & factures
+- Vue d’ensemble, parcours **مساري** (`/dashboard/journey`)
+- Notifications, favoris, recherche
+- Séances (calendrier), formations, podcasts (reprise d’écoute)
+- Objectifs, journal, check-in humeur quotidien
+- Bibliothèque ressources, paiements + **factures PDF**
+- Avis post-séance
 
-### Administration (`/admin`)
-- Gestion clients, réservations, formations
-- Podcasts, blog, coupons
-- Statistiques & revenus
-- Paramètres (disponibilités, Zoom, emails)
+### Administration (`/admin` ou chemin personnalisé)
+- Tableau de bord (aujourd’hui, stats, analytics)
+- Clients, réservations, services, formations, podcasts, blog
+- Témoignages (publication, import avis séance)
+- Paiements, coupons
+- Paramètres : disponibilités, visio (Zoom/Meet), questionnaires, emails, langues, analytics recherche
+
+---
 
 ## Démarrage rapide
 
-### 1. Installer les dépendances
+### Prérequis
+- Node.js 20+
+- Compte [Clerk](https://clerk.com), [Neon](https://neon.tech), [Resend](https://resend.com)
+- PayZone (prod) ou mode test local
+
+### Installation
 
 ```bash
+git clone <repo-url>
+cd COACH_SITE
 npm install
-```
-
-### 2. Configurer les variables d'environnement
-
-```bash
 cp .env.example .env.local
 ```
 
-Remplissez les clés pour :
-- **Clerk** — [clerk.com](https://clerk.com) (authentification)
-- **Supabase** — [supabase.com](https://supabase.com) (base PostgreSQL)
-- **Stripe** — [stripe.com](https://stripe.com) (paiements)
-- **Resend** — [resend.com](https://resend.com) (emails)
+Remplissez `.env.local` (voir [`.env.example`](.env.example) et [`docs/deploiement-vercel.md`](docs/deploiement-vercel.md)).
 
-### 3. Initialiser la base de données
+### Base de données
 
 ```bash
 npm run db:generate
 npm run db:push
+npm run db:seed          # contenu démo (services, cours, blog…)
+npm run db:seed-demo-users   # comptes Clerk + données client (optionnel)
 ```
 
-### 4. Lancer le serveur de développement
+### Développement
 
 ```bash
-npm run dev
+npm run dev              # http://localhost:3000
+npm run inngest:dev      # jobs async (terminal séparé, optionnel)
+npm run db:studio        # Prisma Studio
 ```
 
-Ouvrez [http://localhost:3000](http://localhost:3000).
+---
+
+## Scripts npm
+
+| Script | Description |
+|--------|-------------|
+| `dev` | Serveur dev (Turbopack) |
+| `build` | `prisma generate` + build production |
+| `start` | Serveur production |
+| `lint` | ESLint |
+| `db:push` | Sync schéma Prisma → Neon |
+| `db:seed` | Seed contenu |
+| `db:seed-demo-users` | Comptes démo Clerk + données test |
+| `inngest:dev` | Worker Inngest local |
+
+---
 
 ## Configuration Clerk (admin)
 
-Pour donner le rôle admin à votre mère, ajoutez dans les métadonnées publiques Clerk :
+Dans **Clerk Dashboard → Users → Public metadata** :
 
 ```json
 { "role": "admin" }
 ```
 
-## Palette de couleurs
+Et dans **Sessions → Customize session token**, inclure le claim `metadata` pour que le middleware lise le rôle.
 
-| Usage | Couleur | Hex |
-|-------|---------|-----|
-| Primaire | Sage Green | `#6B7C6A` |
-| Accent | Champagne Gold | `#B89A5E` |
-| Fond | Warm Ivory | `#F7F4EE` |
-| Cartes | Soft Ivory | `#FCFBF8` |
-| Titres | Charcoal | `#2E2E2E` |
-| Texte | Warm Gray | `#555555` |
+Comptes démo : [`docs/comptes-demo.md`](docs/comptes-demo.md)
 
-## Typographie
+Emails auth personnalisés : [`docs/clerk-emails-setup.md`](docs/clerk-emails-setup.md)
 
-- **Titres** : Cormorant Garamond
-- **Texte** : Manrope
+---
 
-## Prochaines étapes
+## Paiements
 
-1. Connecter Stripe Checkout pour les réservations et formations
-2. Intégrer l'API Zoom pour les liens automatiques
-3. Migrer le contenu statique vers la base de données (Prisma)
-4. Ajouter le questionnaire pré-séance (IntakeForm)
-5. Implémenter les rappels email automatiques (Resend)
-6. Déployer sur Vercel
+| Provider | Usage | Variables |
+|----------|-------|-----------|
+| **PayZone** | Défaut (`PAYMENT_DEFAULT_PROVIDER=payzone`) | `PAYZONE_*`, `EUR_TO_MAD_RATE` |
+| **Stripe** | Optionnel (international) | `STRIPE_*` |
+
+Webhooks : `/api/webhooks/payzone`, `/api/webhooks/stripe`  
+Retour PayZone : `/api/payments/payzone/return`
+
+Sans clés Inngest, le fulfillment post-paiement reste **synchrone** (fallback dev).
+
+---
+
+## Internationalisation
+
+- Locales : `ar` (défaut, RTL), `fr` (LTR)
+- Pas de préfixe URL (`/fr/…`) — cookie `NEXT_LOCALE`
+- Fichiers : `messages/ar.json`, `messages/fr.json`, `messages/legal-*.json`, `messages/admin-pages-*.json`
+- Activation/désactivation par langue : admin → Paramètres → Langues
+
+---
+
+## Design system
+
+| Token | Valeur |
+|-------|--------|
+| Primaire (sage) | `#6B7C6A` |
+| Accent (or) | `#B89A5E` |
+| Fond | `#F7F4EE` |
+| Cartes | `#FCFAF8` |
+| Police | Cairo (titres + corps) |
+
+Utilitaires globaux : `section-padding`, `page-title`, `PageHero`, `ContentSection`, `PanelPageHeader` — voir `src/app/globals.css`.
+
+---
 
 ## Structure du projet
 
 ```
 src/
-├── app/              # Pages (App Router)
-├── components/       # Composants UI & layout
-├── lib/              # Utilitaires, constantes, DB, Stripe, email
+├── app/                 # Pages App Router + API routes
+├── components/          # UI (home, dashboard, admin, layout…)
+├── i18n/                # Config next-intl
+├── inngest/             # Jobs async (fulfillment paiement)
+├── lib/                 # Logique métier, DB, paiements, emails…
+├── instrumentation.ts   # Sentry server
+└── middleware.ts        # Clerk, rate-limit, locale, admin path
 prisma/
-└── schema.prisma     # Schéma de base de données
+├── schema.prisma
+├── seed.ts
+└── seed-demo-users.ts
+messages/                # Traductions ar / fr
+docs/                    # Documentation projet
 ```
+
+---
+
+## Déploiement
+
+Guide complet : [`docs/deploiement-vercel.md`](docs/deploiement-vercel.md)
+
+Checklist rapide :
+1. Variables d’env sur Vercel (Clerk live, Neon pooler, PayZone, Resend, Sentry, Inngest)
+2. Webhooks Clerk / PayZone / Stripe → URL production
+3. `CRON_SECRET` pour rappels séances (`vercel.json`)
+4. `NEXT_PUBLIC_ADMIN_PATH` personnalisé en production (recommandé)
+
+---
+
+## Documentation
+
+| Fichier | Contenu |
+|---------|---------|
+| [`docs/guide-du-site.md`](docs/guide-du-site.md) | Guide fonctionnel complet |
+| [`docs/deploiement-vercel.md`](docs/deploiement-vercel.md) | Déploiement & env prod |
+| [`docs/comptes-demo.md`](docs/comptes-demo.md) | Comptes de test |
+| [`docs/clerk-emails-setup.md`](docs/clerk-emails-setup.md) | Emails auth ASMAE |
+| [`docs/feuille-de-route-scalabilite.md`](docs/feuille-de-route-scalabilite.md) | Scalabilité & perf |
+
+---
+
+## Licence
+
+Projet privé — ASMAE Coaching. Tous droits réservés.
