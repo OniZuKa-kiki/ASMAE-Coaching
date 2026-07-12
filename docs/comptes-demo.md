@@ -27,3 +27,29 @@ npm run db:seed
 Services, cours, blog, podcasts, témoignages de démonstration.
 
 > Ne pas utiliser en production client — remplacer par le contenu réel ASMAE.
+
+
+
+
+
+
+export const demoUserAccounts: DemoUserAccount[] = [
+  {
+    key: "admin",
+    email: "saadsaidi0207@gmail.com",
+    password: "AsmaeDemo2026!",
+    // ...
+  },
+  {
+    key: "cliente",
+    email: "mariosaadsaidi22@gmail.com",
+    password: "ClienteDemo2026!",
+    // ...
+  },
+  {
+    key: "cliente-nouvelle",
+    email: "chawarmamks@gmail.com",
+    password: "ClienteDemo2026!",
+    // ...
+  },
+];

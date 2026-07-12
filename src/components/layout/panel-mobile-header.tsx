@@ -11,6 +11,7 @@ import { PanelNavList } from "@/components/layout/panel-nav-list";
 import { getAdminNavLinks } from "@/lib/admin-nav";
 import { dashboardNavLinks } from "@/lib/dashboard-nav";
 import { cn } from "@/lib/utils";
+import { useScrollLock } from "@/lib/use-scroll-lock";
 
 type PanelMobileHeaderProps = {
   variant: "dashboard" | "admin";
@@ -44,13 +45,7 @@ export function PanelMobileHeader({
   const openMenuLabel = isAdmin ? tSiteNav("openMenu") : tSiteNav("openMenu");
   const closeMenuLabel = isAdmin ? tSiteNav("closeMenu") : tSiteNav("closeMenu");
 
-  useEffect(() => {
-    if (!open) return;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
+  useScrollLock(open);
 
   useEffect(() => {
     if (!open) return;
@@ -106,7 +101,7 @@ export function PanelMobileHeader({
         {open && (
           <motion.div
             key="panel-menu"
-            className="lg:hidden fixed inset-0 z-50"
+            className="lg:hidden fixed inset-0 z-50 h-dvh max-h-dvh overflow-hidden touch-none"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -121,7 +116,7 @@ export function PanelMobileHeader({
 
             <motion.aside
               className={cn(
-                "absolute top-0 inset-inline-start-0 h-full w-[min(100vw-3rem,20rem)] shadow-soft flex flex-col",
+                "absolute top-0 inset-inline-start-0 h-dvh max-h-dvh w-[min(100vw-3rem,20rem)] shadow-soft flex flex-col overflow-hidden touch-auto pb-[env(safe-area-inset-bottom)]",
                 isAdmin ? "bg-heading text-white" : "bg-card border-e border-border/50"
               )}
               initial={{ x: menuSlideX }}
@@ -161,7 +156,7 @@ export function PanelMobileHeader({
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4">
+              <div className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain p-4">
                 <div
                   className={cn(
                     "mb-4 pb-4 border-b",

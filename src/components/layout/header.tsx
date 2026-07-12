@@ -12,6 +12,7 @@ import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { NavLink } from "@/components/layout/nav-link";
 import { UserAccountButton } from "@/components/layout/user-account-button";
 import { ButtonLink } from "@/components/ui/button";
+import { useScrollLock } from "@/lib/use-scroll-lock";
 
 const easeOut = [0.22, 1, 0.36, 1] as const;
 
@@ -33,13 +34,7 @@ export function Header() {
   const menuSlideX = locale === "ar" ? "100%" : "-100%";
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  useEffect(() => {
-    if (!mobileOpen) return;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [mobileOpen]);
+  useScrollLock(mobileOpen);
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -108,7 +103,7 @@ export function Header() {
         {mobileOpen && (
           <motion.div
             key="site-mobile-menu"
-            className="xl:hidden fixed inset-0 z-[60]"
+            className="xl:hidden fixed inset-0 z-[60] h-dvh max-h-dvh overflow-hidden touch-none"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -122,7 +117,7 @@ export function Header() {
             />
 
             <motion.aside
-              className="absolute top-0 inset-inline-start-0 h-full w-[min(100vw-3rem,20rem)] bg-card border-inline-end border-border/50 shadow-soft flex flex-col"
+              className="absolute top-0 inset-inline-start-0 h-dvh max-h-dvh w-[min(100vw-3rem,20rem)] bg-card border-inline-end border-border/50 shadow-soft flex flex-col overflow-hidden touch-auto pb-[env(safe-area-inset-bottom)]"
               initial={{ x: menuSlideX }}
               animate={{ x: 0 }}
               exit={{ x: menuSlideX }}
@@ -140,7 +135,7 @@ export function Header() {
                 </button>
               </div>
 
-              <nav className="flex-1 overflow-y-auto p-3 flex flex-col gap-0.5">
+              <nav className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain p-3 flex flex-col gap-0.5">
                 <div className="px-1 pb-4 mb-1 border-b border-border/40">
                   <LocaleSwitcher fullWidth />
                 </div>
