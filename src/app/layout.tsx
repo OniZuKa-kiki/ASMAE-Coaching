@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Cairo } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
-import { ui } from "@clerk/ui";
 import { arSA, frFR } from "@clerk/localizations";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
@@ -73,7 +72,7 @@ export default async function RootLayout({
           <LocaleSettingsProvider enabledLocales={enabledLocales}>
             <LocaleCookieSync enabledLocales={enabledLocales} />
             <NavigationProgress />
-            <ClerkProvider ui={ui} appearance={clerkAppearance} localization={clerkLocalization}>
+            <ClerkProvider appearance={clerkAppearance} localization={clerkLocalization}>
               <SiteShell contact={contact}>{children}</SiteShell>
               <AppToaster />
             </ClerkProvider>

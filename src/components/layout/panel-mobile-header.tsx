@@ -140,7 +140,7 @@ export function PanelMobileHeader({
                     {isAdmin ? tAdmin("spaceTitle") : tDashboard("spaceTitle")}
                   </p>
                   {isAdmin && (
-                    <p className="text-white/50 text-xs mt-0.5">ASMAE Coaching</p>
+                    <p className="text-white/50 text-xs mt-0.5">{tAdmin("spaceSubtitle")}</p>
                   )}
                 </div>
                 <button

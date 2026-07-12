@@ -18,7 +18,7 @@ export function AdminSidebar() {
         <h2 className="font-heading text-xl font-semibold mb-1">
           {t("sidebarTitle")}
         </h2>
-        <p className="text-white/50 text-sm mb-4">ASMAE Coaching</p>
+        <p className="text-white/50 text-sm mb-4">{t("spaceSubtitle")}</p>
         <LocaleSwitcher variant="onDark" compact fullWidth />
       </div>
       <Link

@@ -7,12 +7,12 @@
     "frShort": "FR"
   },
   "metadata": {
-    "siteTitle": "ASMAE — Coaching de vie",
-    "titleTemplate": "%s | ASMAE Coaching",
+    "siteTitle": "Coaching de vie — accompagnement personnel",
+    "titleTemplate": "%s | Coaching de vie",
     "description": "Un accompagnement personnel pour surmonter les défis, retrouver l'équilibre et avancer vers vos objectifs avec confiance et clarté.",
-    "siteName": "ASMAE Coaching",
-    "logoLinkAria": "ASMAE — Coaching",
-    "logoImageAlt": "ASMAE Coaching — Dépasser • Équilibre • Épanouir",
+    "siteName": "Coaching de vie",
+    "logoLinkAria": "Accueil — coaching de vie",
+    "logoImageAlt": "Coaching de vie — Dépasser • Équilibre • Épanouir",
     "keywords": ["coaching de vie", "développement personnel", "coach de vie", "confiance en soi", "bien-être"]
   },
   "nav": {
@@ -108,7 +108,7 @@
   },
   "invoice": {
     "documentTitle": "Facture",
-    "pageTitle": "Facture {number} — {site}",
+    "pageTitle": "Facture {number}",
     "sampleBadge": "Exemple",
     "downloadPdf": "Télécharger le PDF",
     "tagline": "Coaching de vie — accompagnement personnel",
@@ -125,10 +125,10 @@
     "amount": "Montant",
     "subtotal": "Sous-total",
     "totalPaid": "Total payé",
-    "thanks": "Merci pour votre confiance — {site} Coaching",
+    "thanks": "Merci pour votre confiance.",
     "legal": "Cette facture est émise électroniquement et ne nécessite pas de signature. Conservez-la pour vos archives.",
     "fallbackClient": "Client",
-    "fallbackDescription": "Paiement ASMAE Coaching",
+    "fallbackDescription": "Paiement — coaching de vie",
     "statuses": {
       "PAID": "Payé",
       "PENDING": "En attente",
@@ -142,9 +142,9 @@
   },
   "auth": {
     "signInMetaTitle": "Connexion",
-    "signInMetaDescription": "Accédez à votre espace personnel ASMAE Coaching.",
+    "signInMetaDescription": "Accédez à votre espace personnel de coaching.",
     "signUpMetaTitle": "Créer un compte",
-    "signUpMetaDescription": "Créez un compte pour accéder à vos séances et formations sur ASMAE Coaching.",
+    "signUpMetaDescription": "Créez un compte pour accéder à vos séances et formations.",
     "loading": "Chargement...",
     "loadingAria": "Chargement",
     "repairingSession": "Synchronisation de la session...",
@@ -1007,6 +1007,7 @@
     "sidebarTitle": "Administration",
     "viewSite": "Voir le site",
     "spaceTitle": "Administration",
+    "spaceSubtitle": "Espace coach",
     "nav": {
       "dashboard": "Tableau de bord",
       "users": "Clients",

@@ -1,5 +1,8 @@
 export const siteConfig = {
+  /** Nom de marque (logo, mentions légales). */
   name: "ASMAE",
+  /** Libellé public — préférer les traductions `metadata.siteName` dans l'UI. */
+  publicName: "Coaching de vie",
   tagline: "كوتشينغ",
   motto: "تجاوز • توازن • ازدهار",
   description:

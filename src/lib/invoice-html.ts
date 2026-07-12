@@ -68,10 +68,8 @@ export function generateInvoiceHtml(
   const dateLabel = formatDate(invoice.issuedAt, locale);
   const providerLabel = formatProviderLabel(invoice.provider);
   const statusClass = statusBadgeClass(invoice.status);
-  const pageTitle = copy.pageTitle
-    .replace("{number}", invoice.invoiceNumber)
-    .replace("{site}", siteConfig.name);
-  const thanksLine = copy.thanks.replace("{site}", siteConfig.name);
+  const pageTitle = copy.pageTitle.replace("{number}", invoice.invoiceNumber);
+  const thanksLine = copy.thanks;
   const sampleBadge = invoice.isSample
     ? `<span class="badge">${escapeHtml(copy.sampleBadge)}</span>`
     : "";
@@ -414,7 +412,7 @@ export function generateInvoiceHtml(
 
     <header class="header">
       <div class="brand">
-        <h1>${escapeHtml(siteConfig.name)} Coaching</h1>
+        <h1>${escapeHtml(copy.tagline.split(" — ")[0] ?? copy.tagline)}</h1>
         <p class="tagline">${escapeHtml(copy.tagline)}</p>
         <p class="contact">${escapeHtml(invoice.sellerEmail)}</p>
       </div>

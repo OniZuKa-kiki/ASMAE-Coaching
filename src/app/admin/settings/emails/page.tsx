@@ -31,7 +31,7 @@ export const dynamic = "force-dynamic";
 
 async function getEmailConfigSnapshot() {
   const fromEmail =
-    process.env.RESEND_FROM_EMAIL || "ASMAE Coaching <contact@asmae-coaching.fr>";
+    process.env.RESEND_FROM_EMAIL || "Coaching de vie <contact@asmae-coaching.fr>";
   const coachEmail = await getCoachNotificationEmail();
   const contactEmail = await getPublicContactEmail();
 

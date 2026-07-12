@@ -14,7 +14,7 @@ import {
 } from "@/lib/site-settings";
 
 function getFromEmail() {
-  return process.env.RESEND_FROM_EMAIL || "ASMAE Coaching <contact@asmae-coaching.fr>";
+  return process.env.RESEND_FROM_EMAIL || "Coaching de vie <contact@asmae-coaching.fr>";
 }
 
 function getResend() {
@@ -161,7 +161,7 @@ export async function sendContactMessage({
     from: getFromEmail(),
     to: coachEmail,
     replyTo: email,
-    subject: `رسالة جديدة من ${name} — ASMAE Coaching`,
+    subject: `رسالة جديدة من ${name} — coaching`,
     html: renderContactEmail({ name, email, message, contactEmail }),
     attachments: [getLogoAttachment()],
   });

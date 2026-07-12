@@ -391,7 +391,7 @@
       "infoReminder": "Rappel avant séance : e-mail automatique la veille (fuseau Maroc).",
       "infoLogo": "Le logo est inclus automatiquement dans les e-mails.",
       "testEmail": {
-        "preheader": "E-mail test — ASMAE Coaching",
+        "preheader": "E-mail test — coaching",
         "title": "E-mail test",
         "subtitle": "Vérification de la configuration d'envoi",
         "bodyConfirm": "Cet e-mail confirme que l'envoi fonctionne correctement depuis votre site.",
@@ -399,7 +399,7 @@
         "bodySuccess": "Si vous recevez ce message, l'envoi d'e-mails fonctionne correctement.",
         "cta": "Ouvrir le site",
         "footer": "E-mail automatique — ne pas répondre.",
-        "subject": "Message test — ASMAE Coaching"
+        "subject": "Message test — coaching"
       }
     },
     "intakeForms": {

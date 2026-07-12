@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Mail, MessageCircle, Phone, Share2 } from "lucide-react";
-import { siteConfig } from "@/lib/constants";
 import { legalFooterHrefs } from "@/lib/legal-content";
 import { Logo } from "@/components/layout/logo";
 import {
@@ -118,7 +117,7 @@ export function Footer({ contact = getDefaultContact() }: FooterProps) {
 
         <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-4">
           <p className="text-xs sm:text-sm text-white/50 text-center sm:text-start">
-            © {new Date().getFullYear()} {siteConfig.name}. {tf("rights")}
+            © {new Date().getFullYear()} {tm("siteName")}. {tf("rights")}
           </p>
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs sm:text-sm text-white/50 sm:justify-end">
             {legalFooterHrefs.map((link) => (

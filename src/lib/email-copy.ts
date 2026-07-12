@@ -2,15 +2,25 @@ export type EmailLang = "ar" | "fr";
 
 export const emailLayoutCopy: Record<
   EmailLang,
-  { signOff: string; rights: string; messageLabel: string }
+  {
+    signOff: string;
+    signOffName: string;
+    brandName: string;
+    rights: string;
+    messageLabel: string;
+  }
 > = {
   ar: {
     signOff: "بكل تقدير،",
+    signOffName: "مدرّبتك",
+    brandName: "كوتشينغ الحياة",
     rights: "جميع الحقوق محفوظة",
     messageLabel: "الرسالة",
   },
   fr: {
     signOff: "Bien à vous,",
+    signOffName: "Votre coach",
+    brandName: "Coaching de vie",
     rights: "Tous droits réservés",
     messageLabel: "Message",
   },
@@ -36,7 +46,7 @@ type BookingEmailCopy = {
 
 export const bookingConfirmationCopy: Record<EmailLang, BookingEmailCopy> = {
   ar: {
-    subject: "تأكيد جلسة الكوتشينغ — ASMAE",
+    subject: "تأكيد جلسة الكوتشينغ",
     preheader: (service, date) => `جلستك ${service} مؤكدة ليوم ${date}`,
     title: (name) => `مرحبًا ${name}،`,
     subtitle: "جلسة الكوتشينغ الخاصة بك مؤكدة. إليك كل التفاصيل للاستعداد باطمئنان.",
@@ -54,7 +64,7 @@ export const bookingConfirmationCopy: Record<EmailLang, BookingEmailCopy> = {
     footerNote: "تلقيت هذا البريد بعد حجزك على asmae-coaching.fr",
   },
   fr: {
-    subject: "Confirmation de séance de coaching — ASMAE",
+    subject: "Confirmation de séance de coaching",
     preheader: (service, date) => `Votre séance ${service} est confirmée pour le ${date}`,
     title: (name) => `Bonjour ${name},`,
     subtitle:
@@ -77,7 +87,7 @@ export const bookingConfirmationCopy: Record<EmailLang, BookingEmailCopy> = {
 
 export const bookingReminderCopy: Record<EmailLang, BookingEmailCopy> = {
   ar: {
-    subject: "تذكير بجلستك غداً — ASMAE",
+    subject: "تذكير بجلستك غداً",
     preheader: (service, _date) => `تذكير: جلستك ${service} غداً`,
     title: (name) => `مرحبًا ${name}،`,
     subtitle: "نذكّرك بأن جلستك غداً قريبة — إليك التفاصيل للاستعداد باطمئنان.",
@@ -95,7 +105,7 @@ export const bookingReminderCopy: Record<EmailLang, BookingEmailCopy> = {
     footerNote: "تذكير تلقائي قبل جلستك بيوم واحد",
   },
   fr: {
-    subject: "Rappel : votre séance demain — ASMAE",
+    subject: "Rappel : votre séance demain",
     preheader: (service, _date) => `Rappel : votre séance ${service} est demain`,
     title: (name) => `Bonjour ${name},`,
     subtitle:
@@ -167,7 +177,7 @@ export type ClerkEmailCopy = {
 
 export const clerkVerificationCodeCopy: Record<EmailLang, ClerkEmailCopy> = {
   ar: {
-    subject: "رمز التحقق — ASMAE Coaching",
+    subject: "رمز التحقق",
     preheader: (code) => `رمز التحقق الخاص بك: ${code ?? ""}`,
     title: "رمز التحقق",
     subtitle: "أدخل الرمز التالي لمتابعة تسجيل الدخول إلى مساحتك.",
@@ -177,7 +187,7 @@ export const clerkVerificationCodeCopy: Record<EmailLang, ClerkEmailCopy> = {
     footerNote: "بريد أمان — تسجيل الدخول إلى مساحتك",
   },
   fr: {
-    subject: "Code de vérification — ASMAE Coaching",
+    subject: "Code de vérification",
     preheader: (code) => `Votre code de vérification : ${code ?? ""}`,
     title: "Code de vérification",
     subtitle: "Saisissez le code ci-dessous pour poursuivre votre connexion à votre espace.",
@@ -190,7 +200,7 @@ export const clerkVerificationCodeCopy: Record<EmailLang, ClerkEmailCopy> = {
 
 export const clerkPasswordResetCopy: Record<EmailLang, ClerkEmailCopy> = {
   ar: {
-    subject: "إعادة تعيين كلمة المرور — ASMAE Coaching",
+    subject: "إعادة تعيين كلمة المرور",
     preheader: (code) => `رمز إعادة تعيين كلمة المرور: ${code ?? ""}`,
     title: "إعادة تعيين كلمة المرور",
     subtitle: "استخدم الرمز التالي لإنشاء كلمة مرور جديدة.",
@@ -200,7 +210,7 @@ export const clerkPasswordResetCopy: Record<EmailLang, ClerkEmailCopy> = {
     footerNote: "بريد أمان — إعادة تعيين كلمة المرور",
   },
   fr: {
-    subject: "Réinitialisation du mot de passe — ASMAE Coaching",
+    subject: "Réinitialisation du mot de passe",
     preheader: (code) => `Code de réinitialisation : ${code ?? ""}`,
     title: "Réinitialisation du mot de passe",
     subtitle: "Utilisez le code ci-dessous pour créer un nouveau mot de passe.",
@@ -213,8 +223,8 @@ export const clerkPasswordResetCopy: Record<EmailLang, ClerkEmailCopy> = {
 
 export const clerkMagicLinkCopy: Record<EmailLang, ClerkEmailCopy & { linkNote: string }> = {
   ar: {
-    subject: "رابط تسجيل الدخول — ASMAE Coaching",
-    preheader: () => "رابط تسجيل الدخول إلى ASMAE Coaching",
+    subject: "رابط تسجيل الدخول",
+    preheader: () => "رابط تسجيل الدخول إلى مساحة الكوتشينغ",
     title: "تسجيل الدخول",
     subtitle: "اضغط على الزر أدناه للوصول إلى مساحتك بأمان.",
     codeExpiryNote: "الرابط صالح لفترة محدودة ولمرة واحدة.",
@@ -224,8 +234,8 @@ export const clerkMagicLinkCopy: Record<EmailLang, ClerkEmailCopy & { linkNote: 
     footerNote: "بريد أمان — رابط تسجيل الدخول",
   },
   fr: {
-    subject: "Lien de connexion — ASMAE Coaching",
-    preheader: () => "Lien de connexion à ASMAE Coaching",
+    subject: "Lien de connexion",
+    preheader: () => "Lien de connexion à votre espace coaching",
     title: "Connexion",
     subtitle: "Cliquez sur le bouton ci-dessous pour accéder à votre espace en toute sécurité.",
     codeExpiryNote: "Ce lien est valable pour une durée limitée et à usage unique.",
@@ -238,7 +248,7 @@ export const clerkMagicLinkCopy: Record<EmailLang, ClerkEmailCopy & { linkNote: 
 
 export const clerkNewDeviceCopy: Record<EmailLang, ClerkEmailCopy> = {
   ar: {
-    subject: "تسجيل دخول من جهاز جديد — ASMAE Coaching",
+    subject: "تسجيل دخول من جهاز جديد",
     preheader: (code) => `رمز التحقق من جهاز جديد: ${code ?? ""}`,
     title: "تسجيل دخول من جهاز جديد",
     subtitle: "لحماية حسابك، نحتاج للتحقق من هويتك قبل المتابعة.",
@@ -248,7 +258,7 @@ export const clerkNewDeviceCopy: Record<EmailLang, ClerkEmailCopy> = {
     footerNote: "بريد أمان — جهاز جديد",
   },
   fr: {
-    subject: "Connexion depuis un nouvel appareil — ASMAE Coaching",
+    subject: "Connexion depuis un nouvel appareil",
     preheader: (code) => `Code de vérification (nouvel appareil) : ${code ?? ""}`,
     title: "Connexion depuis un nouvel appareil",
     subtitle: "Pour protéger votre compte, nous devons vérifier votre identité avant de continuer.",
@@ -271,35 +281,35 @@ export type ClerkNoticeCopy = {
 
 export const clerkInvitationCopy: Record<EmailLang, ClerkNoticeCopy> = {
   ar: {
-    subject: "دعوة للانضمام — ASMAE Coaching",
-    preheader: "دعوة للانضمام إلى ASMAE Coaching",
+    subject: "دعوة للانضمام",
+    preheader: "دعوة للانضمام إلى منصة الكوتشينغ",
     title: "دعوة للانضمام",
-    subtitle: "لقد تمت دعوتك للانضمام إلى منصة ASMAE Coaching.",
+    subtitle: "لقد تمت دعوتك للانضمام إلى منصة الكوتشينغ.",
     paragraphs: [
       "اضغط على الزر أدناه لقبول الدعوة وإنشاء حسابك أو تسجيل الدخول.",
       "إن لم تتوقع هذه الدعوة، يمكنك تجاهل هذا البريد بأمان.",
     ],
     cta: "قبول الدعوة",
-    footerNote: "دعوة — ASMAE Coaching",
+    footerNote: "دعوة",
   },
   fr: {
-    subject: "Invitation à rejoindre — ASMAE Coaching",
-    preheader: "Invitation à rejoindre ASMAE Coaching",
+    subject: "Invitation à rejoindre",
+    preheader: "Invitation à rejoindre la plateforme",
     title: "Invitation à rejoindre",
-    subtitle: "Vous avez été invité(e) à rejoindre la plateforme ASMAE Coaching.",
+    subtitle: "Vous avez été invité(e) à rejoindre la plateforme de coaching.",
     paragraphs: [
       "Cliquez sur le bouton ci-dessous pour accepter l'invitation et créer votre compte ou vous connecter.",
       "Si vous n'attendiez pas cette invitation, ignorez cet e-mail.",
     ],
     cta: "Accepter l'invitation",
-    footerNote: "Invitation — ASMAE Coaching",
+    footerNote: "Invitation",
   },
 };
 
 export const clerkAccountLockedCopy: Record<EmailLang, ClerkNoticeCopy> = {
   ar: {
-    subject: "تم قفل الحساب مؤقتاً — ASMAE Coaching",
-    preheader: "تم قفل حسابك مؤقتاً — ASMAE Coaching",
+    subject: "تم قفل الحساب مؤقتاً",
+    preheader: "تم قفل حسابك مؤقتاً",
     title: "تم قفل الحساب مؤقتاً",
     subtitle: "لحماية حسابك، تم تقييد الوصول بعد عدة محاولات دخول فاشلة.",
     paragraphs: [
@@ -310,8 +320,8 @@ export const clerkAccountLockedCopy: Record<EmailLang, ClerkNoticeCopy> = {
     footerNote: "بريد أمان — قفل الحساب",
   },
   fr: {
-    subject: "Compte verrouillé temporairement — ASMAE Coaching",
-    preheader: "Votre compte a été verrouillé temporairement — ASMAE Coaching",
+    subject: "Compte verrouillé temporairement",
+    preheader: "Votre compte a été verrouillé temporairement",
     title: "Compte verrouillé temporairement",
     subtitle: "Pour protéger votre compte, l'accès a été restreint après plusieurs tentatives de connexion échouées.",
     paragraphs: [
@@ -325,8 +335,8 @@ export const clerkAccountLockedCopy: Record<EmailLang, ClerkNoticeCopy> = {
 
 export const clerkPasswordChangedCopy: Record<EmailLang, ClerkNoticeCopy> = {
   ar: {
-    subject: "تم تغيير كلمة المرور — ASMAE Coaching",
-    preheader: "تم تغيير كلمة المرور — ASMAE Coaching",
+    subject: "تم تغيير كلمة المرور",
+    preheader: "تم تغيير كلمة المرور",
     title: "تم تغيير كلمة المرور",
     subtitle: "نؤكد لك أن كلمة مرور حسابك قد تم تحديثها بنجاح.",
     paragraphs: [
@@ -337,8 +347,8 @@ export const clerkPasswordChangedCopy: Record<EmailLang, ClerkNoticeCopy> = {
     footerNote: "بريد أمان — تغيير كلمة المرور",
   },
   fr: {
-    subject: "Mot de passe modifié — ASMAE Coaching",
-    preheader: "Mot de passe modifié — ASMAE Coaching",
+    subject: "Mot de passe modifié",
+    preheader: "Mot de passe modifié",
     title: "Mot de passe modifié",
     subtitle: "Nous confirmons que le mot de passe de votre compte a bien été mis à jour.",
     paragraphs: [
@@ -352,8 +362,8 @@ export const clerkPasswordChangedCopy: Record<EmailLang, ClerkNoticeCopy> = {
 
 export const clerkPasswordRemovedCopy: Record<EmailLang, ClerkNoticeCopy> = {
   ar: {
-    subject: "تمت إزالة كلمة المرور — ASMAE Coaching",
-    preheader: "تمت إزالة كلمة المرور — ASMAE Coaching",
+    subject: "تمت إزالة كلمة المرور",
+    preheader: "تمت إزالة كلمة المرور",
     title: "تمت إزالة كلمة المرور",
     subtitle: "لم يعد بإمكانك تسجيل الدخول بكلمة المرور على هذا الحساب.",
     paragraphs: [
@@ -364,8 +374,8 @@ export const clerkPasswordRemovedCopy: Record<EmailLang, ClerkNoticeCopy> = {
     footerNote: "بريد أمان — إزالة كلمة المرور",
   },
   fr: {
-    subject: "Mot de passe supprimé — ASMAE Coaching",
-    preheader: "Mot de passe supprimé — ASMAE Coaching",
+    subject: "Mot de passe supprimé",
+    preheader: "Mot de passe supprimé",
     title: "Mot de passe supprimé",
     subtitle: "Vous ne pouvez plus vous connecter avec un mot de passe sur ce compte.",
     paragraphs: [
@@ -379,8 +389,8 @@ export const clerkPasswordRemovedCopy: Record<EmailLang, ClerkNoticeCopy> = {
 
 export const clerkPrimaryEmailChangedCopy: Record<EmailLang, ClerkNoticeCopy & { newEmailLabel: string; updatedFallback: string }> = {
   ar: {
-    subject: "تم تغيير البريد الإلكتروني — ASMAE Coaching",
-    preheader: "تم تغيير البريد الإلكتروني — ASMAE Coaching",
+    subject: "تم تغيير البريد الإلكتروني",
+    preheader: "تم تغيير البريد الإلكتروني",
     title: "تغيير البريد الإلكتروني",
     subtitle: "نؤكد لك تحديث بريدك الإلكتروني الرئيسي على حسابك.",
     newEmailLabel: "البريد الجديد",
@@ -390,8 +400,8 @@ export const clerkPrimaryEmailChangedCopy: Record<EmailLang, ClerkNoticeCopy & {
     footerNote: "بريد أمان — البريد الإلكتروني",
   },
   fr: {
-    subject: "Adresse e-mail modifiée — ASMAE Coaching",
-    preheader: "Adresse e-mail modifiée — ASMAE Coaching",
+    subject: "Adresse e-mail modifiée",
+    preheader: "Adresse e-mail modifiée",
     title: "Modification de l'adresse e-mail",
     subtitle: "Nous confirmons la mise à jour de votre adresse e-mail principale.",
     newEmailLabel: "Nouvelle adresse",

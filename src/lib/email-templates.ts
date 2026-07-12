@@ -202,7 +202,7 @@ export function renderEmailLayout({
                       ${escapeHtml(layout.signOff)}
                     </p>
                     <p style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 18px; font-weight: 600; color: ${colors.sage}; ${cellDir}">
-                      Asmae
+                      ${escapeHtml(layout.signOffName)}
                     </p>
                   </td>
                 </tr>
@@ -224,7 +224,7 @@ export function renderEmailLayout({
                 <a href="mailto:${escapeHtml(contactEmail)}" style="color: rgba(255,255,255,0.9); text-decoration: underline;">${escapeHtml(contactEmail)}</a>
               </p>
               <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; color: rgba(255,255,255,0.5);">
-                © ${new Date().getFullYear()} ASMAE Coaching — ${escapeHtml(layout.rights)}
+                © ${new Date().getFullYear()} ${escapeHtml(layout.brandName)} — ${escapeHtml(layout.rights)}
               </p>
             </td>
           </tr>
@@ -284,7 +284,7 @@ export function renderContactEmail({
 }): string {
   const safeEmail = escapeHtml(email);
   return renderEmailLayout({
-    preheader: `رسالة جديدة من ${name} عبر موقع ASMAE Coaching`,
+    preheader: `رسالة جديدة من ${name} عبر موقع الكوتشينغ`,
     title: "وصلتك رسالة جديدة",
     subtitle: "أرسل أحد زوار الموقع رسالة عبر نموذج التواصل.",
     body: `

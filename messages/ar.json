@@ -7,12 +7,12 @@
     "frShort": "FR"
   },
   "metadata": {
-    "siteTitle": "ASMAE — كوتشينغ الحياة",
-    "titleTemplate": "%s | ASMAE Coaching",
+    "siteTitle": "كوتشينغ الحياة — مرافقة شخصية",
+    "titleTemplate": "%s | كوتشينغ الحياة",
     "description": "مرافقة شخصية تساعدك على تجاوز التحديات، واستعادة توازنك، وتحقيق أهدافك بثقة ووضوح.",
-    "siteName": "ASMAE Coaching",
-    "logoLinkAria": "ASMAE — كوتشينغ",
-    "logoImageAlt": "ASMAE Coaching — تجاوز • توازن • ازدهار",
+    "siteName": "كوتشينغ الحياة",
+    "logoLinkAria": "الصفحة الرئيسية — كوتشينغ",
+    "logoImageAlt": "كوتشينغ الحياة — تجاوز • توازن • ازدهار",
     "keywords": ["كوتشينغ الحياة", "التطوير الشخصي", "كوتش حياة", "الثقة بالنفس", "الرفاهية"]
   },
   "nav": {
@@ -108,7 +108,7 @@
   },
   "invoice": {
     "documentTitle": "فاتورة",
-    "pageTitle": "فاتورة {number} — {site}",
+    "pageTitle": "فاتورة {number}",
     "sampleBadge": "نموذج تجريبي",
     "downloadPdf": "تحميل PDF",
     "tagline": "كوتشينغ الحياة — مرافقة شخصية",
@@ -125,10 +125,10 @@
     "amount": "المبلغ",
     "subtotal": "المجموع الفرعي",
     "totalPaid": "الإجمالي المدفوع",
-    "thanks": "شكرًا لثقتك — {site} Coaching",
+    "thanks": "شكرًا لثقتك.",
     "legal": "هذه الفاتورة صادرة إلكترونيًا ولا تحتاج إلى توقيع. يُرجى الاحتفاظ بها لسجلاتك.",
     "fallbackClient": "عميل",
-    "fallbackDescription": "دفعة ASMAE Coaching",
+    "fallbackDescription": "دفعة — كوتشينغ الحياة",
     "statuses": {
       "PAID": "مدفوع",
       "PENDING": "قيد الانتظار",
@@ -142,9 +142,9 @@
   },
   "auth": {
     "signInMetaTitle": "تسجيل الدخول",
-    "signInMetaDescription": "الدخول إلى مساحتك الشخصية على ASMAE Coaching.",
+    "signInMetaDescription": "الدخول إلى مساحتك الشخصية للكوتشينغ.",
     "signUpMetaTitle": "إنشاء حساب",
-    "signUpMetaDescription": "إنشاء حساب للوصول إلى جلساتك ودوراتك على ASMAE Coaching.",
+    "signUpMetaDescription": "إنشاء حساب للوصول إلى جلساتك ودوراتك.",
     "loading": "جارٍ التحميل...",
     "loadingAria": "جارٍ التحميل",
     "repairingSession": "جارٍ مزامنة جلسة الدخول...",
@@ -1007,6 +1007,7 @@
     "sidebarTitle": "لوحة الإدارة",
     "viewSite": "عرض الموقع",
     "spaceTitle": "لوحة الإدارة",
+    "spaceSubtitle": "مساحة الكوتش",
     "nav": {
       "dashboard": "لوحة التحكم",
       "users": "العملاء",

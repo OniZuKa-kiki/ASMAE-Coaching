@@ -59,7 +59,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  webpack: (config) => {
+  webpack: (config, { dev }) => {
     config.resolve ??= {};
     config.resolve.alias = {
       ...config.resolve.alias,
@@ -72,6 +72,22 @@ const nextConfig: NextConfig = {
         "authorization-errors.mjs"
       ),
     };
+
+    // Windows : évite que Watchpack tente de lire les fichiers système à la racine C:\
+    if (dev && process.platform === "win32") {
+      config.watchOptions = {
+        ...config.watchOptions,
+        ignored: [
+          "**/node_modules/**",
+          "**/.git/**",
+          "**/System Volume Information/**",
+          "**/pagefile.sys",
+          "**/swapfile.sys",
+          "**/DumpStack.log.tmp",
+        ],
+      };
+    }
+
     return config;
   },
 };
