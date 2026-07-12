@@ -38,8 +38,8 @@ yarn-error.log*
 # vercel
 .vercel
 
-# docs locales (guides déploiement, notes internes)
-/docs
+# cursor IDE (logs, cache local)
+.cursor/
 
 # typescript
 *.tsbuildinfo

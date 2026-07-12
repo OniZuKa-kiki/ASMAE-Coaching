@@ -42,12 +42,3 @@ export function formatDate(
   }).format(new Date(date));
 }
 
-const userRoleLabels: Record<string, string> = {
-  ADMIN: "مدير النظام",
-  COACH: "المدربة",
-  CLIENT: "العميل",
-};
-
-export function formatUserRole(role: string): string {
-  return userRoleLabels[role] ?? role;
-}

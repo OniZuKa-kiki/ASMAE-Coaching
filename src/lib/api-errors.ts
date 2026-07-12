@@ -19,22 +19,9 @@ const errorsByLocale: Record<ErrorLocale, FriendlyErrorsCopy> = {
   fr: frMessages.errors,
 };
 
-/** @deprecated Préférez `getFriendlyErrors(locale)` */
-export const friendlyErrors = errorsByLocale.ar;
-
 export function getFriendlyErrors(locale: ErrorLocale = "ar"): FriendlyErrorsCopy {
   return errorsByLocale[locale];
 }
-
-/** Messages admin (arabe) */
-export const adminErrors = {
-  unauthorized: "غير مصرح بالوصول.",
-  incomplete: "يرجى ملء جميع الحقول المطلوبة.",
-  notFound: "العنصر غير موجود.",
-  emailUnavailable:
-    "إرسال البريد غير متاح. تحقق من إعدادات Resend.",
-  generic: "حدث خطأ. يرجى المحاولة مجدداً.",
-} as const;
 
 export function toFriendlyActionError(
   message: string,
