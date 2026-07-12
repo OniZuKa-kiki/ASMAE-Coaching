@@ -202,6 +202,12 @@ export async function handleClerkEmailCreated(
 
   }
 
+  if (!process.env.RESEND_API_KEY?.trim()) {
+
+    return { handled: false, reason: "RESEND_API_KEY not configured" };
+
+  }
+
 
 
   const to = extractRecipient(payload);

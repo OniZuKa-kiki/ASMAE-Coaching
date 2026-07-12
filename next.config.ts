@@ -32,7 +32,7 @@ const securityHeaders = [
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: blob: https:",
       "media-src 'self' https: blob: data:",
-      "connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://clerk-telemetry.com https://*.clerk-telemetry.com https://api.stripe.com https://challenges.cloudflare.com https://*.neon.tech https://*.ingest.sentry.io https://*.sentry.io",
+      "connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://clerk-telemetry.com https://*.clerk-telemetry.com https://api.stripe.com https://challenges.cloudflare.com https://*.neon.tech https://*.ingest.sentry.io https://*.sentry.io https://vitals.vercel-insights.com https://www.google-analytics.com https://*.google-analytics.com",
       "frame-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://challenges.cloudflare.com https://js.stripe.com https://hooks.stripe.com https://paiement.payzone.ma",
       "object-src 'none'",
       "base-uri 'self'",

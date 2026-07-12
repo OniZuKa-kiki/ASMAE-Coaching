@@ -96,8 +96,9 @@ npm run db:studio        # Prisma Studio
 
 | Script | Description |
 |--------|-------------|
-| `dev` | Serveur dev (Turbopack) |
-| `build` | `prisma generate` + build production |
+| `dev` | Serveur dev (webpack) |
+| `dev:turbo` | Serveur dev (Turbopack — déconseillé, bugs Clerk) |
+| `build` | `prisma generate` + build production (webpack) |
 | `start` | Serveur production |
 | `lint` | ESLint |
 | `db:push` | Sync schéma Prisma → Neon |
@@ -197,6 +198,8 @@ Checklist rapide :
 
 | Fichier | Contenu |
 |---------|---------|
+| [`docs/a-regler-avant-production.md`](docs/a-regler-avant-production.md) | **Checklist** avant lancement client |
+| [`docs/inngest-setup.md`](docs/inngest-setup.md) | Configuration Inngest |
 | [`docs/guide-du-site.md`](docs/guide-du-site.md) | Guide fonctionnel complet |
 | [`docs/deploiement-vercel.md`](docs/deploiement-vercel.md) | Déploiement & env prod |
 | [`docs/comptes-demo.md`](docs/comptes-demo.md) | Comptes de test |
