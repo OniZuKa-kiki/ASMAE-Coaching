@@ -1,0 +1,62 @@
+
+
+
+"Agis en tant qu'expert en développement et optimisation de code. Ton objectif est de nettoyer et d'optimiser mon projet en suivant des règles strictes de simplicité et de sécurité.
+
+
+
+Voici tes instructions détaillées :
+
+
+
+1. Nettoyage des fichiers : Identifie et supprime virtuellement (signale-moi lesquels) tous les fichiers ou dossiers inutilisés, obsolètes, temporaires ou totalement vides qui encombrent le projet.
+
+2. Nettoyage du code : Supprime le code mort (fonctions ou variables jamais appelées), les commentaires de test inutiles et les importations non utilisées.
+
+3. Optimisation simple : Améliore l'efficacité du code (vitesse, lisibilité) . Privilégie un code propre, moderne mais accessible.
+
+4. Priorité Absolue (Qualité & Stabilité) : Le projet DOIT conserver exactement les mêmes fonctionnalités qu'avant. L'efficacité et la qualité globale doivent être préservées ou améliorées sans casser le bon fonctionnement actuel"	
+
+
+
+
+
+
+
+
+
+
+À prévoir plus tard (non urgent)
+Upstash Redis (rate limit distribué multi-instances)
+Table AuditLog en base (au lieu des logs console)
+Chiffrement applicatif des notes journal/confidentielles
+
+
+
+
+
+
+
+
+
+
+Le courriel envoyé à Payzone formule parfaitement le besoin d'intégration. En tant que développeur, la stratégie commerciale et technique actuelle est adéquate.Voici ce que répond généralement Payzone, ainsi que la manière de gérer l'absence d'entreprise durant cette phase :1. Concernant le statut juridique d'Auto-EntrepreneurBonne nouvelle : Payzone accepte le statut d'Auto-entrepreneur au Maroc.Pour un projet de coaching, de formation en ligne et de vente de ressources pédagogiques (podcasts, PDF), ce statut est particulièrement adapté au lancement. Il présente deux atouts majeurs :Les démarches pour obtenir la carte d'Auto-entrepreneur sont simples, rapides et se font en ligne.Les pièces exigées par Payzone pour ce statut se limitent à : la carte d'Auto-entrepreneur (recto-verso), la CIN, l'attestation d'inscription au registre national et un RIB au même nom.2. L'accès à la Sandbox sans structure légaleSur le plan technique, Payzone accorde généralement l'accès à l'environnement Sandbox (test) même si la société n'est pas encore enregistrée au Registre de Commerce.L'accès à l'environnement de test, la documentation de l'API et les identifiants Sandbox sont fournis pour permettre l'intégration technique en amont. Cependant, l'activation des clés de Production (pour encaisser de l'argent réel) restera bloquée tant que les justificatifs de l'entreprise ou le statut d'Auto-entrepreneur ne seront pas validés par leur service conformité.3. La conformité du site web (Important pour la suite)Le message précise à juste titre que le site est en cours de développement. Pour obtenir les clés de production par la suite, l'équipe conformité exigera que la plateforme respecte les critères suivants avant la mise en ligne :Une page affichant les Conditions Générales de Vente (CGV) et d'utilisation (CGU).Les mentions légales de la future structure (numéro d'Auto-entrepreneur ou RC).Une politique de confidentialité claire quant au traitement des données utilisateurs.L'affichage des logos des cartes acceptées (Visa, Mastercard, CMI) sur le parcours de paiement.Prochaines étapes suggérées :Attendre le retour de Payzone : Ils transmettront sous quelques jours un lien pour télécharger la documentation API ainsi qu'un accès au portail développeur.Initier les démarches de l'Auto-entrepreneur : Il est recommandé de lancer cette procédure en parallèle afin de disposer des documents dès que le développement technique du site sera finalisé.
+
+
+
+
+pensée en parallèle d'intégrée une methode simple de paiment comme paiment par envoie d'argent par rib,verifier le rib et par l'image paratgée,verifier si l'argent est bien recu par ce compt client,etc
+
+
+
+
+
+
+
+
+
+
+
+ 	
+
+
